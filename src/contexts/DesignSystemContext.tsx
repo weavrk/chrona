@@ -14,10 +14,12 @@ interface DesignTokens {
   // CMYK Colors
   'cyan-light': string;
   'cyan-dark': string;
-  'magenta-light': string;
-  'magenta-dark': string;
+  'green-light': string;
+  'green-dark': string;
   'yellow-light': string;
   'yellow-dark': string;
+  'magenta-light': string;
+  'magenta-dark': string;
   
   // Semantic Colors (reference primitive names)
   'brand-primary': string;
@@ -57,10 +59,12 @@ const defaultTokens: DesignTokens = {
   // CMYK Colors
   'cyan-light': '#7EC8E3',
   'cyan-dark': '#4A90E2',
+  'green-light': '#41af7f',
+  'green-dark': '#1c9c8d',
+  'yellow-light': '#f5ed94',
+  'yellow-dark': '#ffdd00',
   'magenta-light': '#F06292',
   'magenta-dark': '#D81B60',
-  'yellow-light': '#FFD54F',
-  'yellow-dark': '#FFA000',
   
   // Semantic Colors (reference primitive names)
   'brand-primary': 'cyan-light',

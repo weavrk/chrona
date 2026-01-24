@@ -1,4 +1,6 @@
 <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect width="120" height="120" rx="8" fill="#1B1B1B"/>
-<path d="M90 54.3038C94 56.6132 94 62.3868 90 64.6962L48.75 88.5119C44.75 90.8213 39.75 87.9345 39.75 83.3157L39.75 35.6843C39.75 31.0655 44.75 28.1787 48.75 30.4881L90 54.3038Z" stroke="#D9D9D9" stroke-width="5"/>
+<rect width="120" height="120" rx="8" fill="#141414"/>
+<g transform="translate(15, 40)">
+  <polyline points="0,20 20,20 32,0 44,50 56,20 70,20 90,20" stroke="#7EC8E3" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+</g>
 </svg>
