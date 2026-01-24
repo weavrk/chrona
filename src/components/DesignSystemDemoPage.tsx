@@ -6,9 +6,9 @@ export function DesignSystemDemoPage() {
 
   return (
     <>
-      {/* Blank page with background-body color - everything else happens in the drawer */}
+      {/* Blank page - Chrona */}
       
-      {/* Design System Toggle Button */}
+      {/* Small circle toggle in bottom right corner */}
       <button
         className="design-system-toggle"
         onClick={() => setIsOpen(true)}

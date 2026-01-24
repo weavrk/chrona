@@ -1,6 +1,6 @@
-# Chrona Design System
+# Chrona
 
-A standalone design system reference page built with Vite + React + TypeScript.
+A blank page with design system reference accessible via a small circle toggle in the bottom right corner. Built with Vite + React + TypeScript.
 
 ## 🌐 Live Site
 
@@ -8,9 +8,9 @@ A standalone design system reference page built with Vite + React + TypeScript.
 
 ## Features
 
-- **Blank Canvas**: Clean page with `background-body` color (#141414)
-- **Toggle Button**: Small circle stroke in bottom right corner
-- **Design System Drawer**: Slides up with full system reference
+- **Blank Page**: Clean canvas with `background-body` color (#141414)
+- **Small Circle Toggle**: Located in bottom right corner
+- **Design System Drawer**: Opens full sheet from bottom on click
   - Primitive Colors (grays + CMYK)
   - Semantic Colors (all mapped tokens)
   - Button Components (with examples)
@@ -57,7 +57,7 @@ npm run deploy
 1. Open Safari and navigate to https://weavrk.com/hrefs/chrona/
 2. Tap the Share button (square with arrow pointing up)
 3. Scroll down and tap "Add to Home Screen"
-4. Name it "Design System" and tap "Add"
+4. Name it "Chrona" and tap "Add"
 5. The icon will appear on your homescreen
 
 ### On Android (Chrome):
@@ -65,7 +65,7 @@ npm run deploy
 1. Open Chrome and navigate to https://weavrk.com/hrefs/chrona/
 2. Tap the three dots menu (⋮)
 3. Tap "Add to Home screen"
-4. Name it "Design System" and tap "Add"
+4. Name it "Chrona" and tap "Add"
 5. The icon will appear on your homescreen
 
 ## Project Structure
