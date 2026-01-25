@@ -102,9 +102,9 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd }: AddReco
 
   const RECORD_TYPES = [
     { id: 'period', label: 'PE', color: getLabelColor('coral') },
-    { id: 'hsv', label: 'HS', color: getLabelColor('sand') },
+    { id: 'hsv', label: 'HS', color: getLabelColor('marigold') },
     { id: 'pill', label: 'HR', color: getLabelColor('turquiose') },
-    { id: 'mental', label: 'ID', color: getLabelColor('steel') },
+    { id: 'mental', label: 'ID', color: getLabelColor('sage') },
   ];
 
   if (!isOpen || !selectedDate) return null;
@@ -200,7 +200,7 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd }: AddReco
                     key={level}
                     className={`ds-chip-single-select ${intensity === level ? 'active' : ''}`}
                     onClick={() => setIntensity(level)}
-                    style={intensity === level ? { backgroundColor: 'var(--sand)', borderColor: 'var(--sand)' } : undefined}
+                    style={intensity === level ? { backgroundColor: 'var(--marigold)', borderColor: 'var(--marigold)' } : undefined}
                   >
                     <span>{level}</span>
                   </button>

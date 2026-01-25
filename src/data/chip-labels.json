@@ -7,12 +7,12 @@
   {
     "id": "hsv",
     "label": "HS",
-    "color": "amber"
+    "color": "marigold"
   },
   {
     "id": "pill",
     "label": "HR",
-    "color": "teal"
+    "color": "turquiose"
   },
   {
     "id": "mental",
