@@ -301,7 +301,7 @@
 .button-components-demo {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xl);
+  gap: 16px;
   margin-top: var(--spacing-md);
 }
 
