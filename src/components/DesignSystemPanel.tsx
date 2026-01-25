@@ -1131,14 +1131,15 @@ export function DesignSystemPanel() {
                           <h5>Base Class: <code>.ds-chip</code></h5>
                           <pre>{`display: inline-flex
 align-items: center
-gap: 6px
-padding: 4px 8px
+gap: 4px
+padding: 6px 12px
 border-radius: 20px
 font-size: 12px
 font-weight: 500
 border: 1.5px solid
 cursor: pointer
 transition: all 0.2s ease
+user-select: none
 background: transparent`}</pre>
                           
                           <h5>Inactive State: <code>.ds-chip-inactive</code></h5>
