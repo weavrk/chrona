@@ -127,8 +127,32 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
 
   const handleScrollToToday = () => {
     const scrollContainer = document.querySelector('.chrona-main') as HTMLElement;
-    if (scrollContainer) {
-      // Scroll back to the origin position (current month)
+    if (!scrollContainer || !calendarRef.current) return;
+    
+    // Find the current month element using today's date
+    const todayDate = new Date();
+    const todayYear = todayDate.getFullYear();
+    const todayMonth = todayDate.getMonth(); // 0-11
+    
+    const currentMonthElement = calendarRef.current.querySelector(
+      `[data-month-key="${todayYear}-${todayMonth}"]`
+    ) as HTMLElement;
+    
+    if (currentMonthElement) {
+        // Calculate scroll position to place month header at 120px from viewport top
+        const targetTop = 120; // Header (60px) + chip bar (60px)
+        const monthHeaderTop = currentMonthElement.offsetTop;
+        const scrollPosition = Math.max(0, monthHeaderTop - targetTop);
+        
+        scrollContainer.scrollTo({
+          top: scrollPosition,
+          behavior: 'smooth',
+        });
+        
+        // Update origin
+        scrollOriginRef.current = scrollPosition;
+    } else {
+      // Fallback to stored origin if element not found
       scrollContainer.scrollTo({
         top: scrollOriginRef.current,
         behavior: 'smooth',
@@ -261,53 +285,40 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
       ) as HTMLElement;
       
       if (currentMonthElement) {
-        // Calculate scroll position to place month header at 60px from viewport top
-        const targetTop = 60; // Chip bar height
-        const monthHeaderTop = currentMonthElement.offsetTop;
-        const scrollPosition = Math.max(0, monthHeaderTop - targetTop);
+        // Get the month header element for more accurate positioning
+        const monthHeader = currentMonthElement.querySelector('.calendar-month-header') as HTMLElement;
+        const targetElement = monthHeader || currentMonthElement;
         
-        console.log('Found element, scrolling to:', scrollPosition, 'offsetTop:', monthHeaderTop);
-        console.log('Element:', currentMonthElement);
+        // Calculate scroll position to place month header at 120px from viewport top
+        // Header (60px) + chip bar (60px) = 120px total
+        const targetTop = 120;
+        
+        // Get position relative to the scroll container
+        const containerRect = scrollContainer.getBoundingClientRect();
+        const elementRect = targetElement.getBoundingClientRect();
+        const currentScroll = scrollContainer.scrollTop;
+        
+        // Calculate the scroll position needed
+        const elementTopRelativeToContainer = elementRect.top - containerRect.top + currentScroll;
+        const scrollPosition = Math.max(0, elementTopRelativeToContainer - targetTop);
+        
+        console.log('Found element, scrolling to:', scrollPosition, 'elementTopRelativeToContainer:', elementTopRelativeToContainer, 'targetTop:', targetTop);
+        console.log('currentScroll:', currentScroll, 'elementRect.top:', elementRect.top, 'containerRect.top:', containerRect.top);
         
         // Set scroll origin (where we consider "home" position)
         scrollOriginRef.current = scrollPosition;
         
-        // Force layout and try scrolling using different methods
-        scrollContainer.style.overflow = 'auto'; // Ensure scrollable
+        // Scroll directly to calculated position
+        scrollContainer.scrollTop = scrollPosition;
         
-        // Scroll the month header into view at the top
-        const monthHeader = currentMonthElement.querySelector('.calendar-month-header') as HTMLElement;
-        if (monthHeader) {
-          monthHeader.scrollIntoView({ block: 'start', behavior: 'auto' });
-        } else {
-          currentMonthElement.scrollIntoView({ block: 'start', behavior: 'auto' });
-        }
+        hasInitiallyScrolledRef.current = true;
         
-        // Then adjust to position below chip bar (60px from top + 20px gap)
+        console.log('Initial scroll complete at:', scrollContainer.scrollTop);
+        
+        // Trigger observers setup after a delay
         setTimeout(() => {
-          const currentScroll = scrollContainer.scrollTop;
-          // Calculate proper offset accounting for chip bar + gap
-          const chipBarHeight = 60;
-          const headerHeight = 60;
-          const totalFixedHeight = chipBarHeight + headerHeight;
-          
-          // We want the month header to appear at 120px from viewport top (60px header + 60px chip bar)
-          const finalScrollPosition = Math.max(0, currentScroll - totalFixedHeight);
-          scrollContainer.scrollTop = finalScrollPosition;
-          
-          console.log('After scrollIntoView adjustment, scrollTop:', scrollContainer.scrollTop, 'scrollHeight:', scrollContainer.scrollHeight, 'clientHeight:', scrollContainer.clientHeight);
-          
-          // Update origin with actual scroll position
-          scrollOriginRef.current = scrollContainer.scrollTop;
-          hasInitiallyScrolledRef.current = true;
-          
-          console.log('Initial scroll complete at:', scrollContainer.scrollTop);
-          
-          // Trigger observers setup after a delay
-          setTimeout(() => {
-            setObserversReady(true);
-          }, 1000);
-        }, 100);
+          setObserversReady(true);
+        }, 1000);
       } else {
         console.error('Could not find current month element:', `${todayYear}-${todayMonth}`);
       }

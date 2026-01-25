@@ -79,7 +79,7 @@ export function DesignSystemPanel() {
 
   const handleApply = async () => {
     // Clean up deprecated keys from semantic colors order
-    const deprecatedKeys = ['background-primary', 'background-secondary', 'background-tertiary', 'ocean', 'ocean-1', 'gray-900'];
+    const deprecatedKeys = ['background-primary', 'background-secondary', 'background-tertiary', 'ocean-1', 'gray-900'];
     const cleanedOrder = semanticColorsOrder 
       ? semanticColorsOrder.filter(key => !deprecatedKeys.includes(key))
       : null;

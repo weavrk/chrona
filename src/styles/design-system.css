@@ -1176,14 +1176,16 @@
   display: flex;
   gap: var(--spacing-md);
   width: 100%;
+  box-sizing: border-box;
 }
 
 .form-date-selector .date-input-group {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  width: calc(100% - 72px);
+  flex: 1;
   min-width: 0;
+  box-sizing: border-box;
 }
 
 .form-date-selector .date-label {
