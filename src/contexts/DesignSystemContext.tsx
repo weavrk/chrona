@@ -15,7 +15,7 @@ interface DesignTokens {
   'teal': string;
   'sage': string;
   'sand': string;
-  'amber': string;
+  'marigold': string;
   'coral': string;
   'brick': string;
   
@@ -59,7 +59,7 @@ const defaultTokens: DesignTokens = {
   'teal': '#5B95A5',
   'sage': '#6F9F9C',
   'sand': '#DEC484',
-  'amber': '#E1A36F',
+  'marigold': '#E1A36F',
   'coral': '#F7AD97',
   'brick': '#C75B5B',
   
@@ -89,7 +89,7 @@ function getRandomBrandColor(): string {
     'teal',
     'sage',
     'sand',
-    'amber',
+    'marigold',
     'coral',
     'brick',
   ];

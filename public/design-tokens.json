@@ -11,10 +11,9 @@
   "teal": "#5B95A5",
   "sage": "#6F9F9C",
   "sand": "#DEC484",
-  "amber": "#E1A36F",
   "coral": "#F7AD97",
   "brick": "#C75B5B",
-  "brand-primary": "coral",
+  "brand-primary": "brick",
   "primary": "gray-100",
   "secondary": "gray-500",
   "tertiary": "gray-300",
@@ -27,5 +26,6 @@
   "background-shells": "gray-200",
   "background-components": "gray-300",
   "background-footer": "gray-200",
-  "background-white": "gray-800"
+  "background-white": "gray-800",
+  "marigold": "#E1A36F"
 }

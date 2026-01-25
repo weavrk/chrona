@@ -210,7 +210,7 @@ export function DesignSystemPanel() {
       return a.includes('dark') ? -1 : 1;
     });
   
-  // Palette colors (after grays) - these are used for labels: steel, teal, sage, sand, amber, coral, brick
+  // Palette colors (after grays) - these are used for labels: steel, teal, sage, sand, marigold, coral, brick
   const paletteColors = primitiveNames
     .filter(name => 
       !name.startsWith('gray-') && 

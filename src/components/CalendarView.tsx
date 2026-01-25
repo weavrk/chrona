@@ -74,12 +74,9 @@ export function CalendarView({ onSheetDateChange }: CalendarViewProps) {
   
   const today = new Date();
   const currentYear = today.getFullYear();
-  const currentMonth = today.getMonth();
   
   // Calculate start date: January of previous year
   const startDate = new Date(currentYear - 1, 0, 1);
-  // Calculate end date: January two years out
-  const endDate = new Date(currentYear + 2, 0, 1);
   
   // Calculate month count: from January of previous year to January two years out
   // Example: If current is April 2026, load from Jan 2025 to Jan 2028
@@ -98,7 +95,7 @@ export function CalendarView({ onSheetDateChange }: CalendarViewProps) {
   });
   
   // Track the date range of loaded months
-  const [loadedRange, setLoadedRange] = useState({
+  const [, setLoadedRange] = useState({
     start: new Date(currentYear - 1, 0, 1),
     end: new Date(currentYear + 2, 0, 1), // January two years out
   });
@@ -408,8 +405,14 @@ export function CalendarView({ onSheetDateChange }: CalendarViewProps) {
               className="calendar-month"
               data-month-key={`${monthData.year}-${monthData.month}`}
               ref={(el) => {
-                if (isFirst) firstMonthRef.current = el;
-                if (isLast) lastMonthRef.current = el;
+                if (isFirst) {
+                  // @ts-ignore - ref assignment is valid
+                  firstMonthRef.current = el;
+                }
+                if (isLast) {
+                  // @ts-ignore - ref assignment is valid
+                  lastMonthRef.current = el;
+                }
               }}
             >
             <div className="calendar-month-header">
