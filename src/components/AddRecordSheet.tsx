@@ -122,7 +122,7 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd }: AddReco
                   className={`ds-chip-single-select ${selectedType === type.id ? 'active' : ''}`}
                   style={
                     selectedType === type.id
-                      ? { backgroundColor: type.color, borderColor: type.color, color: 'var(--gray-100)' }
+                      ? { backgroundColor: type.color, borderColor: type.color, color: 'var(--color-primary)' }
                       : { color: type.color, borderColor: type.color }
                   }
                   onClick={() => {
@@ -131,7 +131,7 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd }: AddReco
                     setMood('');
                   }}
                 >
-                  <span>{type.label}</span>
+                  <span style={selectedType === type.id ? { color: 'var(--color-primary)' } : undefined}>{type.label}</span>
                 </button>
               ))}
             </div>
@@ -172,8 +172,9 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd }: AddReco
                     key={level}
                     className={`ds-chip-single-select ${intensity === level ? 'active' : ''}`}
                     onClick={() => setIntensity(level)}
+                    style={intensity === level ? { backgroundColor: '#F06292', borderColor: '#F06292', color: 'var(--color-primary)' } : undefined}
                   >
-                    <span>{level}</span>
+                    <span style={intensity === level ? { color: 'var(--color-primary)' } : undefined}>{level}</span>
                   </button>
                 ))}
               </div>
@@ -189,8 +190,9 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd }: AddReco
                     key={level}
                     className={`ds-chip-single-select ${intensity === level ? 'active' : ''}`}
                     onClick={() => setIntensity(level)}
+                    style={intensity === level ? { backgroundColor: '#f5ed94', borderColor: '#f5ed94', color: 'var(--color-primary)' } : undefined}
                   >
-                    <span>{level}</span>
+                    <span style={intensity === level ? { color: 'var(--color-primary)' } : undefined}>{level}</span>
                   </button>
                 ))}
               </div>

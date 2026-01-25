@@ -67,7 +67,7 @@ const defaultTokens: DesignTokens = {
   
   // Semantic Colors (reference primitive names)
   'brand-primary': 'magenta-light',
-  'primary': 'gray-900',
+  'primary': 'gray-100',
   'secondary': 'gray-500',
   'tertiary': 'gray-300',
   'accent': 'cyan-light',
@@ -83,6 +83,22 @@ const defaultTokens: DesignTokens = {
 };
 
 const DesignSystemContext = createContext<DesignSystemContextType | undefined>(undefined);
+
+// Get a random brand color from CMYK primitives (excluding grays)
+function getRandomBrandColor(): string {
+  const cmykColors = [
+    'cyan-light',
+    'cyan-dark',
+    'green-light',
+    'green-dark',
+    'yellow-light',
+    'yellow-dark',
+    'magenta-light',
+    'magenta-dark',
+  ];
+  const randomIndex = Math.floor(Math.random() * cmykColors.length);
+  return cmykColors[randomIndex];
+}
 
 export function DesignSystemProvider({ children }: { children: ReactNode }) {
   const [tokens, setTokens] = useState<DesignTokens>(defaultTokens);
@@ -106,6 +122,10 @@ export function DesignSystemProvider({ children }: { children: ReactNode }) {
           console.warn('Design tokens JSON file not found, using defaults');
           loadedTokens = defaultTokens;
         }
+        
+        // Randomly pick a brand color from CMYK primitives (excluding grays)
+        const randomBrandColor = getRandomBrandColor();
+        loadedTokens['brand-primary'] = randomBrandColor;
         
         setTokens(loadedTokens);
         setPendingTokens(loadedTokens);

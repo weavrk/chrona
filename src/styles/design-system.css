@@ -508,7 +508,19 @@
   border-color: currentColor;
 }
 
-.ds-chip-active {
+.ds-chip.ds-chip-active {
+  color: var(--color-primary) !important;
+}
+
+.ds-chip.ds-chip-active span {
+  color: var(--color-primary) !important;
+}
+
+button.ds-chip.ds-chip-active {
+  color: var(--color-primary) !important;
+}
+
+button.ds-chip.ds-chip-active span {
   color: var(--color-primary) !important;
 }
 
@@ -516,6 +528,10 @@
   width: 14px;
   height: 14px;
   flex-shrink: 0;
+}
+
+.ds-chip-active svg {
+  color: var(--color-primary) !important;
 }
 
 .ds-chip:hover {
@@ -554,7 +570,19 @@
 }
 
 .ds-chip-single-select.active {
-  color: var(--color-primary);
+  color: var(--color-primary) !important;
+}
+
+.ds-chip-single-select.active span {
+  color: var(--color-primary) !important;
+}
+
+button.ds-chip-single-select.active {
+  color: var(--color-primary) !important;
+}
+
+button.ds-chip-single-select.active span {
+  color: var(--color-primary) !important;
 }
 
 /* Chip Bar Container */

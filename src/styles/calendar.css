@@ -35,7 +35,6 @@
   width: 70px;
   height: 28px;
   background: var(--color-brand-primary, var(--accent));
-  color: var(--gray-800);
   border: none;
   border-radius: var(--border-radius);
   display: flex;
@@ -44,6 +43,10 @@
   cursor: pointer;
   transition: all 0.2s;
   padding: 0;
+}
+
+.chrona-header-add-button svg {
+  color: var(--color-primary);
 }
 
 .chrona-header-add-button:hover {

@@ -33,7 +33,7 @@ export function App() {
           onClick={handleAddRecordClick}
           aria-label="Add record"
         >
-          <Plus size={20} />
+          <Plus size={20} style={{ color: 'var(--color-primary)' }} />
         </button>
       </header>
       

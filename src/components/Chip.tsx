@@ -33,7 +33,7 @@ export function Chip({ label, color, active, onClick }: ChipProps) {
       style={style}
       onClick={onClick}
     >
-      <span>{label}</span>
+      <span style={active ? { color: 'var(--color-primary)' } : undefined}>{label}</span>
     </button>
   );
 }
