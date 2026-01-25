@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, CheckCircle2, Plus } from 'lucide-react';
+import { X, CheckCircle2 } from 'lucide-react';
 import { useDesignSystem } from '../contexts/DesignSystemContext';
 
 interface ChipLabel {
@@ -16,13 +16,10 @@ interface AddLabelModalProps {
 }
 
 export function AddLabelModal({ isOpen, existingLabels, onClose, onSave }: AddLabelModalProps) {
-  const { tokens, updateTokens } = useDesignSystem();
+  const { tokens } = useDesignSystem();
   const [labelName, setLabelName] = useState('');
   const [selectedColor, setSelectedColor] = useState<string>('');
   const [isSaving, setIsSaving] = useState(false);
-  const [showAddColor, setShowAddColor] = useState(false);
-  const [newColorName, setNewColorName] = useState('');
-  const [newColorValue, setNewColorValue] = useState('#000000');
 
   // Get palette colors from design tokens (exclude grays and semantic colors)
   const getPaletteColors = () => {
@@ -50,22 +47,8 @@ export function AddLabelModal({ isOpen, existingLabels, onClose, onSave }: AddLa
       setLabelName('');
       setSelectedColor('');
       setIsSaving(false);
-      setShowAddColor(false);
-      setNewColorName('');
-      setNewColorValue('#000000');
     }
   }, [isOpen]);
-
-  const handleAddNewColor = () => {
-    if (!newColorName.trim() || !newColorValue) return;
-    
-    const colorKey = newColorName.trim().toLowerCase().replace(/\s+/g, '-');
-    updateTokens({ [colorKey]: newColorValue } as any);
-    setSelectedColor(colorKey);
-    setShowAddColor(false);
-    setNewColorName('');
-    setNewColorValue('#000000');
-  };
 
   const handleSave = () => {
     if (!labelName.trim() || !selectedColor) return;
@@ -95,7 +78,8 @@ export function AddLabelModal({ isOpen, existingLabels, onClose, onSave }: AddLa
         </div>
 
         <div className="modal-body modal-body-add-label">
-          <div className="form-group form-group-text">
+          {/* form-text-input */}
+          <div className="form-text-input">
             <label className="form-label">Label Name</label>
             <input
               type="text"
@@ -103,104 +87,14 @@ export function AddLabelModal({ isOpen, existingLabels, onClose, onSave }: AddLa
               onChange={(e) => setLabelName(e.target.value)}
               className="form-input"
               placeholder="Enter label name"
-              style={{ color: 'var(--gray-800)' }}
             />
           </div>
 
-          <div className="form-group form-group-color">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-              <label className="form-label">Label Color</label>
-              <button
-                onClick={() => setShowAddColor(!showAddColor)}
-                style={{
-                  background: 'transparent',
-                  border: '1px solid var(--color-secondary)',
-                  borderRadius: '4px',
-                  padding: '4px 8px',
-                  color: 'var(--color-secondary)',
-                  fontSize: '0.875rem',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px'
-                }}
-              >
-                <Plus size={14} />
-                Add Color
-              </button>
-            </div>
+          {/* form-label-color-picker */}
+          <div className="form-label-color-picker">
+            <label className="form-label">Label Color</label>
             
-            {showAddColor && (
-              <div style={{ 
-                padding: '12px', 
-                background: 'var(--color-background-components)', 
-                borderRadius: '8px', 
-                marginBottom: '12px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '8px'
-              }}>
-                <input
-                  type="text"
-                  value={newColorName}
-                  onChange={(e) => setNewColorName(e.target.value)}
-                  placeholder="Color name (e.g., 'ocean')"
-                  style={{
-                    padding: '8px',
-                    background: 'var(--color-background-body)',
-                    border: '1px solid var(--color-background-components)',
-                    borderRadius: '4px',
-                    color: 'var(--color-primary)',
-                    fontSize: '0.875rem'
-                  }}
-                />
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                  <input
-                    type="color"
-                    value={newColorValue}
-                    onChange={(e) => setNewColorValue(e.target.value)}
-                    style={{ width: '40px', height: '40px', cursor: 'pointer' }}
-                  />
-                  <input
-                    type="text"
-                    value={newColorValue}
-                    onChange={(e) => {
-                      if (/^#[0-9A-Fa-f]{6}$/i.test(e.target.value)) {
-                        setNewColorValue(e.target.value);
-                      }
-                    }}
-                    placeholder="#000000"
-                    style={{
-                      flex: 1,
-                      padding: '8px',
-                      background: 'var(--color-background-body)',
-                      border: '1px solid var(--color-background-components)',
-                      borderRadius: '4px',
-                      color: 'var(--color-primary)',
-                      fontSize: '0.875rem'
-                    }}
-                  />
-                  <button
-                    onClick={handleAddNewColor}
-                    disabled={!newColorName.trim() || !newColorValue}
-                    style={{
-                      padding: '8px 16px',
-                      background: 'var(--color-accent)',
-                      border: 'none',
-                      borderRadius: '4px',
-                      color: 'var(--color-background-white)',
-                      cursor: 'pointer',
-                      fontSize: '0.875rem',
-                      opacity: (!newColorName.trim() || !newColorValue) ? 0.5 : 1
-                    }}
-                  >
-                    Add
-                  </button>
-                </div>
-              </div>
-            )}
-
-            <div className="color-picker">
+            <div className="color-picker-grid">
               {PRIMITIVE_COLORS.sort((a, b) => {
                 const aUsed = usedColors.has(a.name);
                 const bUsed = usedColors.has(b.name);
@@ -212,7 +106,7 @@ export function AddLabelModal({ isOpen, existingLabels, onClose, onSave }: AddLa
                 return (
                   <button
                     key={color.name}
-                    className={`color-circle ${isSelected ? 'selected' : ''} ${isUsed ? 'used' : ''}`}
+                    className={`color-circle-small ${isSelected ? 'selected' : ''} ${isUsed ? 'used' : ''}`}
                     style={
                       isUsed
                         ? {

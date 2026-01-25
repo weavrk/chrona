@@ -2788,34 +2788,7 @@ img {
   z-index: 2000;
 }
 
-.modal-content {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: var(--color-background-shells, var(--bg-secondary));
-  border-radius: var(--border-radius);
-  width: calc(100% - 48px);
-  max-width: 560px;
-  max-height: 90vh;
-  overflow-y: auto;
-  z-index: 2001;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px 24px;
-  border-bottom: 1px solid var(--color-secondary);
-}
-
-.modal-header h2 {
-  font-size: 1.5rem;
-}
+/* Modal styles moved to design-system.css to avoid duplicates */
 
 .close-button {
   background: transparent;

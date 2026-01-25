@@ -1000,6 +1000,124 @@ export function DesignSystemPanel() {
                     </div>
                   </div>
                 </section>
+
+                <section className="design-system-section">
+                  <h3 className="section-header">Form Components</h3>
+                  
+                  <div className="button-components-demo">
+                    <div className="button-demo-item">
+                      <h4 className="button-demo-label">form-text-input</h4>
+                      <div className="form-text-input">
+                        <label className="form-label">Label Name</label>
+                        <input
+                          type="text"
+                          className="form-input"
+                          placeholder="Enter label name"
+                          value="Sample Text"
+                          readOnly
+                        />
+                      </div>
+                      <p className="button-demo-description">Standard text input with label. Used for collecting text data like names and descriptions.</p>
+                    </div>
+
+                    <div className="button-demo-item">
+                      <h4 className="button-demo-label">form-date-selector</h4>
+                      <div className="form-date-selector">
+                        <label className="form-label">Date Range</label>
+                        <div className="date-range-container">
+                          <div className="date-input-group">
+                            <label className="date-label">Start</label>
+                            <input
+                              type="date"
+                              className="date-input"
+                              value="2026-01-25"
+                              readOnly
+                            />
+                          </div>
+                          <div className="date-input-group">
+                            <label className="date-label">End</label>
+                            <input
+                              type="date"
+                              className="date-input"
+                              value="2026-01-25"
+                              readOnly
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      <p className="button-demo-description">Date range selector with start and end dates. Used for defining time periods.</p>
+                    </div>
+
+                    <div className="button-demo-item">
+                      <h4 className="button-demo-label">form-chips-single</h4>
+                      <div className="form-chips-single">
+                        <label className="form-label">Intensity</label>
+                        <div className="chip-bar-single-select">
+                          <button className="ds-chip-single-select">
+                            <span>Heavy</span>
+                          </button>
+                          <button className="ds-chip-single-select active" style={{ backgroundColor: '#C75B5B', borderColor: '#C75B5B' }}>
+                            <span>Medium</span>
+                          </button>
+                          <button className="ds-chip-single-select">
+                            <span>Lite</span>
+                          </button>
+                          <button className="ds-chip-single-select">
+                            <span>Spotting</span>
+                          </button>
+                        </div>
+                      </div>
+                      <p className="button-demo-description">Single-select chip bar for mutually exclusive options. Used for intensity levels and categories. Supports icon variant for mood selection.</p>
+                    </div>
+
+                    <div className="button-demo-item">
+                      <h4 className="button-demo-label">form-label-color-picker</h4>
+                      <div className="form-label-color-picker">
+                        <label className="form-label">Label Color</label>
+                        <div className="color-picker-grid">
+                          <button className="color-circle-small" style={{ backgroundColor: '#C75B5B' }} />
+                          <button className="color-circle-small selected" style={{ backgroundColor: '#F7AD97' }} />
+                          <button className="color-circle-small" style={{ backgroundColor: '#E1A36F' }} />
+                          <button className="color-circle-small" style={{ backgroundColor: '#DBFAFF' }} />
+                          <button className="color-circle-small" style={{ backgroundColor: '#DEC484' }} />
+                          <button className="color-circle-small" style={{ backgroundColor: '#5B95A5' }} />
+                          <button className="color-circle-small used" style={{ backgroundColor: 'transparent', borderColor: '#6F9F9C', borderWidth: '2px', borderStyle: 'solid' }}>
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#6F9F9C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M18 6 6 18M6 6l12 12"/>
+                            </svg>
+                          </button>
+                          <button className="color-circle-small used" style={{ backgroundColor: 'transparent', borderColor: '#577E89', borderWidth: '2px', borderStyle: 'solid' }}>
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#577E89" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M18 6 6 18M6 6l12 12"/>
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+                      <p className="button-demo-description">Color picker grid for selecting label colors. Shows available colors and marks used colors with X. Used in Add Label and Edit Labels modals.</p>
+                    </div>
+
+                    <div className="button-demo-item">
+                      <h4 className="button-demo-label">form-edit-label-header</h4>
+                      <div className="form-edit-label-header">
+                        <input
+                          type="text"
+                          className="edit-label-input"
+                          placeholder="Label name"
+                          value="HS"
+                          readOnly
+                        />
+                        <div className="edit-label-actions">
+                          <button className="delete-button">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M10 11v6M14 11v6M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+                      <p className="button-demo-description">Editable label header with delete action. Used in Edit Labels modal for managing individual label items.</p>
+                    </div>
+                  </div>
+                </section>
               </div>
               <div className="design-system-actions-bottom-sheet">
                 {!showPasswordInput ? (

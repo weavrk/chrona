@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X as XIcon, Trash2, CheckCircle2, Plus } from 'lucide-react';
+import { X as XIcon, Trash2, CheckCircle2 } from 'lucide-react';
 import { useDesignSystem } from '../contexts/DesignSystemContext';
 
 interface ChipLabel {
@@ -16,13 +16,10 @@ interface EditLabelsModalProps {
 }
 
 export function EditLabelsModal({ isOpen, labels, onClose, onSave }: EditLabelsModalProps) {
-  const { tokens, updateTokens } = useDesignSystem();
+  const { tokens } = useDesignSystem();
   const [editedLabels, setEditedLabels] = useState<ChipLabel[]>(labels);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [showAddColor, setShowAddColor] = useState(false);
-  const [newColorName, setNewColorName] = useState('');
-  const [newColorValue, setNewColorValue] = useState('#000000');
 
   // Get palette colors from design tokens (exclude grays and semantic colors)
   const getPaletteColors = () => {
@@ -47,9 +44,6 @@ export function EditLabelsModal({ isOpen, labels, onClose, onSave }: EditLabelsM
       setEditedLabels(labels);
       setDeletingId(null);
       setIsSaving(false);
-      setShowAddColor(false);
-      setNewColorName('');
-      setNewColorValue('#000000');
     }
   }, [isOpen, labels]);
 
@@ -74,16 +68,6 @@ export function EditLabelsModal({ isOpen, labels, onClose, onSave }: EditLabelsM
 
   const handleCancelDelete = () => {
     setDeletingId(null);
-  };
-
-  const handleAddNewColor = () => {
-    if (!newColorName.trim() || !newColorValue) return;
-    
-    const colorKey = newColorName.trim().toLowerCase().replace(/\s+/g, '-');
-    updateTokens({ [colorKey]: newColorValue } as any);
-    setShowAddColor(false);
-    setNewColorName('');
-    setNewColorValue('#000000');
   };
 
   const handleSave = () => {
@@ -133,7 +117,8 @@ export function EditLabelsModal({ isOpen, labels, onClose, onSave }: EditLabelsM
               
               return (
                 <div key={label.id} className="edit-label-row">
-                  <div className="edit-label-header">
+                  {/* form-edit-label-header */}
+                  <div className="form-edit-label-header">
                     <input
                       type="text"
                       value={label.label}
@@ -169,137 +154,48 @@ export function EditLabelsModal({ isOpen, labels, onClose, onSave }: EditLabelsM
                   </div>
                   </div>
                   
-                  <div style={{ marginBottom: '8px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                      <label className="form-label" style={{ margin: 0 }}>Color</label>
-                      <button
-                        onClick={() => setShowAddColor(!showAddColor)}
-                        style={{
-                          background: 'transparent',
-                          border: '1px solid var(--color-secondary)',
-                          borderRadius: '4px',
-                          padding: '4px 8px',
-                          color: 'var(--color-secondary)',
-                          fontSize: '0.75rem',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '4px'
-                        }}
-                      >
-                        <Plus size={12} />
-                        Add Color
-                      </button>
-                    </div>
+                  {/* form-label-color-picker */}
+                  <div className="form-label-color-picker">
+                    <label className="form-label">Color</label>
                     
-                    {showAddColor && (
-                      <div style={{ 
-                        padding: '12px', 
-                        background: 'var(--color-background-components)', 
-                        borderRadius: '8px', 
-                        marginBottom: '12px',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '8px'
-                      }}>
-                        <input
-                          type="text"
-                          value={newColorName}
-                          onChange={(e) => setNewColorName(e.target.value)}
-                          placeholder="Color name (e.g., 'ocean')"
-                          style={{
-                            padding: '8px',
-                            background: 'var(--color-background-body)',
-                            border: '1px solid var(--color-background-components)',
-                            borderRadius: '4px',
-                            color: 'var(--color-primary)',
-                            fontSize: '0.875rem'
-                          }}
-                        />
-                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                          <input
-                            type="color"
-                            value={newColorValue}
-                            onChange={(e) => setNewColorValue(e.target.value)}
-                            style={{ width: '40px', height: '40px', cursor: 'pointer' }}
-                          />
-                          <input
-                            type="text"
-                            value={newColorValue}
-                            onChange={(e) => {
-                              if (/^#[0-9A-Fa-f]{6}$/i.test(e.target.value)) {
-                                setNewColorValue(e.target.value);
+                    <div className="color-picker-grid">
+                      {PRIMITIVE_COLORS.sort((a, b) => {
+                        const aUsed = usedColors.has(a.name);
+                        const bUsed = usedColors.has(b.name);
+                        if (aUsed === bUsed) return 0;
+                        return aUsed ? 1 : -1;
+                      }).map((color) => {
+                        const isUsed = usedColors.has(color.name);
+                        const isSelected = label.color === color.name;
+                        return (
+                          <button
+                            key={color.name}
+                            className={`color-circle-small ${isSelected ? 'selected' : ''} ${isUsed ? 'used' : ''}`}
+                            style={
+                              isUsed
+                                ? {
+                                    backgroundColor: 'transparent',
+                                    borderColor: color.value,
+                                    borderWidth: '2px',
+                                    borderStyle: 'solid',
+                                  }
+                                : {
+                                    backgroundColor: color.value,
+                                  }
+                            }
+                            onClick={() => {
+                              if (!isUsed) {
+                                handleLabelChange(label.id, 'color', color.name);
                               }
                             }}
-                            placeholder="#000000"
-                            style={{
-                              flex: 1,
-                              padding: '8px',
-                              background: 'var(--color-background-body)',
-                              border: '1px solid var(--color-background-components)',
-                              borderRadius: '4px',
-                              color: 'var(--color-primary)',
-                              fontSize: '0.875rem'
-                            }}
-                          />
-                          <button
-                            onClick={handleAddNewColor}
-                            disabled={!newColorName.trim() || !newColorValue}
-                            style={{
-                              padding: '8px 16px',
-                              background: 'var(--color-accent)',
-                              border: 'none',
-                              borderRadius: '4px',
-                              color: 'var(--color-background-white)',
-                              cursor: 'pointer',
-                              fontSize: '0.875rem',
-                              opacity: (!newColorName.trim() || !newColorValue) ? 0.5 : 1
-                            }}
+                            disabled={isUsed}
+                            title={isUsed ? 'Already used by another label' : color.name}
                           >
-                            Add
+                            {isUsed && <XIcon size={10} style={{ color: color.value }} />}
                           </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div className="edit-label-color-picker">
-                    {PRIMITIVE_COLORS.sort((a, b) => {
-                      const aUsed = usedColors.has(a.name);
-                      const bUsed = usedColors.has(b.name);
-                      if (aUsed === bUsed) return 0;
-                      return aUsed ? 1 : -1;
-                    }).map((color) => {
-                      const isUsed = usedColors.has(color.name);
-                      const isSelected = label.color === color.name;
-                      return (
-                        <button
-                          key={color.name}
-                          className={`color-circle-small ${isSelected ? 'selected' : ''} ${isUsed ? 'used' : ''}`}
-                          style={
-                            isUsed
-                              ? {
-                                  backgroundColor: 'transparent',
-                                  borderColor: color.value,
-                                  borderWidth: '2px',
-                                  borderStyle: 'solid',
-                                }
-                              : {
-                                  backgroundColor: color.value,
-                                }
-                          }
-                          onClick={() => {
-                            if (!isUsed) {
-                              handleLabelChange(label.id, 'color', color.name);
-                            }
-                          }}
-                          disabled={isUsed}
-                          title={isUsed ? 'Already used by another label' : color.name}
-                        >
-                          {isUsed && <XIcon size={10} style={{ color: color.value }} />}
-                        </button>
-                      );
-                    })}
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
               );

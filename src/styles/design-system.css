@@ -651,12 +651,12 @@
   border-radius: var(--border-radius);
   width: calc(100% - 48px);
   max-width: 560px;
-  max-height: 90vh;
-  overflow-y: auto;
+  max-height: 70vh;
   z-index: 2001;
   display: flex;
   flex-direction: column;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
+  overflow: hidden;
 }
 
 .modal-header {
@@ -665,6 +665,11 @@
   align-items: center;
   padding: 16px 24px;
   border-bottom: 1px solid var(--color-secondary);
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  background-color: var(--color-background-shells, var(--bg-secondary));
+  z-index: 10;
 }
 
 .modal-header h2 {
@@ -693,10 +698,12 @@
 .modal-body {
   flex: 1;
   overflow-y: auto;
-  padding: var(--spacing-lg) 0;
+  overflow-x: hidden;
+  padding: var(--spacing-lg) 24px;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xl);
+  min-height: 0;
 }
 
 .modal-body-add-label {
@@ -706,6 +713,11 @@
 .modal-footer {
   padding: var(--spacing-lg);
   border-top: 1px solid var(--color-secondary);
+  flex-shrink: 0;
+  position: sticky;
+  bottom: 0;
+  background-color: var(--color-background-shells, var(--bg-secondary));
+  z-index: 10;
 }
 
 .form-input {
@@ -939,6 +951,281 @@
 
 .delete-confirm-button.cancel:hover {
   background: var(--color-background-shells, var(--bg-secondary));
+}
+
+/* ===================================
+   FORM COMPONENTS (Standardized)
+   =================================== */
+
+/* 1. form-text-input */
+.form-text-input {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  width: 100%;
+}
+
+.form-text-input .form-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--gray-700);
+  margin: 0;
+}
+
+.form-text-input .form-input {
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--color-background-components, var(--bg-card));
+  border: 1px solid var(--color-background-components, var(--bg-card));
+  border-radius: var(--border-radius);
+  color: var(--gray-800);
+  font-size: 1rem;
+  font-family: var(--font-family);
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.form-text-input .form-input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
+
+/* 2. form-date-selector */
+.form-date-selector {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  width: 100%;
+}
+
+.form-date-selector .form-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--gray-700);
+  margin: 0;
+}
+
+.form-date-selector .date-range-container {
+  display: flex;
+  gap: var(--spacing-md);
+  width: 100%;
+}
+
+.form-date-selector .date-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: calc(100% - 72px);
+  min-width: 0;
+}
+
+.form-date-selector .date-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--gray-700);
+}
+
+.form-date-selector .date-input {
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--color-background-components, var(--bg-card));
+  border: 1px solid var(--color-background-components, var(--bg-card));
+  border-radius: var(--border-radius);
+  color: var(--gray-800);
+  font-size: 1rem;
+  font-family: var(--font-family);
+  cursor: pointer;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.form-date-selector .date-input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
+
+/* 3. form-label-color-picker */
+.form-label-color-picker {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  width: 100%;
+}
+
+.form-label-color-picker .form-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--gray-700);
+  margin: 0;
+}
+
+.form-label-color-picker .color-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 8px;
+  width: 100%;
+}
+
+.form-label-color-picker .color-circle-small {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+  padding: 0;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.form-label-color-picker .color-circle-small:hover:not(.used):not(:disabled) {
+  transform: scale(1.1);
+  border-color: var(--gray-800);
+}
+
+.form-label-color-picker .color-circle-small.selected {
+  border-color: var(--gray-800);
+  border-width: 3px;
+  box-shadow: 0 0 0 2px var(--color-background-body);
+}
+
+.form-label-color-picker .color-circle-small.used {
+  cursor: not-allowed;
+  background: transparent !important;
+}
+
+.form-label-color-picker .color-circle-small:disabled {
+  cursor: not-allowed;
+}
+
+/* 4. form-edit-label-header */
+.form-edit-label-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  width: 100%;
+}
+
+.form-edit-label-header .edit-label-input {
+  flex: 1;
+  min-width: 0;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--color-background-body, var(--bg-primary));
+  border: 1px solid var(--color-background-components, var(--bg-card));
+  border-radius: var(--border-radius);
+  color: var(--gray-800);
+  font-size: 1rem;
+  font-family: var(--font-family);
+  transition: border-color 0.2s;
+}
+
+.form-edit-label-header .edit-label-input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
+
+.form-edit-label-header .edit-label-actions {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.form-edit-label-header .delete-button {
+  background: transparent;
+  border: none;
+  color: var(--gray-700);
+  cursor: pointer;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.form-edit-label-header .delete-button:hover {
+  color: var(--gray-800);
+}
+
+/* 5. form-chips-single */
+.form-chips-single {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  width: 100%;
+}
+
+.form-chips-single .form-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--gray-700);
+  margin: 0;
+}
+
+.form-chips-single .chip-bar-single-select {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  align-items: center;
+}
+
+.form-chips-single .ds-chip-single-select {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: var(--font-family);
+  border: 2px solid var(--color-secondary);
+  background: transparent;
+  color: var(--color-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.form-chips-single .ds-chip-single-select.active {
+  color: var(--color-background-white);
+}
+
+/* form-chips-single with icon variant (for mood) */
+.form-chips-single .mood-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  align-items: center;
+}
+
+.form-chips-single .mood-chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 2px solid var(--color-secondary);
+  background: transparent;
+  color: var(--color-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.form-chips-single .mood-chip:hover {
+  transform: scale(1.05);
+  border-color: var(--gray-800);
+}
+
+.form-chips-single .mood-chip.active {
+  background-color: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-background-white);
 }
 
 

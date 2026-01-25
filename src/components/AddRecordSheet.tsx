@@ -145,8 +145,8 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd }: AddReco
             </div>
           </div>
 
-          {/* Date Range */}
-          <div className="form-section">
+          {/* form-date-selector */}
+          <div className="form-date-selector">
             <label className="form-label">Date Range</label>
             <div className="date-range-container">
               <div className="date-input-group">
@@ -172,7 +172,8 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd }: AddReco
 
           {/* Custom Section based on Type */}
           {selectedType === 'period' && (
-            <div className="form-section">
+            /* form-chips-single */
+            <div className="form-chips-single">
               <label className="form-label">Intensity</label>
               <div className="chip-bar-single-select">
                 {PERIOD_INTENSITY.map((level) => (
@@ -190,7 +191,8 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd }: AddReco
           )}
 
           {selectedType === 'hsv' && (
-            <div className="form-section">
+            /* form-chips-single */
+            <div className="form-chips-single">
               <label className="form-label">Severity</label>
               <div className="chip-bar-single-select">
                 {HSV_INTENSITY.map((level) => (
@@ -234,7 +236,8 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd }: AddReco
           )}
 
           {selectedType === 'mental' && (
-            <div className="form-section">
+            /* form-chips-single with mood variant */
+            <div className="form-chips-single">
               <label className="form-label">Mood</label>
               <div className="mood-chips">
                 {MOODS.map((moodItem) => (
