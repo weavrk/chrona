@@ -70,9 +70,9 @@ export function AddLabelModal({ isOpen, existingLabels, onClose, onSave }: AddLa
     <>
       <div className="modal-overlay" onClick={onClose} />
       <div className="modal-content">
-        <div className="modal-header">
+        <div className="ds-header">
           <h2>Add Label</h2>
-          <button className="modal-close" onClick={onClose}>
+          <button className="ds-header-close" onClick={onClose}>
             <X size={24} />
           </button>
         </div>

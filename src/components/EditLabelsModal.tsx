@@ -102,9 +102,9 @@ export function EditLabelsModal({ isOpen, labels, onClose, onSave }: EditLabelsM
     <>
       <div className="modal-overlay" onClick={handleClose} />
       <div className="modal-content">
-        <div className="modal-header">
+        <div className="ds-header">
           <h2>Edit Labels</h2>
-          <button className="modal-close" onClick={handleClose}>
+          <button className="ds-header-close" onClick={handleClose}>
             <XIcon size={24} />
           </button>
         </div>

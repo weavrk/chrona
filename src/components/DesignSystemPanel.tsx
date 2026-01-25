@@ -408,14 +408,16 @@ export function DesignSystemPanel() {
         <>
           <div className="design-system-overlay" onClick={() => setIsOpen(false)} />
           <div className="design-system-panel">
-            <div className="design-system-header">
-              <h2 className="page-header">Design System</h2>
+            <div className="ds-header">
+              <h2>Design System</h2>
               <button
-                className="design-system-close"
+                className="ds-header-close"
                 onClick={() => setIsOpen(false)}
                 aria-label="Close"
               >
-                ×
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 6 6 18M6 6l12 12"/>
+                </svg>
               </button>
             </div>
 
@@ -1164,6 +1166,25 @@ export function DesignSystemPanel() {
                         </div>
                       </div>
                       <p className="button-demo-description">Editable label header with delete action. Used in Edit Labels modal for managing individual label items.</p>
+                    </div>
+                  </div>
+                </section>
+
+                <section className="design-system-section">
+                  <h3 className="section-header">Headers</h3>
+                  
+                  <div className="button-components-demo">
+                    <div className="button-demo-item">
+                      <h4 className="button-demo-label">ds-header</h4>
+                      <div className="ds-header" style={{ position: 'relative' }}>
+                        <h2>Modal Title</h2>
+                        <button className="ds-header-close">
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M18 6 6 18M6 6l12 12"/>
+                          </svg>
+                        </button>
+                      </div>
+                      <p className="button-demo-description">Standardized header component with title and close button. Used across all modals, bottom sheets, and panels (Add Label, Edit Labels, Add Record, Design System Panel). Includes sticky positioning and consistent spacing.</p>
                     </div>
                   </div>
                 </section>

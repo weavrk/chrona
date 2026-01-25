@@ -954,6 +954,46 @@
 }
 
 /* ===================================
+   HEADER COMPONENT (Standardized)
+   =================================== */
+
+.ds-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--color-secondary);
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  background-color: var(--color-background-shells, var(--bg-secondary));
+  z-index: 10;
+}
+
+.ds-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--gray-800);
+}
+
+.ds-header-close {
+  background: transparent;
+  border: none;
+  color: var(--gray-700);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.ds-header-close:hover {
+  color: var(--gray-800);
+}
+
+/* ===================================
    FORM COMPONENTS (Standardized)
    =================================== */
 

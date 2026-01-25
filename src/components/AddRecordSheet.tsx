@@ -113,9 +113,9 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd }: AddReco
     <>
       <div className="bottom-sheet-overlay" onClick={handleClose} />
       <div className="bottom-sheet">
-        <div className="bottom-sheet-header">
+        <div className="ds-header">
           <h2>Add Record</h2>
-          <button className="bottom-sheet-close" onClick={handleClose}>
+          <button className="ds-header-close" onClick={handleClose}>
             <X size={24} />
           </button>
         </div>
