@@ -622,7 +622,7 @@
   border: 1px solid var(--color-background-components, var(--bg-card));
   border-radius: var(--border-radius);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-  z-index: 1500;
+  z-index: 10000;
   min-width: 160px;
   overflow: hidden;
 }
