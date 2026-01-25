@@ -983,7 +983,36 @@ export function DesignSystemPanel() {
                   
                   <div className="button-components-demo">
                     <div className="button-demo-item">
-                      <h4 className="button-demo-label">ds-chip</h4>
+                      <h4 className="button-demo-label">
+                        ds-chip
+                        <button
+                          onClick={() => handleCopyToClipboard('ds-chip')}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: copiedName === 'ds-chip' ? 'var(--color-accent)' : 'var(--gray-700)',
+                            cursor: 'pointer',
+                            padding: '2px',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            transition: 'color 0.2s',
+                            marginLeft: '8px'
+                          }}
+                          title="Copy to clipboard"
+                        >
+                          {copiedName === 'ds-chip' ? (
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M20 6L9 17l-5-5"/>
+                            </svg>
+                          ) : (
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                            </svg>
+                          )}
+                        </button>
+                      </h4>
                       <div style={{ display: 'flex', gap: 'var(--spacing-sm)', flexWrap: 'wrap' }}>
                         <button className="ds-chip ds-chip-inactive" style={{ color: '#F06292', borderColor: '#F06292' }}>
                           <span>Period</span>
@@ -1002,7 +1031,36 @@ export function DesignSystemPanel() {
                     </div>
 
                     <div className="button-demo-item">
-                      <h4 className="button-demo-label">ds-chip-single-select</h4>
+                      <h4 className="button-demo-label">
+                        ds-chip-single-select
+                        <button
+                          onClick={() => handleCopyToClipboard('ds-chip-single-select')}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: copiedName === 'ds-chip-single-select' ? 'var(--color-accent)' : 'var(--gray-700)',
+                            cursor: 'pointer',
+                            padding: '2px',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            transition: 'color 0.2s',
+                            marginLeft: '8px'
+                          }}
+                          title="Copy to clipboard"
+                        >
+                          {copiedName === 'ds-chip-single-select' ? (
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M20 6L9 17l-5-5"/>
+                            </svg>
+                          ) : (
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                            </svg>
+                          )}
+                        </button>
+                      </h4>
                       <div style={{ display: 'flex', gap: 'var(--spacing-sm)', flexWrap: 'wrap' }}>
                         <button className="ds-chip-single-select" style={{ color: '#F06292', borderColor: '#F06292' }}>
                           <span>Period</span>
@@ -1015,7 +1073,36 @@ export function DesignSystemPanel() {
                     </div>
 
                     <div className="button-demo-item">
-                      <h4 className="button-demo-label">ds-chip-bar-toggleable</h4>
+                      <h4 className="button-demo-label">
+                        ds-chip-bar-toggleable
+                        <button
+                          onClick={() => handleCopyToClipboard('ds-chip-bar-toggleable')}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: copiedName === 'ds-chip-bar-toggleable' ? 'var(--color-accent)' : 'var(--gray-700)',
+                            cursor: 'pointer',
+                            padding: '2px',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            transition: 'color 0.2s',
+                            marginLeft: '8px'
+                          }}
+                          title="Copy to clipboard"
+                        >
+                          {copiedName === 'ds-chip-bar-toggleable' ? (
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M20 6L9 17l-5-5"/>
+                            </svg>
+                          ) : (
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                            </svg>
+                          )}
+                        </button>
+                      </h4>
                       <div style={{ display: 'flex', gap: 'var(--spacing-sm)', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'flex-end', padding: '8px', background: 'var(--color-background-body)', borderRadius: 'var(--border-radius)', border: '1px solid var(--color-secondary)' }}>
                         <button className="ds-chip ds-chip-inactive" style={{ color: '#F7AD97', borderColor: '#F7AD97' }}>
                           <span>PE</span>
@@ -1045,7 +1132,36 @@ export function DesignSystemPanel() {
                     </div>
 
                     <div className="button-demo-item">
-                      <h4 className="button-demo-label">ds-chip-bar-record-selector</h4>
+                      <h4 className="button-demo-label">
+                        ds-chip-bar-record-selector
+                        <button
+                          onClick={() => handleCopyToClipboard('ds-chip-bar-record-selector')}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: copiedName === 'ds-chip-bar-record-selector' ? 'var(--color-accent)' : 'var(--gray-700)',
+                            cursor: 'pointer',
+                            padding: '2px',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            transition: 'color 0.2s',
+                            marginLeft: '8px'
+                          }}
+                          title="Copy to clipboard"
+                        >
+                          {copiedName === 'ds-chip-bar-record-selector' ? (
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M20 6L9 17l-5-5"/>
+                            </svg>
+                          ) : (
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                            </svg>
+                          )}
+                        </button>
+                      </h4>
                       <div style={{ display: 'flex', gap: 'var(--spacing-sm)', flexWrap: 'wrap' }}>
                         <button className="ds-chip-single-select" style={{ color: '#F7AD97', borderColor: '#F7AD97' }}>
                           <span>PE</span>

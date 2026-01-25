@@ -122,7 +122,7 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd }: AddReco
 
         <div className="bottom-sheet-content">
           {/* Record Type Chips */}
-          <div className="form-section">
+          <div className="form-chips-single chip-bar-variant-record">
             <div className="chip-bar-single-select">
               {RECORD_TYPES.map((type) => (
                 <button
