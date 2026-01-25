@@ -571,12 +571,12 @@
   top: 60px;
   left: 0;
   right: 0;
-  z-index: 90;
+  z-index: 9999;
   background: var(--color-background-body, var(--bg-primary));
   padding: 16px 0;
   border-bottom: 1px solid var(--color-secondary);
   overflow-x: auto;
-  overflow-y: hidden;
+  overflow-y: visible;
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE and Edge */
 }
@@ -596,6 +596,7 @@
 
 .chip-bar-menu-wrapper {
   position: relative;
+  z-index: 10001;
 }
 
 .chip-bar-ellipses {
