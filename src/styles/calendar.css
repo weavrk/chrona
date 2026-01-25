@@ -68,7 +68,7 @@
   font-family: var(--font-family);
   font-size: 1.125rem;
   font-weight: 600;
-  color: var(--color-primary, var(--text-primary));
+  color: var(--gray-800);
 }
 
 .calendar-year {
@@ -107,7 +107,7 @@
   justify-content: center;
   font-family: var(--font-family);
   font-size: 0.875rem;
-  color: var(--color-primary, var(--text-primary));
+  color: var(--gray-800);
   border-radius: 4px;
   transition: background-color 0.2s, color 0.2s;
   cursor: pointer;
