@@ -214,7 +214,7 @@
   background: var(--bg-secondary);
   border: 1px solid transparent;
   border-radius: 4px;
-  color: var(--text-secondary);
+  color: var(--gray-800);
   font-size: 0.75rem;
   font-family: var(--font-family);
   text-align: center;
@@ -224,7 +224,7 @@
 .color-hex:focus {
   outline: none;
   border-color: var(--accent);
-  color: var(--text-primary);
+  color: var(--gray-800);
 }
 
 /* Semantic Colors List - Responsive Grid Layout */
@@ -501,37 +501,28 @@
   transition: all 0.2s ease;
   border: 1.5px solid;
   user-select: none;
+  background: transparent;
 }
 
+/* Inactive chips: transparent background, colored border and text (set via inline styles) */
 .ds-chip-inactive {
   background: transparent;
-  border-color: currentColor;
 }
 
-.ds-chip.ds-chip-active {
-  color: var(--color-primary) !important;
+/* Active chips: colored background (set via inline styles), dark text */
+.ds-chip-active {
+  /* Background and border color set via inline styles from label color */
 }
 
-.ds-chip.ds-chip-active span {
-  color: var(--color-primary) !important;
-}
-
-button.ds-chip.ds-chip-active {
-  color: var(--color-primary) !important;
-}
-
-button.ds-chip.ds-chip-active span {
-  color: var(--color-primary) !important;
+.ds-chip-active,
+.ds-chip-active span {
+  color: var(--gray-100);
 }
 
 .ds-chip svg {
   width: 14px;
   height: 14px;
   flex-shrink: 0;
-}
-
-.ds-chip-active svg {
-  color: var(--color-primary) !important;
 }
 
 .ds-chip:hover {
@@ -569,20 +560,10 @@ button.ds-chip.ds-chip-active span {
   transform: translateY(0);
 }
 
-.ds-chip-single-select.active {
-  color: var(--color-primary) !important;
-}
-
+/* Active state: background and border set via inline styles, text is dark */
+.ds-chip-single-select.active,
 .ds-chip-single-select.active span {
-  color: var(--color-primary) !important;
-}
-
-button.ds-chip-single-select.active {
-  color: var(--color-primary) !important;
-}
-
-button.ds-chip-single-select.active span {
-  color: var(--color-primary) !important;
+  color: var(--gray-100);
 }
 
 /* Chip Bar Container */

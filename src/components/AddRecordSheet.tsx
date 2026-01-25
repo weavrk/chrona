@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, Laugh, Smile, Meh, Frown, Annoyed, Angry, CheckCircle2 } from 'lucide-react';
+import { useDesignSystem } from '../contexts/DesignSystemContext';
 
 interface AddRecordSheetProps {
   isOpen: boolean;
@@ -19,13 +20,6 @@ export interface RecordData {
     mood?: string;
   };
 }
-
-const RECORD_TYPES = [
-  { id: 'period', label: 'PE', color: '#F06292' },
-  { id: 'hsv', label: 'HS', color: '#FFD54F' },
-  { id: 'pill', label: 'HR', color: '#7EC8E3' },
-  { id: 'mental', label: 'ID', color: '#B3B3B3' },
-];
 
 const PERIOD_INTENSITY = ['Heavy', 'Medium', 'Lite', 'Spotting'];
 const HSV_INTENSITY = ['Bad', 'Medium', 'Mild'];
@@ -99,6 +93,20 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd }: AddReco
     onClose();
   };
 
+  const { tokens } = useDesignSystem();
+  
+  // Get palette colors from design tokens for labels
+  const getLabelColor = (colorName: string): string => {
+    return (tokens as any)[colorName] || '#B3B3B3';
+  };
+
+  const RECORD_TYPES = [
+    { id: 'period', label: 'PE', color: getLabelColor('coral') },
+    { id: 'hsv', label: 'HS', color: getLabelColor('sand') },
+    { id: 'pill', label: 'HR', color: getLabelColor('teal') },
+    { id: 'mental', label: 'ID', color: getLabelColor('steel') },
+  ];
+
   if (!isOpen || !selectedDate) return null;
 
   return (
@@ -122,7 +130,7 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd }: AddReco
                   className={`ds-chip-single-select ${selectedType === type.id ? 'active' : ''}`}
                   style={
                     selectedType === type.id
-                      ? { backgroundColor: type.color, borderColor: type.color, color: 'var(--color-primary)' }
+                      ? { backgroundColor: type.color, borderColor: type.color }
                       : { color: type.color, borderColor: type.color }
                   }
                   onClick={() => {
@@ -131,7 +139,7 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd }: AddReco
                     setMood('');
                   }}
                 >
-                  <span style={selectedType === type.id ? { color: 'var(--color-primary)' } : undefined}>{type.label}</span>
+                  <span>{type.label}</span>
                 </button>
               ))}
             </div>
@@ -172,9 +180,9 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd }: AddReco
                     key={level}
                     className={`ds-chip-single-select ${intensity === level ? 'active' : ''}`}
                     onClick={() => setIntensity(level)}
-                    style={intensity === level ? { backgroundColor: '#F06292', borderColor: '#F06292', color: 'var(--color-primary)' } : undefined}
+                    style={intensity === level ? { backgroundColor: 'var(--brick)', borderColor: 'var(--brick)' } : undefined}
                   >
-                    <span style={intensity === level ? { color: 'var(--color-primary)' } : undefined}>{level}</span>
+                    <span>{level}</span>
                   </button>
                 ))}
               </div>
@@ -190,9 +198,9 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd }: AddReco
                     key={level}
                     className={`ds-chip-single-select ${intensity === level ? 'active' : ''}`}
                     onClick={() => setIntensity(level)}
-                    style={intensity === level ? { backgroundColor: '#f5ed94', borderColor: '#f5ed94', color: 'var(--color-primary)' } : undefined}
+                    style={intensity === level ? { backgroundColor: 'var(--sand)', borderColor: 'var(--sand)' } : undefined}
                   >
-                    <span style={intensity === level ? { color: 'var(--color-primary)' } : undefined}>{level}</span>
+                    <span>{level}</span>
                   </button>
                 ))}
               </div>

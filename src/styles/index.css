@@ -4,13 +4,14 @@
 /* Link: https://use.typekit.net/xqt1kbo.css */
 
 /* Wix Madefor Display - Brand Typeface for "WatchBox" */
-@font-face {
+/* Font file not available - using fallback fonts */
+/* @font-face {
   font-family: 'Wix Madefor Display';
   src: url('/fonts/WixMadeforDisplay-Regular.ttf') format('truetype');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
-}
+} */
 
 :root {
   /* Background & Structure */
@@ -2740,7 +2741,7 @@ img {
   width: 100%;
   padding: var(--spacing-md);
   background-color: var(--color-background-components, var(--button-primary, #2a2a2a));
-  color: var(--text-primary);
+  color: var(--gray-800);
   border: none;
   border-radius: var(--border-radius);
   font-size: 1rem;

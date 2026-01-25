@@ -2,12 +2,12 @@
   {
     "id": "period",
     "label": "PE",
-    "color": "brick"
+    "color": "coral"
   },
   {
     "id": "hsv",
     "label": "HS",
-    "color": "sand"
+    "color": "amber"
   },
   {
     "id": "pill",
@@ -17,6 +17,11 @@
   {
     "id": "mental",
     "label": "ID",
+    "color": "sage"
+  },
+  {
+    "id": "test",
+    "label": "test",
     "color": "steel"
   }
 ]

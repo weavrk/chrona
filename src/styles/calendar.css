@@ -59,10 +59,14 @@
 }
 
 .chrona-main {
-  flex: 1;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   padding: 0;
-  padding-top: 124px;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 /* Calendar View */
@@ -72,6 +76,8 @@
   width: 100%;
   background: var(--color-background-body, var(--bg-primary));
   position: relative;
+  padding-top: 124px; /* Space for fixed header (60px) + chip bar (64px) */
+  min-height: calc(100vh + 1000px); /* Ensure content is taller than viewport */
 }
 
 .calendar-month {
@@ -426,30 +432,33 @@
 /* Today FAB */
 .calendar-today-fab {
   position: fixed;
-  bottom: 88px;
-  right: 24px;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
   padding: 12px 24px;
-  background: var(--color-primary, var(--gray-100));
-  color: var(--color-background-body, var(--bg-primary));
+  background: var(--color-brand-primary);
+  color: var(--gray-100);
   border: none;
   border-radius: 24px;
   font-size: 0.875rem;
   font-weight: 600;
   font-family: var(--font-family);
   cursor: pointer;
-  z-index: 1000;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 9999;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
   transition: all 0.2s;
   animation: fadeIn 0.3s ease-out;
+  white-space: nowrap;
 }
 
 .calendar-today-fab:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  transform: translateX(-50%) translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+  opacity: 0.9;
 }
 
 .calendar-today-fab:active {
-  transform: translateY(0);
+  transform: translateX(-50%) translateY(0);
 }
 
 

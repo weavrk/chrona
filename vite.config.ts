@@ -23,11 +23,62 @@ function apiPlugin() {
         req.on('data', chunk => { body += chunk.toString(); });
         req.on('end', async () => {
           try {
-            const { tokens } = JSON.parse(body);
+            const { tokens, renames } = JSON.parse(body);
             const tokensPath = path.join(__dirname, 'public', 'design-tokens.json');
             
             // Save to file
             fs.writeFileSync(tokensPath, JSON.stringify(tokens, null, 2) + '\n', 'utf-8');
+            
+            // Handle find/replace for renames
+            if (renames && Array.isArray(renames) && renames.length > 0) {
+              const srcDir = path.join(__dirname, 'src');
+              const filesToUpdate = [
+                'components/AddRecordSheet.tsx',
+                'components/AddLabelModal.tsx',
+                'components/EditLabelsModal.tsx',
+                'components/ChipBar.tsx',
+                'components/DesignSystemPanel.tsx',
+                'contexts/DesignSystemContext.tsx'
+              ];
+              
+              renames.forEach(({ oldName, newName }: { oldName: string, newName: string }) => {
+                filesToUpdate.forEach(relativePath => {
+                  const filePath = path.join(srcDir, relativePath);
+                  if (fs.existsSync(filePath)) {
+                    let content = fs.readFileSync(filePath, 'utf-8');
+                    // Replace color name references in:
+                    // 1. Object keys: 'oldName': or "oldName": or oldName:
+                    // 2. Variable references: getLabelColor('oldName') or color: 'oldName'
+                    // 3. String literals: 'oldName' or "oldName"
+                    // 4. Property access: tokens.oldName or tokens['oldName']
+                    const patterns = [
+                      new RegExp(`(['"]?)${oldName}\\1\\s*:`, 'g'), // Object keys
+                      new RegExp(`(['"])${oldName}\\1`, 'g'), // String literals
+                      new RegExp(`\\.${oldName}\\b`, 'g'), // Property access
+                      new RegExp(`\\b${oldName}\\b`, 'g'), // Word boundaries
+                    ];
+                    
+                    patterns.forEach((regex, index) => {
+                      if (index === 0) {
+                        // Object keys: replace with same quote style
+                        content = content.replace(regex, (match, quote) => `${quote || ''}${newName}${quote || ''}:`);
+                      } else if (index === 1) {
+                        // String literals: replace with same quote style
+                        content = content.replace(regex, (match, quote) => `${quote}${newName}${quote}`);
+                      } else if (index === 2) {
+                        // Property access
+                        content = content.replace(regex, `.${newName}`);
+                      } else {
+                        // Word boundaries (fallback)
+                        content = content.replace(regex, newName);
+                      }
+                    });
+                    
+                    fs.writeFileSync(filePath, content, 'utf-8');
+                  }
+                });
+              });
+            }
             
             res.setHeader('Content-Type', 'application/json');
             res.setHeader('Access-Control-Allow-Origin', '*');

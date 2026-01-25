@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useDesignSystem } from '../contexts/DesignSystemContext';
 
 interface ChipProps {
   label: string;
@@ -8,21 +9,37 @@ interface ChipProps {
 }
 
 export function Chip({ label, color, active, onClick }: ChipProps) {
+  const { tokens } = useDesignSystem();
   const [colorValue, setColorValue] = useState<string>('');
 
   useEffect(() => {
-    // Get the computed CSS variable value
-    const value = getComputedStyle(document.documentElement)
-      .getPropertyValue(`--${color}`)
-      .trim();
-    setColorValue(value || color);
-  }, [color]);
+    // Get color from design tokens directly (more reliable than CSS variables on load)
+    const tokenColor = (tokens as any)[color];
+    if (tokenColor) {
+      // If it's a hex color, use it directly
+      if (tokenColor.startsWith('#')) {
+        setColorValue(tokenColor);
+      } else {
+        // If it references another token, resolve it
+        const resolvedColor = (tokens as any)[tokenColor];
+        setColorValue(resolvedColor || tokenColor);
+      }
+    } else {
+      // Fallback to CSS variable
+      const value = getComputedStyle(document.documentElement)
+        .getPropertyValue(`--${color}`)
+        .trim();
+      setColorValue(value || '#B3B3B3');
+    }
+  }, [color, tokens]);
   
+  // Inactive: transparent bg, colored border and text
+  // Active: colored bg and border, dark text
   const style: React.CSSProperties = active ? {
     backgroundColor: colorValue,
     borderColor: colorValue,
-    color: 'var(--color-primary)',
   } : {
+    backgroundColor: 'transparent',
     borderColor: colorValue,
     color: colorValue,
   };
@@ -33,7 +50,7 @@ export function Chip({ label, color, active, onClick }: ChipProps) {
       style={style}
       onClick={onClick}
     >
-      <span style={active ? { color: 'var(--color-primary)' } : undefined}>{label}</span>
+      <span>{label}</span>
     </button>
   );
 }
