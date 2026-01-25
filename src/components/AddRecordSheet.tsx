@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { X, Laugh, Smile, Meh, Frown, Annoyed, Angry, CheckCircle2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, Laugh, Smile, Meh, Frown, Annoyed, Angry, CheckCircle2, Plus } from 'lucide-react';
 import { useDesignSystem } from '../contexts/DesignSystemContext';
+import { useAuth } from '../contexts/AuthContext';
 
 interface AddRecordSheetProps {
   isOpen: boolean;
@@ -15,14 +16,37 @@ export interface RecordData {
   endDate: Date;
   details?: {
     intensity?: string;
-    includePlacebo?: boolean;
+    hadBreakout?: boolean;
+    severity?: string;
     repeatForward?: boolean;
     mood?: string;
+    notes?: string;
+    treatments?: Array<{
+      drugName?: string;
+      dose?: number;
+      doseUnit?: string;
+      frequency?: number;
+      frequencyUnit?: string;
+    }>;
   };
+}
+
+interface HRRecordItem {
+  startDate: string;
+  endDate: string;
+  drugName: string;
+  dose: string;
+  doseUnit: string;
+  frequency: string;
+  frequencyUnit: string;
+  includePlacebo: boolean;
+  repeatForward: boolean;
 }
 
 const PERIOD_INTENSITY = ['Heavy', 'Medium', 'Lite', 'Spotting'];
 const HSV_INTENSITY = ['Bad', 'Medium', 'Mild'];
+const DOSE_UNITS = ['g', 'Mg', 'ml'];
+const FREQUENCY_UNITS = ['daily', 'weekly'];
 const MOODS = [
   { id: 'light', icon: Laugh, label: 'Energized' },
   { id: 'smile', icon: Smile, label: 'Happy' },
@@ -33,26 +57,108 @@ const MOODS = [
 ];
 
 export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd }: AddRecordSheetProps) {
+  const { user } = useAuth();
   const [selectedType, setSelectedType] = useState<string>('period');
-  const [startDate, setStartDate] = useState<string>(
-    selectedDate ? selectedDate.toISOString().split('T')[0] : ''
-  );
-  const [endDate, setEndDate] = useState<string>(
-    selectedDate ? selectedDate.toISOString().split('T')[0] : ''
-  );
+  const [startDate, setStartDate] = useState<string>('');
+  const [endDate, setEndDate] = useState<string>('');
   const [intensity, setIntensity] = useState<string>('');
-  const [includePlacebo, setIncludePlacebo] = useState(false);
+  const [hadBreakout, setHadBreakout] = useState(false);
+  const [severity, setSeverity] = useState<string>('');
   const [repeatForward, setRepeatForward] = useState(false);
   const [mood, setMood] = useState<string>('');
+  const [notes, setNotes] = useState<string>('');
   const [isAdding, setIsAdding] = useState(false);
 
-  React.useEffect(() => {
+  // HR specific state
+  const [hrRecords, setHrRecords] = useState<HRRecordItem[]>([{
+    startDate: '',
+    endDate: '',
+    drugName: '',
+    dose: '',
+    doseUnit: 'Mg',
+    frequency: '',
+    frequencyUnit: 'daily',
+    includePlacebo: false,
+    repeatForward: false,
+  }]);
+  const [hrDrugNames, setHrDrugNames] = useState<string[]>([]);
+  const [hrNewDrugName, setHrNewDrugName] = useState<string>('');
+
+  // HS specific state
+  const [hsDrugName, setHsDrugName] = useState<string>('');
+  const [hsDose, setHsDose] = useState<string>('');
+  const [hsDoseUnit, setHsDoseUnit] = useState<string>('Mg');
+  const [hsFrequency, setHsFrequency] = useState<string>('');
+  const [hsFrequencyUnit, setHsFrequencyUnit] = useState<string>('daily');
+  const [hsDrugNames, setHsDrugNames] = useState<string[]>([]);
+  const [hsNewDrugName, setHsNewDrugName] = useState<string>('');
+
+  useEffect(() => {
     if (selectedDate) {
       const dateStr = selectedDate.toISOString().split('T')[0];
       setStartDate(dateStr);
       setEndDate(dateStr);
+      // Set HR records initial date
+      if (hrRecords.length > 0 && !hrRecords[0].startDate) {
+        setHrRecords([{
+          ...hrRecords[0],
+          startDate: dateStr,
+          endDate: dateStr,
+        }]);
+      }
     }
   }, [selectedDate]);
+
+  // Load drug names
+  useEffect(() => {
+    if (user && isOpen) {
+      loadDrugNames('hr').then(setHrDrugNames);
+      loadDrugNames('hs').then(setHsDrugNames);
+    }
+  }, [user, isOpen]);
+
+  const loadDrugNames = async (type: 'hr' | 'hs'): Promise<string[]> => {
+    if (!user) return [];
+    try {
+      const response = await fetch(`/data/drug-names-${type}-${user.username}.json?t=${Date.now()}`);
+      if (response.ok) {
+        const data = await response.json();
+        return Array.isArray(data) ? data : [];
+      }
+    } catch (error) {
+      console.error(`Failed to load ${type} drug names:`, error);
+    }
+    return [];
+  };
+
+  const saveDrugName = async (type: 'hr' | 'hs', drugName: string) => {
+    if (!drugName.trim() || !user) return;
+    
+    const currentDrugs = type === 'hr' ? hrDrugNames : hsDrugNames;
+    if (currentDrugs.includes(drugName.trim())) return;
+
+    const updatedDrugs = [...currentDrugs, drugName.trim()];
+    
+    try {
+      const response = await fetch(`/api/save_drug_names.php`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: user.username, type, drugNames: updatedDrugs }),
+      });
+
+      if (response.ok) {
+        if (type === 'hr') {
+          setHrDrugNames(updatedDrugs);
+          setHrNewDrugName('');
+        } else {
+          setHsDrugNames(updatedDrugs);
+          setHsNewDrugName('');
+        }
+      }
+    } catch (error) {
+      console.error(`Failed to save ${type} drug name:`, error);
+    }
+  };
 
   const handleAdd = () => {
     if (!selectedDate || isAdding) return;
@@ -64,13 +170,38 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd }: AddReco
       details: {},
     };
 
-    if (selectedType === 'period' || selectedType === 'hsv') {
+    if (selectedType === 'period') {
       record.details!.intensity = intensity;
-    } else if (selectedType === 'pill') {
-      record.details!.includePlacebo = includePlacebo;
+    } else if (selectedType === 'hormone-replacement-therapy') {
+      record.details!.treatments = hrRecords
+        .filter(r => r.startDate && r.endDate && r.drugName)
+        .map(r => ({
+          drugName: r.drugName,
+          dose: r.dose ? parseFloat(r.dose) : undefined,
+          doseUnit: r.doseUnit,
+          frequency: r.frequency ? parseFloat(r.frequency) : undefined,
+          frequencyUnit: r.frequencyUnit,
+        }));
+      record.details!.repeatForward = hrRecords.some(r => r.repeatForward);
+      record.details!.includePlacebo = hrRecords.some(r => r.includePlacebo);
+    } else if (selectedType === 'hsv') {
+      record.details!.hadBreakout = hadBreakout;
+      if (hadBreakout) {
+        record.details!.severity = severity;
+      }
+      if (hsDrugName) {
+        record.details!.treatments = [{
+          drugName: hsDrugName,
+          dose: hsDose ? parseFloat(hsDose) : undefined,
+          doseUnit: hsDoseUnit,
+          frequency: hsFrequency ? parseFloat(hsFrequency) : undefined,
+          frequencyUnit: hsFrequencyUnit,
+        }];
+      }
       record.details!.repeatForward = repeatForward;
-    } else if (selectedType === 'mental') {
+    } else if (selectedType === 'mental-health') {
       record.details!.mood = mood;
+      record.details!.notes = notes;
     }
 
     onAdd(record);
@@ -86,25 +217,59 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd }: AddReco
     // Reset form
     setSelectedType('period');
     setIntensity('');
-    setIncludePlacebo(false);
+    setHadBreakout(false);
+    setSeverity('');
     setRepeatForward(false);
     setMood('');
+    setNotes('');
+    setHrRecords([{
+      startDate: '',
+      endDate: '',
+      drugName: '',
+      dose: '',
+      doseUnit: 'Mg',
+      frequency: '',
+      frequencyUnit: 'daily',
+      includePlacebo: false,
+      repeatForward: false,
+    }]);
+    setHsDrugName('');
+    setHsDose('');
+    setHsFrequency('');
     setIsAdding(false);
     onClose();
   };
 
+  const addHrRecord = () => {
+    const dateStr = selectedDate ? selectedDate.toISOString().split('T')[0] : '';
+    setHrRecords([...hrRecords, {
+      startDate: dateStr,
+      endDate: dateStr,
+      drugName: '',
+      dose: '',
+      doseUnit: 'Mg',
+      frequency: '',
+      frequencyUnit: 'daily',
+      includePlacebo: false,
+      repeatForward: false,
+    }]);
+  };
+
+  const updateHrRecord = (index: number, field: keyof HRRecordItem, value: any) => {
+    setHrRecords(hrRecords.map((r, i) => i === index ? { ...r, [field]: value } : r));
+  };
+
   const { tokens } = useDesignSystem();
   
-  // Get palette colors from design tokens for labels
   const getLabelColor = (colorName: string): string => {
     return (tokens as any)[colorName] || '#B3B3B3';
   };
 
   const RECORD_TYPES = [
-    { id: 'period', label: 'PE', color: getLabelColor('coral') },
-    { id: 'hsv', label: 'HS', color: getLabelColor('marigold') },
-    { id: 'pill', label: 'HR', color: getLabelColor('turquiose') },
-    { id: 'mental', label: 'ID', color: getLabelColor('sage') },
+    { id: 'period', label: 'PE', color: getLabelColor('coral'), defaultColor: 'brick' },
+    { id: 'hormone-replacement-therapy', label: 'HR', color: getLabelColor('turquiose'), defaultColor: 'ocean' },
+    { id: 'hsv', label: 'HS', color: getLabelColor('marigold'), defaultColor: 'sand' },
+    { id: 'mental-health', label: 'ID', color: getLabelColor('sage'), defaultColor: 'steel' },
   ];
 
   if (!isOpen || !selectedDate) return null;
@@ -121,7 +286,7 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd }: AddReco
         </div>
 
         {/* Record Type Chips */}
-        <div className="form-chips-single chip-bar-variant-record">
+        <div className="ds-chip-bar-record-selector">
           <div className="chip-bar-single-select">
             {RECORD_TYPES.map((type) => (
               <button
@@ -136,6 +301,8 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd }: AddReco
                   setSelectedType(type.id);
                   setIntensity('');
                   setMood('');
+                  setSeverity('');
+                  setHadBreakout(false);
                 }}
               >
                 <span>{type.label}</span>
@@ -145,7 +312,9 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd }: AddReco
         </div>
 
         <div className="bottom-sheet-content">
-          {/* form-date-selector */}
+          {/* Period */}
+          {selectedType === 'period' && (
+            <>
           <div className="form-date-selector">
             <label className="form-section-headers">Date Range</label>
             <div className="date-range-container">
@@ -169,17 +338,13 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd }: AddReco
               </div>
             </div>
           </div>
-
-          {/* Custom Section based on Type */}
-          {selectedType === 'period' && (
-            /* form-chips-single */
             <div className="form-chips-single">
               <label className="form-section-headers">Intensity</label>
               <div className="chip-bar-single-select">
                 {PERIOD_INTENSITY.map((level) => (
                   <button
                     key={level}
-                    className={`ds-chip-single-select ${intensity === level ? 'active' : ''}`}
+                      className={`ds-chip-single-select-md ${intensity === level ? 'active' : ''}`}
                     onClick={() => setIntensity(level)}
                     style={intensity === level ? { backgroundColor: 'var(--brick)', borderColor: 'var(--brick)' } : undefined}
                   >
@@ -188,40 +353,324 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd }: AddReco
                 ))}
               </div>
             </div>
+            </>
           )}
 
+          {/* Hormone Replacement Therapy */}
+          {selectedType === 'hormone-replacement-therapy' && (
+            <>
+              {hrRecords.map((record, index) => (
+                <div key={index} className="record-item">
+                  <div className="form-date-selector">
+                    <label className="form-section-headers">Date Range</label>
+                    <div className="date-range-container">
+                      <div className="date-input-group">
+                        <label className="date-label">Start</label>
+                        <input
+                          type="date"
+                          value={record.startDate}
+                          onChange={(e) => updateHrRecord(index, 'startDate', e.target.value)}
+                          className="date-input"
+                        />
+                      </div>
+                      <div className="date-input-group">
+                        <label className="date-label">End</label>
+                        <input
+                          type="date"
+                          value={record.endDate}
+                          onChange={(e) => updateHrRecord(index, 'endDate', e.target.value)}
+                          className="date-input"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="form-section">
+                    <label className="form-section-headers">Treatment</label>
+                    
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-sm)' }}>
+                      <div className="form-text-input">
+                        <label className="form-label">Drug Name</label>
+                        <input
+                          type="text"
+                          value={record.drugName}
+                          onChange={(e) => updateHrRecord(index, 'drugName', e.target.value)}
+                          className="form-input"
+                          placeholder="Enter drug name"
+                          onBlur={() => {
+                            if (record.drugName.trim() && !hrDrugNames.includes(record.drugName.trim())) {
+                              saveDrugName('hr', record.drugName.trim());
+                            }
+                          }}
+                        />
+                      </div>
+
+                      {hrDrugNames.length > 0 && (
+                        <div className="chip-bar-drug-select">
+                          {hrDrugNames.map((drug) => (
+                            <button
+                              key={drug}
+                              className={`ds-chip ${record.drugName === drug ? 'ds-chip-active' : 'ds-chip-inactive'}`}
+                              onClick={() => updateHrRecord(index, 'drugName', drug)}
+                              style={record.drugName === drug 
+                                ? { backgroundColor: 'var(--ocean)', borderColor: 'var(--ocean)' }
+                                : { borderColor: 'var(--ocean)', color: 'var(--ocean)' }
+                              }
+                            >
+                              <span>{drug}</span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    <div style={{ display: 'flex', gap: 'var(--spacing-md)' }}>
+                      <div className="form-text-input" style={{ flex: 1 }}>
+                        <label className="form-label">Dose</label>
+                        <input
+                          type="number"
+                          value={record.dose}
+                          onChange={(e) => updateHrRecord(index, 'dose', e.target.value)}
+                          className="form-input"
+                          placeholder="0"
+                        />
+                      </div>
+                      <div className="form-input-dropdown" style={{ flex: 1 }}>
+                        <label className="form-label">Unit</label>
+                        <select
+                          value={record.doseUnit}
+                          onChange={(e) => updateHrRecord(index, 'doseUnit', e.target.value)}
+                          className="form-input"
+                        >
+                          {DOSE_UNITS.map(unit => (
+                            <option key={unit} value={unit}>{unit}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: 'var(--spacing-md)' }}>
+                      <div className="form-text-input" style={{ flex: 1 }}>
+                        <label className="form-label">Frequency</label>
+                        <input
+                          type="number"
+                          value={record.frequency}
+                          onChange={(e) => updateHrRecord(index, 'frequency', e.target.value)}
+                          className="form-input"
+                          placeholder="0"
+                        />
+                      </div>
+                      <div className="form-input-dropdown" style={{ flex: 1 }}>
+                        <label className="form-label">Unit</label>
+                        <select
+                          value={record.frequencyUnit}
+                          onChange={(e) => updateHrRecord(index, 'frequencyUnit', e.target.value)}
+                          className="form-input"
+                        >
+                          {FREQUENCY_UNITS.map(unit => (
+                            <option key={unit} value={unit}>{unit}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="checkbox-group">
+                      <label className="checkbox-label">
+                        <input
+                          type="checkbox"
+                          checked={record.includePlacebo}
+                          onChange={(e) => updateHrRecord(index, 'includePlacebo', e.target.checked)}
+                          className="checkbox-input"
+                        />
+                        <span>Include Placebo Week</span>
+                      </label>
+                      <label className="checkbox-label">
+                        <input
+                          type="checkbox"
+                          checked={record.repeatForward}
+                          onChange={(e) => updateHrRecord(index, 'repeatForward', e.target.checked)}
+                          className="checkbox-input"
+                        />
+                        <span>Repeat Forward</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              <button
+                className="ds-button-secondary"
+                onClick={addHrRecord}
+                style={{ width: '100%' }}
+              >
+                <Plus size={16} style={{ marginRight: 'var(--spacing-sm)' }} />
+                Add Record
+              </button>
+            </>
+          )}
+
+          {/* HSV */}
           {selectedType === 'hsv' && (
-            /* form-chips-single */
+            <>
+              <div className="form-date-selector">
+                <label className="form-section-headers">Date Range</label>
+                <div className="date-range-container">
+                  <div className="date-input-group">
+                    <label className="date-label">Start</label>
+                    <input
+                      type="date"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      className="date-input"
+                    />
+                  </div>
+                  <div className="date-input-group">
+                    <label className="date-label">End</label>
+                    <input
+                      type="date"
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                      className="date-input"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="form-section">
+                <label className="form-section-headers">Breakout</label>
+                
+                <div className="checkbox-group">
+                  <label className="checkbox-label">
+                    <input
+                      type="checkbox"
+                      checked={hadBreakout}
+                      onChange={(e) => {
+                        setHadBreakout(e.target.checked);
+                        if (!e.target.checked) setSeverity('');
+                      }}
+                      className="checkbox-input"
+                    />
+                    <span>Had Breakout</span>
+                  </label>
+                </div>
+
             <div className="form-chips-single">
               <label className="form-section-headers">Severity</label>
               <div className="chip-bar-single-select">
                 {HSV_INTENSITY.map((level) => (
                   <button
                     key={level}
-                    className={`ds-chip-single-select ${intensity === level ? 'active' : ''}`}
-                    onClick={() => setIntensity(level)}
-                    style={intensity === level ? { backgroundColor: 'var(--marigold)', borderColor: 'var(--marigold)' } : undefined}
+                        className={`ds-chip-single-select-md ${severity === level ? 'active' : ''}`}
+                        onClick={() => {
+                          if (hadBreakout) {
+                            setSeverity(level);
+                          }
+                        }}
+                        disabled={!hadBreakout}
+                        style={
+                          !hadBreakout
+                            ? { opacity: 0.5, cursor: 'not-allowed' }
+                            : severity === level
+                            ? { backgroundColor: 'var(--sand)', borderColor: 'var(--sand)' }
+                            : undefined
+                        }
                   >
                     <span>{level}</span>
                   </button>
                 ))}
               </div>
+                </div>
+              </div>
+
+              <div className="form-section" style={{ marginTop: 'var(--spacing-md)' }}>
+                <label className="form-section-headers">Treatment</label>
+                
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-sm)' }}>
+                  <div className="form-text-input">
+                    <label className="form-label">Drug Name</label>
+                    <input
+                      type="text"
+                      value={hsDrugName}
+                      onChange={(e) => setHsDrugName(e.target.value)}
+                      className="form-input"
+                      placeholder="Enter drug name"
+                      onBlur={() => {
+                        if (hsDrugName.trim() && !hsDrugNames.includes(hsDrugName.trim())) {
+                          saveDrugName('hs', hsDrugName.trim());
+                        }
+                      }}
+                    />
+                  </div>
+
+                  {hsDrugNames.length > 0 && (
+                    <div className="chip-bar-drug-select">
+                      {hsDrugNames.map((drug) => (
+                        <button
+                          key={drug}
+                          className={`ds-chip ${hsDrugName === drug ? 'ds-chip-active' : 'ds-chip-inactive'}`}
+                          onClick={() => setHsDrugName(drug)}
+                          style={hsDrugName === drug 
+                            ? { backgroundColor: 'var(--sand)', borderColor: 'var(--sand)' }
+                            : { borderColor: 'var(--sand)', color: 'var(--sand)' }
+                          }
+                        >
+                          <span>{drug}</span>
+                        </button>
+                      ))}
             </div>
           )}
+                </div>
 
-          {selectedType === 'pill' && (
-            <div className="form-section">
-              <label className="form-section-headers">Options</label>
+                <div style={{ display: 'flex', gap: 'var(--spacing-md)' }}>
+                  <div className="form-text-input" style={{ flex: 1 }}>
+                    <label className="form-label">Dose</label>
+                    <input
+                      type="number"
+                      value={hsDose}
+                      onChange={(e) => setHsDose(e.target.value)}
+                      className="form-input"
+                      placeholder="0"
+                    />
+                  </div>
+                  <div className="form-input-dropdown" style={{ flex: 1 }}>
+                    <label className="form-label">Unit</label>
+                    <select
+                      value={hsDoseUnit}
+                      onChange={(e) => setHsDoseUnit(e.target.value)}
+                      className="form-input"
+                    >
+                      {DOSE_UNITS.map(unit => (
+                        <option key={unit} value={unit}>{unit}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: 'var(--spacing-md)' }}>
+                  <div className="form-text-input" style={{ flex: 1 }}>
+                    <label className="form-label">Frequency</label>
+                    <input
+                      type="number"
+                      value={hsFrequency}
+                      onChange={(e) => setHsFrequency(e.target.value)}
+                      className="form-input"
+                      placeholder="0"
+                    />
+                  </div>
+                  <div className="form-input-dropdown" style={{ flex: 1 }}>
+                    <label className="form-label">Unit</label>
+                    <select
+                      value={hsFrequencyUnit}
+                      onChange={(e) => setHsFrequencyUnit(e.target.value)}
+                      className="form-input"
+                    >
+                      {FREQUENCY_UNITS.map(unit => (
+                        <option key={unit} value={unit}>{unit}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
               <div className="checkbox-group">
-                <label className="checkbox-label">
-                  <input
-                    type="checkbox"
-                    checked={includePlacebo}
-                    onChange={(e) => setIncludePlacebo(e.target.checked)}
-                    className="checkbox-input"
-                  />
-                  <span>Include Placebo Week</span>
-                </label>
                 <label className="checkbox-label">
                   <input
                     type="checkbox"
@@ -233,10 +682,36 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd }: AddReco
                 </label>
               </div>
             </div>
+            </>
           )}
 
-          {selectedType === 'mental' && (
-            /* form-chips-single with mood variant */
+          {/* Mental Health */}
+          {selectedType === 'mental-health' && (
+            <>
+              <div className="form-date-selector">
+                <label className="form-section-headers">Date Range</label>
+                <div className="date-range-container">
+                  <div className="date-input-group">
+                    <label className="date-label">Start</label>
+                    <input
+                      type="date"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      className="date-input"
+                    />
+                  </div>
+                  <div className="date-input-group">
+                    <label className="date-label">End</label>
+                    <input
+                      type="date"
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                      className="date-input"
+                    />
+                  </div>
+                </div>
+              </div>
+
             <div className="form-chips-single">
               <label className="form-section-headers">Mood</label>
               <div className="mood-chips">
@@ -252,6 +727,22 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd }: AddReco
                 ))}
               </div>
             </div>
+
+              <div className="form-textarea" style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+                <label className="form-label">Notes</label>
+                <textarea
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  className="form-input"
+                  placeholder="Enter notes..."
+                  style={{ 
+                    flex: 1,
+                    minHeight: '200px',
+                    resize: 'none'
+                  }}
+                />
+              </div>
+            </>
           )}
         </div>
 
@@ -268,4 +759,3 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd }: AddReco
     </>
   );
 }
-

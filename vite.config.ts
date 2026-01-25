@@ -165,6 +165,199 @@ function apiPlugin() {
         }
         next();
       });
+
+      // API endpoint to save user labels
+      server.middlewares.use('/api/save_user_labels.php', async (req, res, next) => {
+        if (req.method !== 'POST') {
+          res.statusCode = 405;
+          res.end(JSON.stringify({ error: 'Method not allowed' }));
+          return;
+        }
+
+        let body = '';
+        req.on('data', chunk => { body += chunk.toString(); });
+        req.on('end', async () => {
+          try {
+            const { username, labels } = JSON.parse(body);
+            const srcDataDir = path.join(__dirname, 'src', 'data');
+            const publicDataDir = path.join(__dirname, 'public', 'data');
+            
+            // Ensure directories exist
+            if (!fs.existsSync(srcDataDir)) {
+              fs.mkdirSync(srcDataDir, { recursive: true });
+            }
+            if (!fs.existsSync(publicDataDir)) {
+              fs.mkdirSync(publicDataDir, { recursive: true });
+            }
+            
+            const srcLabelsPath = path.join(srcDataDir, `label-list-user-${username}.json`);
+            const publicLabelsPath = path.join(publicDataDir, `label-list-user-${username}.json`);
+            
+            const labelsJson = JSON.stringify(labels, null, 2) + '\n';
+            
+            fs.writeFileSync(srcLabelsPath, labelsJson, 'utf-8');
+            fs.writeFileSync(publicLabelsPath, labelsJson, 'utf-8');
+            
+            res.setHeader('Content-Type', 'application/json');
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            res.statusCode = 200;
+            res.end(JSON.stringify({ 
+              success: true, 
+              message: 'User labels saved successfully' 
+            }));
+          } catch (error) {
+            res.statusCode = 500;
+            res.setHeader('Content-Type', 'application/json');
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+            res.end(JSON.stringify({ 
+              success: false, 
+              error: errorMessage 
+            }));
+          }
+        });
+      });
+
+      // API endpoint to save drug names
+      server.middlewares.use('/api/save_drug_names.php', async (req, res, next) => {
+        if (req.method !== 'POST') {
+          res.statusCode = 405;
+          res.end(JSON.stringify({ error: 'Method not allowed' }));
+          return;
+        }
+
+        let body = '';
+        req.on('data', chunk => { body += chunk.toString(); });
+        req.on('end', async () => {
+          try {
+            const { username, type, drugNames } = JSON.parse(body);
+            if (!username) {
+              res.statusCode = 400;
+              res.end(JSON.stringify({ error: 'username is required' }));
+              return;
+            }
+            if (!['hr', 'hs'].includes(type)) {
+              res.statusCode = 400;
+              res.end(JSON.stringify({ error: 'Invalid type' }));
+              return;
+            }
+            
+            const srcDataDir = path.join(__dirname, 'src', 'data');
+            const publicDataDir = path.join(__dirname, 'public', 'data');
+            
+            // Ensure directories exist
+            if (!fs.existsSync(srcDataDir)) {
+              fs.mkdirSync(srcDataDir, { recursive: true });
+            }
+            if (!fs.existsSync(publicDataDir)) {
+              fs.mkdirSync(publicDataDir, { recursive: true });
+            }
+            
+            const srcDrugsPath = path.join(srcDataDir, `drug-names-${type}-${username}.json`);
+            const publicDrugsPath = path.join(publicDataDir, `drug-names-${type}-${username}.json`);
+            
+            const drugsJson = JSON.stringify(drugNames, null, 2) + '\n';
+            
+            fs.writeFileSync(srcDrugsPath, drugsJson, 'utf-8');
+            fs.writeFileSync(publicDrugsPath, drugsJson, 'utf-8');
+            
+            res.setHeader('Content-Type', 'application/json');
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            res.statusCode = 200;
+            res.end(JSON.stringify({ 
+              success: true, 
+              message: 'Drug names saved successfully' 
+            }));
+          } catch (error) {
+            res.statusCode = 500;
+            res.setHeader('Content-Type', 'application/json');
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+            res.end(JSON.stringify({ 
+              success: false, 
+              error: errorMessage 
+            }));
+          }
+        });
+      });
+
+      // API endpoint to save events
+      server.middlewares.use('/api/save_events.php', async (req, res, next) => {
+        if (req.method !== 'POST') {
+          res.statusCode = 405;
+          res.end(JSON.stringify({ error: 'Method not allowed' }));
+          return;
+        }
+
+        let body = '';
+        req.on('data', chunk => { body += chunk.toString(); });
+        req.on('end', async () => {
+          try {
+            const { username, events } = JSON.parse(body);
+            const srcEventsPath = path.join(__dirname, 'src', 'data', `events-${username}.json`);
+            const publicEventsPath = path.join(__dirname, 'public', 'data', `events-${username}.json`);
+            
+            const eventsJson = JSON.stringify(events, null, 2) + '\n';
+            
+            fs.writeFileSync(srcEventsPath, eventsJson, 'utf-8');
+            fs.writeFileSync(publicEventsPath, eventsJson, 'utf-8');
+            
+            res.setHeader('Content-Type', 'application/json');
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            res.statusCode = 200;
+            res.end(JSON.stringify({ 
+              success: true, 
+              message: 'Events saved successfully' 
+            }));
+          } catch (error) {
+            res.statusCode = 500;
+            res.setHeader('Content-Type', 'application/json');
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+            res.end(JSON.stringify({ 
+              success: false, 
+              error: errorMessage 
+            }));
+          }
+        });
+      });
+
+      // API endpoint to save global labels
+      server.middlewares.use('/api/save_global_labels.php', async (req, res, next) => {
+        if (req.method !== 'POST') {
+          res.statusCode = 405;
+          res.end(JSON.stringify({ error: 'Method not allowed' }));
+          return;
+        }
+
+        let body = '';
+        req.on('data', chunk => { body += chunk.toString(); });
+        req.on('end', async () => {
+          try {
+            const { labels } = JSON.parse(body);
+            const srcLabelsPath = path.join(__dirname, 'src', 'data', 'label-list-global.json');
+            const publicLabelsPath = path.join(__dirname, 'public', 'data', 'label-list-global.json');
+            
+            const labelsJson = JSON.stringify(labels, null, 2) + '\n';
+            
+            fs.writeFileSync(srcLabelsPath, labelsJson, 'utf-8');
+            fs.writeFileSync(publicLabelsPath, labelsJson, 'utf-8');
+            
+            res.setHeader('Content-Type', 'application/json');
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            res.statusCode = 200;
+            res.end(JSON.stringify({ 
+              success: true, 
+              message: 'Global labels saved successfully' 
+            }));
+          } catch (error) {
+            res.statusCode = 500;
+            res.setHeader('Content-Type', 'application/json');
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+            res.end(JSON.stringify({ 
+              success: false, 
+              error: errorMessage 
+            }));
+          }
+        });
+      });
     }
   }
 }

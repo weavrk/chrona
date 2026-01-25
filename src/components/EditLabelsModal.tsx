@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { X as XIcon, Trash2, CheckCircle2 } from 'lucide-react';
 import { useDesignSystem } from '../contexts/DesignSystemContext';
+import { useAuth } from '../contexts/AuthContext';
 
 interface ChipLabel {
   id: string;
@@ -17,9 +18,11 @@ interface EditLabelsModalProps {
 
 export function EditLabelsModal({ isOpen, labels, onClose, onSave }: EditLabelsModalProps) {
   const { tokens } = useDesignSystem();
+  const { user } = useAuth();
   const [editedLabels, setEditedLabels] = useState<ChipLabel[]>(labels);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Get palette colors from design tokens (exclude grays and semantic colors)
   const getPaletteColors = () => {
@@ -39,13 +42,35 @@ export function EditLabelsModal({ isOpen, labels, onClose, onSave }: EditLabelsM
 
   const PRIMITIVE_COLORS = getPaletteColors();
 
+  // Load labels when modal opens
+  const loadLabels = useCallback(async () => {
+    if (!user) return;
+    setIsLoading(true);
+    try {
+      const response = await fetch(`/data/label-list-user-${user.username}.json?t=${Date.now()}`);
+      if (response.ok) {
+        const loadedLabels = await response.json();
+        const labelsArray = Array.isArray(loadedLabels) ? loadedLabels : [];
+        setEditedLabels(labelsArray);
+      } else {
+        setEditedLabels([]);
+      }
+    } catch (error) {
+      console.error('Failed to load user labels:', error);
+      setEditedLabels([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [user]);
+
   useEffect(() => {
-    if (isOpen) {
-      setEditedLabels(labels);
+    if (isOpen && user) {
+      // Load labels directly from JSON when modal opens
+      loadLabels();
       setDeletingId(null);
       setIsSaving(false);
     }
-  }, [isOpen, labels]);
+  }, [isOpen, user, loadLabels]);
 
   const handleLabelChange = (id: string, field: 'label' | 'color', value: string) => {
     setEditedLabels(prev =>
@@ -110,8 +135,17 @@ export function EditLabelsModal({ isOpen, labels, onClose, onSave }: EditLabelsM
         </div>
 
         <div className="modal-body">
-          <div className="edit-labels-list">
-            {editedLabels.map((label) => {
+          {isLoading ? (
+            <div style={{ padding: 'var(--spacing-lg)', textAlign: 'center', color: 'var(--color-secondary)' }}>
+              Loading labels...
+            </div>
+          ) : editedLabels.length === 0 ? (
+            <div style={{ padding: 'var(--spacing-lg)', textAlign: 'center', color: 'var(--color-secondary)' }}>
+              No labels found. Add labels using the "Add Label" option.
+            </div>
+          ) : (
+            <div className="edit-labels-list">
+              {editedLabels.map((label) => {
               const usedColors = getUsedColors(label.id);
               const isDeleting = deletingId === label.id;
               
@@ -199,8 +233,9 @@ export function EditLabelsModal({ isOpen, labels, onClose, onSave }: EditLabelsM
                   </div>
                 </div>
               );
-            })}
-          </div>
+              })}
+            </div>
+          )}
         </div>
 
         <div className="modal-footer">

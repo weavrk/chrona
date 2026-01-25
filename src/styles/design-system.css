@@ -539,7 +539,7 @@
   gap: 8px;
   padding: 4px 8px;
   border-radius: 20px;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 500;
   font-family: var(--font-family);
   color: var(--gray-700);
@@ -565,12 +565,46 @@
   color: var(--gray-100);
 }
 
+/* Medium single-select chip variant */
+.ds-chip-single-select-md {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 16px;
+  font-weight: 500;
+  font-family: var(--font-family);
+  color: var(--gray-700);
+  border: 2px solid var(--gray-700);
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.ds-chip-single-select-md:hover {
+  transform: translateY(-1px);
+  opacity: 0.8;
+}
+
+.ds-chip-single-select-md:active {
+  transform: translateY(0);
+}
+
+/* Active state: background and border set via inline styles, text is dark */
+.ds-chip-single-select-md.active,
+.ds-chip-single-select-md.active span {
+  color: var(--gray-100);
+}
+
 /* Chip Bar Container */
 .chip-bar-container {
   position: fixed;
-  top: 60px;
+  top: 64px;
   left: 0;
   right: 0;
+  height: 62px; /* 30px content + 16px top padding + 16px bottom padding */
   z-index: 9999;
   background: var(--color-background-body, var(--bg-primary));
   padding: 16px 0;
@@ -619,7 +653,7 @@
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
-  background: var(--color-background-shells, var(--bg-secondary));
+  background: var(--color-brand-primary);
   border: 1px solid var(--color-background-components, var(--bg-card));
   border-radius: var(--border-radius);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
@@ -634,7 +668,7 @@
   padding: var(--spacing-sm) var(--spacing-md);
   background: transparent;
   border: none;
-  color: var(--gray-800);
+  color: var(--color-primary);
   text-align: left;
   font-family: var(--font-family);
   font-size: 1rem;
@@ -643,7 +677,14 @@
 }
 
 .chip-bar-menu-item:hover {
-  background-color: var(--color-background-components, var(--bg-card));
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.chip-bar-menu-divider {
+  height: 1px;
+  background-color: var(--color-secondary);
+  margin: 4px 0;
+  width: 100%;
 }
 
 /* Modal Styles */
@@ -724,6 +765,10 @@
 
 .modal-body-add-label {
   padding: var(--spacing-lg) 24px;
+}
+
+.modal-content:has(.modal-body-add-label) {
+  min-height: 70vh;
 }
 
 .modal-footer {
@@ -1305,6 +1350,14 @@
   border: none;
 }
 
+/* Drug name chip bar container */
+.chip-bar-drug-select {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  align-items: center;
+}
+
 .form-chips-single .ds-chip-single-select {
   display: inline-flex;
   align-items: center;
@@ -1390,8 +1443,8 @@
   justify-content: flex-end;
 }
 
-/* Variant B: Record type selector (add record sheet) */
-.form-chips-single.chip-bar-variant-record {
+/* Record type selector (add record sheet) */
+.ds-chip-bar-record-selector {
   padding: 8px 0;
   border-bottom: 1px solid var(--color-secondary);
   flex-shrink: 0;
@@ -1405,17 +1458,210 @@
   -ms-overflow-style: none; /* IE and Edge */
 }
 
-.form-chips-single.chip-bar-variant-record::-webkit-scrollbar {
+.ds-chip-bar-record-selector::-webkit-scrollbar {
   display: none; /* Chrome, Safari, Opera */
 }
 
-.form-chips-single.chip-bar-variant-record .chip-bar-single-select {
+.ds-chip-bar-record-selector .chip-bar-single-select {
   display: flex;
   flex-wrap: nowrap;
   gap: var(--spacing-sm);
   align-items: center;
   padding: 0 0 0 24px;
   border: none;
+}
+
+.ds-chip-bar-record-selector .ds-chip-single-select {
+  font-size: 14px;
+}
+
+/* 6. form-input-dropdown */
+.form-input-dropdown {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  width: 100%;
+}
+
+.form-input-dropdown .form-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--gray-700);
+  margin: 0;
+}
+
+.form-input-dropdown select {
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--color-background-components, var(--bg-card));
+  border: 1px solid var(--color-background-components, var(--bg-card));
+  border-radius: var(--border-radius);
+  color: var(--gray-800);
+  font-size: 1rem;
+  font-family: var(--font-family);
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+.form-input-dropdown select:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
+
+/* Custom Dropdown */
+.custom-dropdown-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.custom-dropdown-trigger {
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--color-background-components, var(--bg-card));
+  border: 1px solid var(--color-background-components, var(--bg-card));
+  border-radius: var(--border-radius);
+  color: var(--gray-800);
+  font-size: 1rem;
+  font-family: var(--font-family);
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-align: left;
+}
+
+.custom-dropdown-trigger:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
+
+.custom-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  width: 100%;
+  background: var(--color-background-components, var(--bg-card));
+  border: 1px solid var(--color-background-components, var(--bg-card));
+  border-radius: var(--border-radius);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  overflow: hidden;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.custom-dropdown-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: transparent;
+  border: none;
+  color: var(--gray-800);
+  text-align: left;
+  font-family: var(--font-family);
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  box-sizing: border-box;
+}
+
+.custom-dropdown-item:hover {
+  background-color: var(--color-background-shells, var(--bg-secondary));
+}
+
+.custom-dropdown-item.selected {
+  background-color: var(--color-accent);
+  color: var(--color-background-white);
+}
+
+/* 7. form-textarea */
+.form-textarea {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  width: 100%;
+}
+
+.form-textarea .form-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--gray-700);
+  margin: 0;
+}
+
+.form-textarea textarea {
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--color-background-components, var(--bg-card));
+  border: 1px solid var(--color-background-components, var(--bg-card));
+  border-radius: var(--border-radius);
+  color: var(--gray-800);
+  font-size: 1rem;
+  font-family: var(--font-family);
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+  resize: vertical;
+}
+
+.form-textarea textarea:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
+
+/* Login Screen */
+.login-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-lg);
+  background: var(--color-background-body, var(--bg-primary));
+}
+
+.login-container {
+  width: 100%;
+  max-width: 400px;
+}
+
+.login-title {
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--gray-800);
+  text-align: center;
+  margin-bottom: var(--spacing-xl);
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.login-error {
+  color: var(--error, #F06292);
+  font-size: 0.875rem;
+  margin-top: calc(var(--spacing-sm) * -1);
+}
+
+
+/* Record Item */
+.record-item {
+  border-bottom: 1px solid var(--color-secondary);
+  padding-bottom: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+}
+
+.record-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
 }
 
 

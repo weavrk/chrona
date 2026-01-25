@@ -882,44 +882,6 @@ export function DesignSystemPanel() {
                         </div>
                       );
                     })}
-                    <div
-                      className="semantic-color-item"
-                      onClick={handleAddNew}
-                      onDragOver={(e) => {
-                        e.preventDefault();
-                        const index = semanticColors.length;
-                        handleDragOver(e, index);
-                      }}
-                      onDrop={(e) => {
-                        const index = semanticColors.length;
-                        handleDrop(e, index);
-                      }}
-                      style={{
-                        cursor: 'pointer',
-                        border: '2px solid var(--color-secondary)',
-                        background: 'transparent',
-                        padding: 0,
-                        gap: '16px',
-                        alignItems: 'center'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.borderColor = 'var(--color-accent)';
-                        e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.borderColor = 'var(--color-secondary)';
-                        e.currentTarget.style.backgroundColor = 'transparent';
-                      }}
-                    >
-                      <div style={{ width: '48px', height: '48px', flexShrink: 0 }}></div>
-                      <div className="semantic-color-info" style={{ flex: 1, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: '8px', color: 'var(--color-secondary)', padding: 0, width: '100%' }}>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path d="M12 5v14M5 12h14"/>
-                        </svg>
-                        <span style={{ fontFamily: 'var(--font-family)', fontSize: '0.875rem' }}>Add</span>
-                      </div>
-                      <div style={{ width: '32px', flexShrink: 0 }}></div>
-                    </div>
                   </div>
                 </section>
 
@@ -1202,7 +1164,7 @@ Location: Calendar home screen filter bar`}</pre>
                           <span>PE</span>
                         </button>
                       </div>
-                      <p className="button-demo-description">Single-select chip variant without icons. Used in AddRecordSheet for record type selection (PE/HS/HR/ID) and intensity/severity levels. See also: chip-bar-variant-record, form-chips-single.</p>
+                      <p className="button-demo-description">Single-select chip variant without icons. Used in AddRecordSheet for record type selection (PE/HS/HR/ID) and intensity/severity levels. See also: ds-chip-bar-record-selector, form-chips-single.</p>
                       
                       <button
                         className="style-reference-toggle"
@@ -1222,7 +1184,7 @@ align-items: center
 gap: 8px
 padding: 4px 8px
 border-radius: 20px
-font-size: 12px
+font-size: 14px
 font-weight: 500
 border: 2px solid var(--color-secondary)
 background: transparent
@@ -1243,8 +1205,101 @@ align-items: center`}</pre>
                           
                           <h5>Used In:</h5>
                           <pre>{`Components: AddRecordSheet.tsx
-Containers: .chip-bar-variant-record, .form-chips-single
+Containers: .ds-chip-bar-record-selector, .form-chips-single
 Location: Add Record sheet (record type selector, intensity, severity)`}</pre>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="button-demo-item">
+                      <h4 className="button-demo-label">
+                        ds-chip-single-select-md
+                        <button
+                          onClick={() => handleCopyToClipboard('ds-chip-single-select-md')}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: copiedName === 'ds-chip-single-select-md' ? 'var(--color-accent)' : 'var(--gray-700)',
+                            cursor: 'pointer',
+                            padding: '2px',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            transition: 'color 0.2s',
+                            marginLeft: '8px'
+                          }}
+                          title="Copy to clipboard"
+                        >
+                          {copiedName === 'ds-chip-single-select-md' ? (
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M20 6L9 17l-5-5"/>
+                            </svg>
+                          ) : (
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                            </svg>
+                          )}
+                        </button>
+                      </h4>
+                      <div style={{ display: 'flex', gap: 'var(--spacing-sm)', flexWrap: 'wrap' }}>
+                        <button className="ds-chip-single-select-md" style={{ color: 'var(--brick)', borderColor: 'var(--brick)' }}>
+                          <span>Heavy</span>
+                        </button>
+                        <button className="ds-chip-single-select-md active" style={{ backgroundColor: 'var(--brick)', borderColor: 'var(--brick)' }}>
+                          <span>Medium</span>
+                        </button>
+                        <button className="ds-chip-single-select-md" style={{ color: 'var(--brick)', borderColor: 'var(--brick)' }}>
+                          <span>Lite</span>
+                        </button>
+                        <button className="ds-chip-single-select-md" style={{ color: 'var(--brick)', borderColor: 'var(--brick)' }}>
+                          <span>Spotting</span>
+                        </button>
+                      </div>
+                      <p className="button-demo-description">Medium-sized single-select chip variant. Used for intensity/severity levels in PE and HS record types. Based on ds-chip-single-select with larger font-size (16px) and padding (6px 12px).</p>
+                      
+                      <button
+                        className="style-reference-toggle"
+                        onClick={() => toggleStyleSection('ds-chip-single-select-md')}
+                      >
+                        <span>Style Reference</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ transform: expandedStyleSections.has('ds-chip-single-select-md') ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
+                          <path d="m6 9 6 6 6-6"/>
+                        </svg>
+                      </button>
+                      
+                      {expandedStyleSections.has('ds-chip-single-select-md') && (
+                        <div className="style-reference-content">
+                          <h5>Base Class: <code>.ds-chip-single-select-md</code></h5>
+                          <pre>{`display: inline-flex
+align-items: center
+gap: 8px
+padding: 6px 12px
+border-radius: 20px
+font-size: 16px
+font-weight: 500
+font-family: var(--font-family)
+color: var(--gray-700)
+border: 2px solid var(--gray-700)
+background: transparent
+cursor: pointer
+transition: all 0.2s
+white-space: nowrap`}</pre>
+                          
+                          <h5>Active State: <code>.ds-chip-single-select-md.active</code></h5>
+                          <pre>{`color: var(--gray-100)
+/* Background and border colors set via inline styles */`}</pre>
+                          
+                          <h5>Container: <code>.chip-bar-single-select</code></h5>
+                          <pre>{`display: flex
+flex-wrap: nowrap
+gap: var(--spacing-sm)
+align-items: center`}</pre>
+                          
+                          <h5>Used In:</h5>
+                          <pre>{`Components: AddRecordSheet.tsx
+Containers: .form-chips-single
+Location: Add Record sheet (PE intensity, HS severity)`}</pre>
                         </div>
                       )}
                     </div>
@@ -1410,7 +1465,7 @@ Related: ds-chip component`}</pre>
                       
                       {expandedStyleSections.has('ds-chip-bar-record-selector') && (
                         <div className="style-reference-content">
-                          <h5>Container: <code>.chip-bar-variant-record</code></h5>
+                          <h5>Container: <code>.ds-chip-bar-record-selector</code></h5>
                           <pre>{`padding: 8px 0
 border-bottom: 1px solid var(--color-secondary)
 flex-shrink: 0
@@ -1430,13 +1485,15 @@ align-items: center
 padding: 0 0 0 24px
 border: none`}</pre>
                           
-                          <h5>Chips Used: <code>.ds-chip-single-select</code></h5>
-                          <pre>{`See ds-chip-single-select component for styling`}</pre>
+                          <h5>Chips Used: <code>.ds-chip-single-select</code> or <code>.ds-chip-single-select-md</code></h5>
+                          <pre>{`See ds-chip-single-select and ds-chip-single-select-md components for styling
+Standard: 12px font, 4px 8px padding
+Medium: 16px font, 6px 12px padding (used for intensity/severity)`}</pre>
                           
                           <h5>Used In:</h5>
                           <pre>{`Components: AddRecordSheet.tsx
 Location: Add Record bottom sheet (below header, above form)
-Related: ds-chip-single-select component`}</pre>
+Related: ds-chip-single-select, ds-chip-single-select-md components`}</pre>
                         </div>
                       )}
                     </div>
@@ -1691,22 +1748,22 @@ border-color: var(--color-accent)`}</pre>
                         <div className="form-chips-single">
                           <label className="form-section-headers">Intensity</label>
                           <div className="chip-bar-single-select">
-                            <button className="ds-chip-single-select">
+                            <button className="ds-chip-single-select-md">
                               <span>Heavy</span>
                             </button>
-                            <button className="ds-chip-single-select active" style={{ backgroundColor: 'var(--brick)', borderColor: 'var(--brick)' }}>
+                            <button className="ds-chip-single-select-md active" style={{ backgroundColor: 'var(--brick)', borderColor: 'var(--brick)' }}>
                               <span>Medium</span>
                             </button>
-                            <button className="ds-chip-single-select">
+                            <button className="ds-chip-single-select-md">
                               <span>Lite</span>
                             </button>
-                            <button className="ds-chip-single-select">
+                            <button className="ds-chip-single-select-md">
                               <span>Spotting</span>
                             </button>
                   </div>
                         </div>
                       </div>
-                      <p className="button-demo-description">Single-select chip bar for mutually exclusive options. Used for intensity levels and categories. Includes 3 variants: standard (ds-chip-single-select), mood with icons, toggleable chip bar (calendar filter), and record type selector.</p>
+                      <p className="button-demo-description">Single-select chip bar for mutually exclusive options. Used for intensity levels and categories. Includes 3 variants: standard (ds-chip-single-select), medium (ds-chip-single-select-md), mood with icons, toggleable chip bar (calendar filter), and record type selector.</p>
                       
                       <button
                         className="style-reference-toggle"
@@ -1753,7 +1810,7 @@ align-items: center
 gap: 8px
 padding: 4px 8px
 border-radius: 20px
-font-size: 12px
+font-size: 14px
 font-weight: 500
 font-family: var(--font-family)
 border: 2px solid var(--color-secondary)
@@ -1763,7 +1820,23 @@ cursor: pointer
 transition: all 0.2s
 white-space: nowrap`}</pre>
                           
-                          <h5>Chip Active: .ds-chip-single-select.active</h5>
+                          <h5>Chip Medium: .ds-chip-single-select-md</h5>
+                          <pre>{`display: inline-flex
+align-items: center
+gap: 8px
+padding: 6px 12px
+border-radius: 20px
+font-size: 16px
+font-weight: 500
+font-family: var(--font-family)
+border: 2px solid var(--gray-700)
+background: transparent
+color: var(--gray-700)
+cursor: pointer
+transition: all 0.2s
+white-space: nowrap`}</pre>
+                          
+                          <h5>Chip Active: .ds-chip-single-select.active, .ds-chip-single-select-md.active</h5>
                           <pre>{`color: var(--color-background-white)
 /* backgroundColor and borderColor set via inline styles */`}</pre>
                           

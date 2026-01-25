@@ -1,12 +1,138 @@
-import { useState } from 'react';
-import { Plus } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Plus, MoreVertical } from 'lucide-react';
 import { CalendarView } from './CalendarView';
 import { DesignSystemPanel } from './DesignSystemPanel';
 import { AddRecordSheet, RecordData } from './AddRecordSheet';
+import { useAuth } from '../contexts/AuthContext';
+import { LoginScreen } from './LoginScreen';
+import { CreateAccountScreen } from './CreateAccountScreen';
+import { AddLabelModal } from './AddLabelModal';
+import { EditLabelsModal } from './EditLabelsModal';
+import { ChipBar } from './ChipBar';
+
+interface ChipLabel {
+  id: string;
+  label: string;
+  color: string;
+}
 
 export function App() {
+  const { user, isLoading, logout } = useAuth();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [showCreateAccount, setShowCreateAccount] = useState(false);
+  const [isAddLabelOpen, setIsAddLabelOpen] = useState(false);
+  const [isEditLabelsOpen, setIsEditLabelsOpen] = useState(false);
+  const [chipLabels, setChipLabels] = useState<ChipLabel[]>([]);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+  const userMenuButtonRef = useRef<HTMLButtonElement>(null);
+
+  // Load user-specific labels
+  const loadLabels = async () => {
+    if (!user) return;
+    try {
+      const response = await fetch(`/data/label-list-user-${user.username}.json?t=${Date.now()}`);
+      if (response.ok) {
+        const loadedLabels = await response.json();
+        setChipLabels(Array.isArray(loadedLabels) ? loadedLabels : []);
+      } else {
+        setChipLabels([]);
+      }
+    } catch (error) {
+      console.error('Failed to load user labels:', error);
+      setChipLabels([]);
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      loadLabels();
+    }
+  }, [user]);
+
+  const saveLabels = async (labels: ChipLabel[]) => {
+    if (!user) return;
+    try {
+      const response = await fetch('/api/save_user_labels.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: user.username, labels }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save labels');
+      }
+
+      setTimeout(() => {
+        loadLabels();
+      }, 100);
+    } catch (error) {
+      console.error('Error saving user labels:', error);
+      alert('Failed to save labels. Please try again.');
+    }
+  };
+
+  const handleAddLabel = async (label: string, color: string) => {
+    if (!user) return;
+    const newLabel: ChipLabel = {
+      id: label.toLowerCase().replace(/\s+/g, '-'),
+      label: label,
+      color: color,
+    };
+    const updatedLabels = [...chipLabels, newLabel];
+    setChipLabels(updatedLabels);
+    await saveLabels(updatedLabels);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        userMenuRef.current &&
+        !userMenuRef.current.contains(event.target as Node) &&
+        userMenuButtonRef.current &&
+        !userMenuButtonRef.current.contains(event.target as Node)
+      ) {
+        setIsUserMenuOpen(false);
+      }
+    };
+
+    if (isUserMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isUserMenuOpen]);
+
+  // Show loading state while checking authentication
+  if (isLoading) {
+    return (
+      <div className="chrona-app" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+        <div style={{ color: 'var(--gray-800)' }}>Loading...</div>
+      </div>
+    );
+  }
+
+  // Show login screen if not authenticated (only after we've checked localStorage)
+  if (!user) {
+    return showCreateAccount ? (
+      <CreateAccountScreen onSwitchToLogin={() => setShowCreateAccount(false)} />
+    ) : (
+      <>
+        <LoginScreen />
+        <div style={{ position: 'fixed', bottom: 'var(--spacing-lg)', left: '50%', transform: 'translateX(-50%)' }}>
+          <button
+            className="ds-button-secondary"
+            onClick={() => setShowCreateAccount(true)}
+          >
+            Create Account
+          </button>
+        </div>
+      </>
+    );
+  }
 
   const handleAddRecordClick = () => {
     const today = new Date();
@@ -19,22 +145,96 @@ export function App() {
     setIsSheetOpen(true);
   };
 
-  const handleAddRecord = (record: RecordData) => {
-    console.log('Adding record:', record);
-    // TODO: Implement record storage
+  const handleAddRecord = async (record: RecordData) => {
+    if (!user) return;
+    
+    try {
+      // Load existing events
+      const response = await fetch(`/data/events-${user.username}.json?t=${Date.now()}`);
+      let events = [];
+      if (response.ok) {
+        const data = await response.json();
+        events = Array.isArray(data) ? data : [];
+      }
+
+      // Add new event
+      const newEvent = {
+        ...record,
+        startDate: record.startDate.toISOString(),
+        endDate: record.endDate.toISOString(),
+        id: Date.now().toString(),
+      };
+      events.push(newEvent);
+
+      // Save events
+      await fetch('/api/save_events.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: user.username, events }),
+      });
+    } catch (error) {
+      console.error('Failed to save event:', error);
+      alert('Failed to save event. Please try again.');
+    }
+  };
+
+  const handleLogout = () => {
+    logout();
+    setIsUserMenuOpen(false);
   };
 
   return (
     <div className="chrona-app">
       <header className="chrona-header">
         <div className="chrona-wordmark">Chrona</div>
-        <button 
-          className="chrona-header-add-button"
-          onClick={handleAddRecordClick}
-          aria-label="Add record"
-        >
-          <Plus size={20} style={{ color: 'var(--color-primary)' }} />
-        </button>
+        <div style={{ display: 'flex', gap: 'var(--spacing-sm)', alignItems: 'center' }}>
+          <button 
+            className="chrona-header-add-button"
+            onClick={handleAddRecordClick}
+            aria-label="Add record"
+          >
+            <Plus size={20} style={{ color: 'var(--color-primary)' }} />
+          </button>
+          <div className="chip-bar-menu-wrapper">
+            <button
+              ref={userMenuButtonRef}
+              className="chip-bar-ellipses"
+              onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+              aria-label="User menu"
+            >
+              <MoreVertical size={20} />
+            </button>
+            {isUserMenuOpen && (
+              <div ref={userMenuRef} className="chip-bar-menu">
+                <button
+                  className="chip-bar-menu-item"
+                  onClick={() => {
+                    setIsAddLabelOpen(true);
+                    setIsUserMenuOpen(false);
+                  }}
+                >
+                  Add Label
+                </button>
+                <button
+                  className="chip-bar-menu-item"
+                  onClick={() => {
+                    setIsEditLabelsOpen(true);
+                    setIsUserMenuOpen(false);
+                  }}
+                >
+                  Edit Label
+                </button>
+                <div className="chip-bar-menu-divider"></div>
+                <button
+                  className="chip-bar-menu-item"
+                  onClick={handleLogout}
+                >
+                  Log Out
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
       </header>
       
       <main className="chrona-main">
@@ -44,6 +244,7 @@ export function App() {
           onSheetClose={() => setIsSheetOpen(false)}
           onSheetDateChange={handleSheetDateChange}
           onAddRecord={handleAddRecord}
+          chipLabels={chipLabels}
         />
       </main>
       
@@ -54,6 +255,23 @@ export function App() {
         selectedDate={selectedDate}
         onClose={() => setIsSheetOpen(false)}
         onAdd={handleAddRecord}
+      />
+
+      <AddLabelModal
+        isOpen={isAddLabelOpen}
+        existingLabels={chipLabels}
+        onClose={() => setIsAddLabelOpen(false)}
+        onSave={handleAddLabel}
+      />
+
+      <EditLabelsModal
+        isOpen={isEditLabelsOpen}
+        labels={chipLabels}
+        onClose={() => setIsEditLabelsOpen(false)}
+        onSave={async (updatedLabels) => {
+          setChipLabels(updatedLabels);
+          await saveLabels(updatedLabels);
+        }}
       />
     </div>
   );

@@ -11,7 +11,7 @@
   "sand": "#DEC484",
   "coral": "#F7AD97",
   "brick": "#C75B5B",
-  "brand-primary": "brick",
+  "brand-primary": "sand",
   "primary": "gray-100",
   "secondary": "gray-500",
   "tertiary": "gray-300",
@@ -22,11 +22,10 @@
   "button-primary": "gray-300",
   "background-body": "gray-100",
   "background-shells": "gray-200",
-  "background-components": "gray-300",
+  "background-components": "gray-400",
   "background-footer": "gray-200",
   "background-white": "gray-800",
   "marigold": "#E1A36F",
   "turquiose": "#5B95A5",
-  "steel": "#577E89",
-  "ocean": "#dbf9ff"
+  "steel": "#577E89"
 }

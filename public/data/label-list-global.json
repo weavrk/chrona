@@ -1,0 +1,27 @@
+[
+  {
+    "id": "period",
+    "name": "Period",
+    "abbreviation": "PE",
+    "defaultColor": "brick"
+  },
+  {
+    "id": "hormone-replacement-therapy",
+    "name": "Hormone Replacement Therapy",
+    "abbreviation": "HR",
+    "defaultColor": "ocean"
+  },
+  {
+    "id": "hsv",
+    "name": "HSV",
+    "abbreviation": "HS",
+    "defaultColor": "sand"
+  },
+  {
+    "id": "mental-health",
+    "name": "Mental Health",
+    "abbreviation": "ID",
+    "defaultColor": "steel"
+  }
+]
+

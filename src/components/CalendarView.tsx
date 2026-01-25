@@ -2,12 +2,19 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { ChipBar } from './ChipBar';
 import { RecordData } from './AddRecordSheet';
 
+interface ChipLabel {
+  id: string;
+  label: string;
+  color: string;
+}
+
 interface CalendarViewProps {
   isSheetOpen: boolean;
   selectedDate: Date | null;
   onSheetClose: () => void;
   onSheetDateChange: (date: Date) => void;
   onAddRecord: (record: RecordData) => void;
+  chipLabels: ChipLabel[];
 }
 
 interface CalendarMonth {
@@ -61,7 +68,7 @@ function generateCalendarMonths(startDate: Date, monthCount: number): CalendarMo
   return months;
 }
 
-export function CalendarView({ onSheetDateChange }: CalendarViewProps) {
+export function CalendarView({ isSheetOpen, selectedDate, onSheetClose, onSheetDateChange, onAddRecord, chipLabels }: CalendarViewProps) {
   const [showTodayButton, setShowTodayButton] = useState(false);
   const [observersReady, setObserversReady] = useState(false);
   const calendarRef = useRef<HTMLDivElement>(null);
@@ -394,7 +401,7 @@ export function CalendarView({ onSheetDateChange }: CalendarViewProps) {
   
   return (
     <>
-      <ChipBar />
+      <ChipBar labels={chipLabels} />
       <div className="calendar-view-months" ref={calendarRef}>
         {months.map((monthData, index) => {
           const isFirst = index === 0;

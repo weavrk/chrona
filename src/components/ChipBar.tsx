@@ -1,9 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
-import { MoreVertical } from 'lucide-react';
+import { useState } from 'react';
 import { Chip } from './Chip';
-import { AddLabelModal } from './AddLabelModal';
-import { EditLabelsModal } from './EditLabelsModal';
-import chipLabelsData from '../data/chip-labels.json';
+import { useAuth } from '../contexts/AuthContext';
+import { useDesignSystem } from '../contexts/DesignSystemContext';
 
 interface ChipLabel {
   id: string;
@@ -11,52 +9,22 @@ interface ChipLabel {
   color: string;
 }
 
-export function ChipBar() {
-  const [chipLabels, setChipLabels] = useState<ChipLabel[]>(chipLabelsData);
+interface ChipBarProps {
+  labels: ChipLabel[];
+}
+
+export function ChipBar({ labels }: ChipBarProps) {
+  const { user } = useAuth();
+  const { tokens } = useDesignSystem();
   const [activeChips, setActiveChips] = useState<Set<string>>(new Set());
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isAddLabelOpen, setIsAddLabelOpen] = useState(false);
-  const [isEditLabelsOpen, setIsEditLabelsOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
-  const buttonRef = useRef<HTMLButtonElement>(null);
+  const [activeRecordTypes, setActiveRecordTypes] = useState<Set<string>>(new Set());
 
-  // Load labels from JSON file
-  const loadLabels = async () => {
-    try {
-      const response = await fetch(`${import.meta.env.BASE_URL}data/chip-labels.json?t=${Date.now()}`);
-      if (response.ok) {
-        const loadedLabels = await response.json();
-        setChipLabels(loadedLabels);
-      }
-    } catch (error) {
-      console.error('Failed to load chip labels:', error);
-    }
-  };
-
-  useEffect(() => {
-    loadLabels();
-  }, []);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        menuRef.current &&
-        !menuRef.current.contains(event.target as Node) &&
-        buttonRef.current &&
-        !buttonRef.current.contains(event.target as Node)
-      ) {
-        setIsMenuOpen(false);
-      }
-    };
-
-    if (isMenuOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isMenuOpen]);
+  const RECORD_TYPES = [
+    { id: 'period', label: 'PE', color: 'brick', defaultColor: 'brick' },
+    { id: 'hormone-replacement-therapy', label: 'HR', color: 'ocean', defaultColor: 'ocean' },
+    { id: 'hsv', label: 'HS', color: 'sand', defaultColor: 'sand' },
+    { id: 'mental-health', label: 'ID', color: 'steel', defaultColor: 'steel' },
+  ];
 
   const toggleChip = (chipId: string) => {
     setActiveChips(prev => {
@@ -70,110 +38,43 @@ export function ChipBar() {
     });
   };
 
-  const saveLabels = async (labels: ChipLabel[]) => {
-    try {
-      const response = await fetch('/api/save_chip_labels.php', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ labels }),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Failed to save chip labels:', errorText);
-        throw new Error(errorText);
+  const toggleRecordType = (recordTypeId: string) => {
+    setActiveRecordTypes(prev => {
+      const next = new Set(prev);
+      if (next.has(recordTypeId)) {
+        next.delete(recordTypeId);
+      } else {
+        next.add(recordTypeId);
       }
-
-      const result = await response.json();
-      console.log('Chip labels saved successfully:', result);
-      
-      // Reload labels from file to ensure consistency
-      setTimeout(() => {
-        loadLabels();
-      }, 100);
-    } catch (error) {
-      console.error('Error saving chip labels:', error);
-      alert('Failed to save labels. Please try again.');
-    }
+      return next;
+    });
   };
 
-  const handleAddLabel = async (label: string, color: string) => {
-    const newLabel: ChipLabel = {
-      id: label.toLowerCase().replace(/\s+/g, '-'),
-      label: label,
-      color: color,
-    };
-    const updatedLabels = [...chipLabels, newLabel];
-    setChipLabels(updatedLabels);
-    await saveLabels(updatedLabels);
-  };
+  if (!user) return null;
 
   return (
-    <>
-      <div className="chip-bar-container">
-        <div className="chip-bar">
-          {chipLabels.map((chip) => (
-            <Chip
-              key={chip.id}
-              label={chip.label}
-              color={chip.color}
-              active={activeChips.has(chip.id)}
-              onClick={() => toggleChip(chip.id)}
-            />
-          ))}
-          <div className="chip-bar-menu-wrapper">
-            <button
-              ref={buttonRef}
-              className="chip-bar-ellipses"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-            >
-              <MoreVertical size={20} />
-            </button>
-            {isMenuOpen && (
-              <div ref={menuRef} className="chip-bar-menu">
-                <button
-                  className="chip-bar-menu-item"
-                  onClick={() => {
-                    setIsAddLabelOpen(true);
-                    setIsMenuOpen(false);
-                  }}
-                >
-                  Add Label
-                </button>
-                <button
-                  className="chip-bar-menu-item"
-                  onClick={() => {
-                    setIsEditLabelsOpen(true);
-                    setIsMenuOpen(false);
-                  }}
-                >
-                  Edit Label
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
+    <div className="chip-bar-container">
+      <div className="chip-bar">
+        {RECORD_TYPES.map((recordType) => (
+          <Chip
+            key={recordType.id}
+            label={recordType.label}
+            color={recordType.color}
+            active={activeRecordTypes.has(recordType.id)}
+            onClick={() => toggleRecordType(recordType.id)}
+          />
+        ))}
+        {labels.map((chip) => (
+          <Chip
+            key={chip.id}
+            label={chip.label}
+            color={chip.color}
+            active={activeChips.has(chip.id)}
+            onClick={() => toggleChip(chip.id)}
+          />
+        ))}
       </div>
-
-      <AddLabelModal
-        isOpen={isAddLabelOpen}
-        existingLabels={chipLabels}
-        onClose={() => setIsAddLabelOpen(false)}
-        onSave={handleAddLabel}
-      />
-
-      <EditLabelsModal
-        isOpen={isEditLabelsOpen}
-        labels={chipLabels}
-        onClose={() => setIsEditLabelsOpen(false)}
-        onSave={async (updatedLabels) => {
-          setChipLabels(updatedLabels);
-          await saveLabels(updatedLabels);
-        }}
-      />
-    </>
+    </div>
   );
 }
 

@@ -1,11 +1,17 @@
-import { useState, useEffect } from 'react';
-import { X, CheckCircle2 } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { X, CheckCircle2, ChevronDown } from 'lucide-react';
 import { useDesignSystem } from '../contexts/DesignSystemContext';
 
 interface ChipLabel {
   id: string;
   label: string;
   color: string;
+}
+
+interface GlobalLabel {
+  id: string;
+  name: string;
+  abbreviation: string;
 }
 
 interface AddLabelModalProps {
@@ -17,9 +23,31 @@ interface AddLabelModalProps {
 
 export function AddLabelModal({ isOpen, existingLabels, onClose, onSave }: AddLabelModalProps) {
   const { tokens } = useDesignSystem();
-  const [labelName, setLabelName] = useState('');
+  const [selectedLabelId, setSelectedLabelId] = useState<string>('');
+  const [globalLabels, setGlobalLabels] = useState<GlobalLabel[]>([]);
   const [selectedColor, setSelectedColor] = useState<string>('');
   const [isSaving, setIsSaving] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Load global labels
+  useEffect(() => {
+    if (isOpen) {
+      loadGlobalLabels();
+    }
+  }, [isOpen]);
+
+  const loadGlobalLabels = async () => {
+    try {
+      const response = await fetch(`/data/label-list-global.json?t=${Date.now()}`);
+      if (response.ok) {
+        const data = await response.json();
+        setGlobalLabels(Array.isArray(data) ? data : []);
+      }
+    } catch (error) {
+      console.error('Failed to load global labels:', error);
+    }
+  };
 
   // Get palette colors from design tokens (exclude grays and semantic colors)
   const getPaletteColors = () => {
@@ -44,22 +72,40 @@ export function AddLabelModal({ isOpen, existingLabels, onClose, onSave }: AddLa
 
   useEffect(() => {
     if (isOpen) {
-      setLabelName('');
+      setSelectedLabelId('');
       setSelectedColor('');
       setIsSaving(false);
+      setIsDropdownOpen(false);
     }
   }, [isOpen]);
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    if (isDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isDropdownOpen]);
+
   const handleSave = () => {
-    if (!labelName.trim() || !selectedColor) return;
+    const selectedLabel = globalLabels.find(l => l.id === selectedLabelId);
+    if (!selectedLabel || !selectedColor) return;
 
     setIsSaving(true);
-    onSave(labelName.trim(), selectedColor);
+    onSave(selectedLabel.name, selectedColor);
     
     setTimeout(() => {
       setIsSaving(false);
       onClose();
-      setLabelName('');
+      setSelectedLabelId('');
       setSelectedColor('');
     }, 500);
   };
@@ -78,16 +124,73 @@ export function AddLabelModal({ isOpen, existingLabels, onClose, onSave }: AddLa
         </div>
 
         <div className="modal-body modal-body-add-label">
-          {/* form-text-input */}
-          <div className="form-text-input">
+          {/* form-input-dropdown */}
+          <div className="form-input-dropdown" ref={dropdownRef}>
             <label className="form-label">Label Name</label>
-            <input
-              type="text"
-              value={labelName}
-              onChange={(e) => setLabelName(e.target.value)}
-              className="form-input"
-              placeholder="Enter label name"
-            />
+            <div className="custom-dropdown-wrapper">
+              <button
+                type="button"
+                className="custom-dropdown-trigger"
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              >
+                {selectedLabelId ? (
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginRight: 'var(--spacing-sm)' }}>
+                    <span>{globalLabels.find(l => l.id === selectedLabelId)?.name}</span>
+                    <span style={{ 
+                      color: (() => {
+                        const selectedLabel = globalLabels.find(l => l.id === selectedLabelId);
+                        const existingLabel = existingLabels.find(l => l.id === selectedLabelId);
+                        if (existingLabel) {
+                          return (tokens as any)[existingLabel.color] || '#B3B3B3';
+                        } else if (selectedLabel && (selectedLabel as any).defaultColor) {
+                          return (tokens as any)[(selectedLabel as any).defaultColor] || '#B3B3B3';
+                        }
+                        return '#B3B3B3';
+                      })(),
+                      fontSize: '14px',
+                      fontWeight: 800
+                    }}>
+                      {globalLabels.find(l => l.id === selectedLabelId)?.abbreviation}
+                    </span>
+                  </div>
+                ) : (
+                  <span>Select a label</span>
+                )}
+                <ChevronDown size={16} style={{ transform: isDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s', flexShrink: 0 }} />
+              </button>
+              {isDropdownOpen && (
+                <div className="custom-dropdown-menu">
+                  {globalLabels.map((label) => {
+                    // Use the label's default color from global labels, or from user's existing labels if already added
+                    const existingLabel = existingLabels.find(l => l.id === label.id);
+                    let abbreviationColor = '#B3B3B3';
+                    
+                    if (existingLabel) {
+                      // If user has this label, use their assigned color
+                      abbreviationColor = (tokens as any)[existingLabel.color] || '#B3B3B3';
+                    } else if ((label as any).defaultColor) {
+                      // Otherwise use the default color from global labels
+                      abbreviationColor = (tokens as any)[(label as any).defaultColor] || '#B3B3B3';
+                    }
+                    
+                    return (
+                      <button
+                        key={label.id}
+                        type="button"
+                        className={`custom-dropdown-item ${selectedLabelId === label.id ? 'selected' : ''}`}
+                        onClick={() => {
+                          setSelectedLabelId(label.id);
+                          setIsDropdownOpen(false);
+                        }}
+                      >
+                        <span>{label.name}</span>
+                        <span style={{ color: abbreviationColor, fontSize: '14px', fontWeight: 800 }}>{label.abbreviation}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* form-label-color-picker */}
@@ -139,7 +242,7 @@ export function AddLabelModal({ isOpen, existingLabels, onClose, onSave }: AddLa
           <button
             className="ds-button-primary"
             onClick={handleSave}
-            disabled={!labelName.trim() || !selectedColor || isSaving}
+            disabled={!selectedLabelId || !selectedColor || isSaving}
           >
             {isSaving ? (
               <CheckCircle2 size={24} className="checkmark-animation" />
