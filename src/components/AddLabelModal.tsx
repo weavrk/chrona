@@ -69,8 +69,8 @@ export function AddLabelModal({ isOpen, existingLabels, onClose, onSave }: AddLa
           </button>
         </div>
 
-        <div className="modal-body">
-          <div className="form-group">
+        <div className="modal-body modal-body-add-label">
+          <div className="form-group form-group-text">
             <label className="form-label">Label Name</label>
             <input
               type="text"
@@ -81,7 +81,7 @@ export function AddLabelModal({ isOpen, existingLabels, onClose, onSave }: AddLa
             />
           </div>
 
-          <div className="form-group">
+          <div className="form-group form-group-color">
             <label className="form-label">Label Color</label>
             <div className="color-picker">
               {PRIMITIVE_COLORS.sort((a, b) => {

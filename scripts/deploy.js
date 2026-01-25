@@ -190,7 +190,7 @@ async function deploy() {
         
         // Upload API files
         const apiSrc = path.join(ROOT_DIR, 'api');
-        const baseRemotePath = env.FTP_REMOTE_PATH.replace('/hrefs/watchbox', '');
+        const baseRemotePath = env.FTP_REMOTE_PATH.replace('/hrefs/chrona', '');
         if (fs.existsSync(apiSrc)) {
           const apiRemotePath = baseRemotePath + '/api';
           await client.ensureDir(apiRemotePath);
@@ -311,7 +311,7 @@ async function deploy() {
   console.log('Summary:');
   console.log(`   📁 Archive: x.archive/deploys/${timestamp}/`);
   if (!skipFtp && !isDryRun) {
-    console.log(`   🌐 Live at: https://weavrk.com/hrefs/watchbox/`);
+    console.log(`   🌐 Live at: https://weavrk.com/hrefs/chrona/`);
   }
   console.log('');
 }

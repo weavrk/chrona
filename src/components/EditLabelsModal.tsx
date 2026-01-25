@@ -109,12 +109,41 @@ export function EditLabelsModal({ isOpen, labels, onClose, onSave }: EditLabelsM
               
               return (
                 <div key={label.id} className="edit-label-row">
-                  <input
-                    type="text"
-                    value={label.label}
-                    onChange={(e) => handleLabelChange(label.id, 'label', e.target.value)}
-                    className="edit-label-input"
-                  />
+                  <div className="edit-label-header">
+                    <input
+                      type="text"
+                      value={label.label}
+                      onChange={(e) => handleLabelChange(label.id, 'label', e.target.value)}
+                      className="edit-label-input"
+                      placeholder="Label name"
+                    />
+                    
+                    <div className="edit-label-actions">
+                    {isDeleting ? (
+                      <div className="delete-confirm">
+                        <button
+                          className="delete-confirm-button confirm"
+                          onClick={() => handleDeleteClick(label.id)}
+                        >
+                          Confirm
+                        </button>
+                        <button
+                          className="delete-confirm-button cancel"
+                          onClick={handleCancelDelete}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        className="delete-button"
+                        onClick={() => handleDeleteClick(label.id)}
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    )}
+                  </div>
+                  </div>
                   
                   <div className="edit-label-color-picker">
                     {PRIMITIVE_COLORS.sort((a, b) => {
@@ -153,32 +182,6 @@ export function EditLabelsModal({ isOpen, labels, onClose, onSave }: EditLabelsM
                         </button>
                       );
                     })}
-                  </div>
-
-                  <div className="edit-label-actions">
-                    {isDeleting ? (
-                      <div className="delete-confirm">
-                        <button
-                          className="delete-confirm-button confirm"
-                          onClick={() => handleDeleteClick(label.id)}
-                        >
-                          Confirm
-                        </button>
-                        <button
-                          className="delete-confirm-button cancel"
-                          onClick={handleCancelDelete}
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    ) : (
-                      <button
-                        className="delete-button"
-                        onClick={() => handleDeleteClick(label.id)}
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                    )}
                   </div>
                 </div>
               );

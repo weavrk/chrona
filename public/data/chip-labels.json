@@ -18,10 +18,5 @@
     "id": "mental",
     "label": "ID",
     "color": "gray-700"
-  },
-  {
-    "id": "test",
-    "label": "test",
-    "color": "green-dark"
   }
 ]

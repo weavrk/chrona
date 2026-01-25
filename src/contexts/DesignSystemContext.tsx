@@ -93,7 +93,7 @@ export function DesignSystemProvider({ children }: { children: ReactNode }) {
     const loadTokens = async () => {
       try {
         // Try to load from the JSON file (source of truth)
-        // Use BASE_URL so it works correctly under /hrefs/watchbox/ in production
+        // Use BASE_URL so it works correctly under /hrefs/chrona/ in production
         const response = await fetch(`${import.meta.env.BASE_URL}design-tokens.json`);
         let loadedTokens: DesignTokens;
         
