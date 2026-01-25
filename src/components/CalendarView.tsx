@@ -139,8 +139,13 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
     ) as HTMLElement;
     
     if (currentMonthElement) {
-        // Calculate scroll position to place month header at 120px from viewport top
-        const targetTop = 120; // Header (60px) + chip bar (60px)
+        // Calculate scroll position to place month header at correct position from viewport top
+        // Get actual header and chip bar heights from DOM
+        const header = document.querySelector('.chrona-header') as HTMLElement;
+        const chipBar = document.querySelector('.chip-bar-container') as HTMLElement;
+        const headerHeight = header ? header.offsetHeight : 68;
+        const chipBarHeight = chipBar ? chipBar.offsetHeight : 62;
+        const targetTop = headerHeight + chipBarHeight;
         const monthHeaderTop = currentMonthElement.offsetTop;
         const scrollPosition = Math.max(0, monthHeaderTop - targetTop);
         
@@ -289,9 +294,13 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
         const monthHeader = currentMonthElement.querySelector('.calendar-month-header') as HTMLElement;
         const targetElement = monthHeader || currentMonthElement;
         
-        // Calculate scroll position to place month header at 120px from viewport top
-        // Header (60px) + chip bar (60px) = 120px total
-        const targetTop = 120;
+        // Calculate scroll position to place month header at correct position from viewport top
+        // Get actual header and chip bar heights from DOM
+        const header = document.querySelector('.chrona-header') as HTMLElement;
+        const chipBar = document.querySelector('.chip-bar-container') as HTMLElement;
+        const headerHeight = header ? header.offsetHeight : 68;
+        const chipBarHeight = chipBar ? chipBar.offsetHeight : 62;
+        const targetTop = headerHeight + chipBarHeight;
         
         // Get position relative to the scroll container
         const containerRect = scrollContainer.getBoundingClientRect();

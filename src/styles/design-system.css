@@ -601,7 +601,7 @@
 /* Chip Bar Container */
 .chip-bar-container {
   position: fixed;
-  top: 64px;
+  top: calc(68px + max(16px, env(safe-area-inset-top)) + 0px);
   left: 0;
   right: 0;
   height: 62px; /* 30px content + 16px top padding + 16px bottom padding */
@@ -638,11 +638,18 @@
   border: none;
   color: var(--color-secondary);
   cursor: pointer;
-  padding: 6px;
+  padding: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: opacity 0.2s;
+  width: 36px;
+  height: 36px;
+}
+
+.chip-bar-ellipses svg {
+  width: 24px;
+  height: 24px;
 }
 
 .chip-bar-ellipses:hover {

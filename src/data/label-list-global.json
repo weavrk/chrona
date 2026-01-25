@@ -22,6 +22,12 @@
     "name": "Mental Health",
     "abbreviation": "ID",
     "defaultColor": "steel"
+  },
+  {
+    "id": "workout",
+    "name": "Workout",
+    "abbreviation": "WO",
+    "defaultColor": "marigold"
   }
 ]
 

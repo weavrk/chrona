@@ -101,6 +101,11 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd, labels }:
   const [hsDrugNames, setHsDrugNames] = useState<string[]>([]);
   const [_hsNewDrugName, setHsNewDrugName] = useState<string>('');
 
+  // Workout specific state
+  const [workoutType, setWorkoutType] = useState<string>('');
+  const [workoutTypes, setWorkoutTypes] = useState<string[]>([]);
+  const [duration, setDuration] = useState<string>('');
+
   useEffect(() => {
     if (selectedDate) {
       const dateStr = selectedDate.toISOString().split('T')[0];
@@ -116,6 +121,13 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd, labels }:
       }
     }
   }, [selectedDate]);
+
+  // Load workout types when workout is selected
+  useEffect(() => {
+    if (selectedType === 'workout' && user) {
+      loadWorkoutTypes().then(setWorkoutTypes);
+    }
+  }, [selectedType, user]);
 
   // Load drug names
   useEffect(() => {
@@ -168,6 +180,28 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd, labels }:
     }
   };
 
+  const saveWorkoutType = async (workoutTypeName: string) => {
+    if (!workoutTypeName.trim() || !user) return;
+    
+    if (workoutTypes.includes(workoutTypeName.trim())) return;
+
+    const updatedTypes = [...workoutTypes, workoutTypeName.trim()];
+    
+    try {
+      const response = await fetch(`/api/save_workout_types.php`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: user.username, workoutTypes: updatedTypes }),
+      });
+
+      if (response.ok) {
+        setWorkoutTypes(updatedTypes);
+      }
+    } catch (error) {
+      console.error('Failed to save workout type:', error);
+    }
+  };
+
   const handleAdd = () => {
     if (!selectedDate || isAdding) return;
 
@@ -210,6 +244,10 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd, labels }:
     } else if (selectedType === 'mental-health') {
       record.details!.mood = mood;
       record.details!.notes = notes;
+    } else if (selectedType === 'workout') {
+      record.details!.workoutType = workoutType;
+      record.details!.duration = duration ? parseFloat(duration) : undefined;
+      record.details!.durationUnit = 'minutes';
     }
 
     onAdd(record);
@@ -244,6 +282,8 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd, labels }:
     setHsDrugName('');
     setHsDose('');
     setHsFrequency('');
+    setWorkoutType('');
+    setDuration('');
     setIsAdding(false);
     onClose();
   };
@@ -274,8 +314,8 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd, labels }:
   };
 
   // Filter labels to only include default record types for the selector
-  // Maintain order: period, hormone-replacement-therapy, hsv, mental-health
-  const DEFAULT_RECORD_TYPE_IDS = ['period', 'hormone-replacement-therapy', 'hsv', 'mental-health'];
+  // Maintain order: period, hormone-replacement-therapy, hsv, mental-health, workout
+  const DEFAULT_RECORD_TYPE_IDS = ['period', 'hormone-replacement-therapy', 'hsv', 'mental-health', 'workout'];
   const RECORD_TYPES = DEFAULT_RECORD_TYPE_IDS
     .map(id => labels.find(label => label.id === id))
     .filter((label): label is ChipLabel => label !== undefined)
@@ -755,6 +795,100 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd, labels }:
                     resize: 'none'
                   }}
                 />
+              </div>
+            </>
+          )}
+
+          {/* Workout */}
+          {selectedType === 'workout' && (
+            <>
+              <div className="form-date-selector">
+                <label className="form-section-headers">Date Range</label>
+                <div className="date-range-container">
+                  <div className="date-input-group">
+                    <label className="date-label">Start</label>
+                    <input
+                      type="date"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      className="date-input"
+                    />
+                  </div>
+                  <div className="date-input-group">
+                    <label className="date-label">End</label>
+                    <input
+                      type="date"
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                      className="date-input"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="form-section">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-sm)' }}>
+                  <div className="form-text-input">
+                    <label className="form-label">Type</label>
+                    <input
+                      type="text"
+                      value={workoutType}
+                      onChange={(e) => setWorkoutType(e.target.value)}
+                      className="form-input"
+                      placeholder="Enter workout type"
+                      onBlur={() => {
+                        if (workoutType.trim() && !workoutTypes.includes(workoutType.trim())) {
+                          saveWorkoutType(workoutType.trim());
+                        }
+                      }}
+                    />
+                  </div>
+
+                  {workoutTypes.length > 0 && (
+                    <div className="chip-bar-drug-select">
+                      {workoutTypes.map((type) => {
+                        const workoutLabel = labels.find(l => l.id === 'workout');
+                        const workoutColor = workoutLabel ? getLabelColor(workoutLabel.color) : '#B3B3B3';
+                        return (
+                          <button
+                            key={type}
+                            className={`ds-chip ${workoutType === type ? 'ds-chip-active' : 'ds-chip-inactive'}`}
+                            onClick={() => setWorkoutType(type)}
+                            style={workoutType === type 
+                              ? { backgroundColor: workoutColor, borderColor: workoutColor }
+                              : { borderColor: workoutColor, color: workoutColor }
+                            }
+                          >
+                            <span>{type}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+
+                <div style={{ display: 'flex', gap: 'var(--spacing-md)' }}>
+                  <div className="form-text-input" style={{ flex: 1 }}>
+                    <label className="form-label">Duration</label>
+                    <input
+                      type="number"
+                      value={duration}
+                      onChange={(e) => setDuration(e.target.value)}
+                      className="form-input"
+                      placeholder="0"
+                    />
+                  </div>
+                  <div className="form-input-dropdown" style={{ flex: 1 }}>
+                    <label className="form-label">Unit</label>
+                    <select
+                      value="minutes"
+                      className="form-input"
+                      disabled
+                    >
+                      <option value="minutes">minutes</option>
+                    </select>
+                  </div>
+                </div>
               </div>
             </>
           )}
