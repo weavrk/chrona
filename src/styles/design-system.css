@@ -330,7 +330,6 @@
 
 .component-visualization {
   border-top: 1px solid var(--color-secondary);
-  border-bottom: 1px solid var(--color-secondary);
   padding: var(--spacing-lg) 0;
   margin: var(--spacing-md) 0;
 }
