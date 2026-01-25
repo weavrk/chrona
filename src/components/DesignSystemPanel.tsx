@@ -928,7 +928,36 @@ export function DesignSystemPanel() {
                   
                   <div className="button-components-demo">
                     <div className="button-demo-item">
-                      <h4 className="button-demo-label">ds-button-primary</h4>
+                      <h4 className="button-demo-label">
+                        ds-button-primary
+                        <button
+                          onClick={() => handleCopyToClipboard('ds-button-primary')}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: copiedName === 'ds-button-primary' ? 'var(--color-accent)' : 'var(--gray-700)',
+                            cursor: 'pointer',
+                            padding: '2px',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            transition: 'color 0.2s',
+                            marginLeft: '8px'
+                          }}
+                          title="Copy to clipboard"
+                        >
+                          {copiedName === 'ds-button-primary' ? (
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M20 6L9 17l-5-5"/>
+                            </svg>
+                          ) : (
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                            </svg>
+                          )}
+                        </button>
+                      </h4>
                       <button className="ds-button-primary">
                         Save
                       </button>
@@ -936,7 +965,36 @@ export function DesignSystemPanel() {
                     </div>
 
                     <div className="button-demo-item">
-                      <h4 className="button-demo-label">ds-button-secondary</h4>
+                      <h4 className="button-demo-label">
+                        ds-button-secondary
+                        <button
+                          onClick={() => handleCopyToClipboard('ds-button-secondary')}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: copiedName === 'ds-button-secondary' ? 'var(--color-accent)' : 'var(--gray-700)',
+                            cursor: 'pointer',
+                            padding: '2px',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            transition: 'color 0.2s',
+                            marginLeft: '8px'
+                          }}
+                          title="Copy to clipboard"
+                        >
+                          {copiedName === 'ds-button-secondary' ? (
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M20 6L9 17l-5-5"/>
+                            </svg>
+                          ) : (
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                            </svg>
+                          )}
+                        </button>
+                      </h4>
                       <button className="ds-button-secondary">
                         Cancel
                       </button>
@@ -944,7 +1002,36 @@ export function DesignSystemPanel() {
                     </div>
 
                     <div className="button-demo-item">
-                      <h4 className="button-demo-label">ds-button-destructive</h4>
+                      <h4 className="button-demo-label">
+                        ds-button-destructive
+                        <button
+                          onClick={() => handleCopyToClipboard('ds-button-destructive')}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: copiedName === 'ds-button-destructive' ? 'var(--color-accent)' : 'var(--gray-700)',
+                            cursor: 'pointer',
+                            padding: '2px',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            transition: 'color 0.2s',
+                            marginLeft: '8px'
+                          }}
+                          title="Copy to clipboard"
+                        >
+                          {copiedName === 'ds-button-destructive' ? (
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M20 6L9 17l-5-5"/>
+                            </svg>
+                          ) : (
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                            </svg>
+                          )}
+                        </button>
+                      </h4>
                       {!showDestructiveConfirm ? (
                         <button 
                           className="ds-button-destructive"
