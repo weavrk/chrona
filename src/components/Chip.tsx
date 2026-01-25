@@ -21,7 +21,7 @@ export function Chip({ label, color, active, onClick }: ChipProps) {
   const style: React.CSSProperties = active ? {
     backgroundColor: colorValue,
     borderColor: colorValue,
-    color: 'var(--gray-100)',
+    color: 'var(--color-primary)',
   } : {
     borderColor: colorValue,
     color: colorValue,

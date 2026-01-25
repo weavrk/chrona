@@ -1,6 +1,14 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { ChipBar } from './ChipBar';
-import { AddRecordSheet, RecordData } from './AddRecordSheet';
+import { RecordData } from './AddRecordSheet';
+
+interface CalendarViewProps {
+  isSheetOpen: boolean;
+  selectedDate: Date | null;
+  onSheetClose: () => void;
+  onSheetDateChange: (date: Date) => void;
+  onAddRecord: (record: RecordData) => void;
+}
 
 interface CalendarMonth {
   year: number;
@@ -53,9 +61,9 @@ function generateCalendarMonths(startDate: Date, monthCount: number): CalendarMo
   return months;
 }
 
-export function CalendarView() {
-  const [isSheetOpen, setIsSheetOpen] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+export function CalendarView({ onSheetDateChange }: CalendarViewProps) {
+  const [showTodayButton, setShowTodayButton] = useState(true); // Always show for now
+  const calendarRef = useRef<HTMLDivElement>(null);
   
   // Start from current month, generate 12 months
   const today = new Date();
@@ -76,21 +84,74 @@ export function CalendarView() {
   
   const handleDayClick = (year: number, month: number, day: number) => {
     const date = new Date(year, month, day);
-    setSelectedDate(date);
-    setIsSheetOpen(true);
+    onSheetDateChange(date);
   };
-  
-  const handleAddRecord = (record: RecordData) => {
-    console.log('Adding record:', record);
-    // TODO: Implement record storage
+
+  const handleScrollToToday = () => {
+    const scrollContainer = document.querySelector('.chrona-main') as HTMLElement;
+    if (scrollContainer && calendarRef.current) {
+      // Find the current month element (first month in the array)
+      const currentMonthElement = calendarRef.current.querySelector(
+        `[data-month-key="${today.getFullYear()}-${today.getMonth()}"]`
+      ) as HTMLElement;
+      
+      if (currentMonthElement) {
+        // Scroll to the month header, accounting for sticky header
+        const headerHeight = 124; // Height of chrona-header + chip-bar
+        const elementTop = currentMonthElement.offsetTop - headerHeight;
+        
+        scrollContainer.scrollTo({
+          top: elementTop,
+          behavior: 'smooth',
+        });
+      }
+    }
   };
+
+  useEffect(() => {
+    const handleScroll = () => {
+      // Find the scrollable parent (chrona-main)
+      const scrollContainer = document.querySelector('.chrona-main') as HTMLElement;
+      if (scrollContainer) {
+        // Show button if scrolled down more than 200px
+        const scrollTop = scrollContainer.scrollTop;
+        setShowTodayButton(scrollTop > 200);
+      }
+    };
+
+    // Wait for DOM to be ready, then check initial scroll position
+    const checkScroll = () => {
+      const scrollContainer = document.querySelector('.chrona-main') as HTMLElement;
+      if (scrollContainer) {
+        handleScroll(); // Check initial state
+        scrollContainer.addEventListener('scroll', handleScroll);
+        return () => {
+          scrollContainer.removeEventListener('scroll', handleScroll);
+        };
+      }
+    };
+
+    // Use setTimeout to ensure DOM is ready
+    const timeoutId = setTimeout(checkScroll, 100);
+    return () => {
+      clearTimeout(timeoutId);
+      const scrollContainer = document.querySelector('.chrona-main');
+      if (scrollContainer) {
+        scrollContainer.removeEventListener('scroll', handleScroll);
+      }
+    };
+  }, []);
   
   return (
     <>
       <ChipBar />
-      <div className="calendar-view-months">
+      <div className="calendar-view-months" ref={calendarRef}>
         {months.map((monthData) => (
-          <div key={`${monthData.year}-${monthData.month}`} className="calendar-month">
+          <div 
+            key={`${monthData.year}-${monthData.month}`} 
+            className="calendar-month"
+            data-month-key={`${monthData.year}-${monthData.month}`}
+          >
             <div className="calendar-month-header">
               <span className="calendar-month-name">{monthData.monthName}</span>
               {monthData.month === 0 && (
@@ -130,12 +191,14 @@ export function CalendarView() {
         ))}
       </div>
       
-      <AddRecordSheet
-        isOpen={isSheetOpen}
-        selectedDate={selectedDate}
-        onClose={() => setIsSheetOpen(false)}
-        onAdd={handleAddRecord}
-      />
+      <button 
+        className="calendar-today-fab"
+        onClick={handleScrollToToday}
+        aria-label="Scroll to today"
+        style={{ display: showTodayButton ? 'block' : 'none' }}
+      >
+        Today
+      </button>
     </>
   );
 }

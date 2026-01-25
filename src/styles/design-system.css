@@ -206,7 +206,7 @@
 .color-name {
   font-size: 0.75rem;
   font-weight: 500;
-  color: var(--color-primary);
+  color: var(--gray-800);
 }
 
 .color-hex {
@@ -270,7 +270,7 @@
 .semantic-color-label {
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--color-primary);
+  color: var(--gray-800);
 }
 
 .semantic-color-select {
@@ -454,7 +454,7 @@
   width: 100%;
   padding: var(--spacing-md);
   background-color: var(--color-background-footer);
-  color: var(--color-primary);
+  color: var(--gray-800);
   border: none;
   border-radius: var(--border-radius);
   font-size: 1rem;
@@ -509,7 +509,7 @@
 }
 
 .ds-chip-active {
-  color: var(--gray-100) !important;
+  color: var(--color-primary) !important;
 }
 
 .ds-chip svg {
@@ -554,7 +554,7 @@
 }
 
 .ds-chip-single-select.active {
-  color: var(--gray-100);
+  color: var(--color-primary);
 }
 
 /* Chip Bar Container */
@@ -617,7 +617,7 @@
   padding: var(--spacing-sm) var(--spacing-md);
   background: transparent;
   border: none;
-  color: var(--color-primary);
+  color: var(--gray-800);
   text-align: left;
   font-family: var(--font-family);
   font-size: 1rem;
@@ -670,7 +670,7 @@
   margin: 0;
   font-size: 1.5rem;
   font-weight: 600;
-  color: var(--color-primary);
+  color: var(--gray-800);
 }
 
 .modal-close {
@@ -686,7 +686,7 @@
 }
 
 .modal-close:hover {
-  color: var(--color-primary);
+  color: var(--gray-800);
 }
 
 .modal-body {
@@ -713,7 +713,7 @@
   background: var(--color-background-components, var(--bg-card));
   border: 1px solid var(--color-background-components, var(--bg-card));
   border-radius: var(--border-radius);
-  color: var(--color-primary);
+  color: var(--gray-800);
   font-size: 1rem;
   font-family: var(--font-family);
   transition: border-color 0.2s;
@@ -816,7 +816,7 @@
   background: var(--color-background-body, var(--bg-primary));
   border: 1px solid var(--color-background-components, var(--bg-card));
   border-radius: var(--border-radius);
-  color: var(--color-primary);
+  color: var(--gray-800);
   font-size: 1rem;
   font-family: var(--font-family);
   transition: border-color 0.2s;
@@ -924,7 +924,7 @@
 
 .delete-confirm-button.confirm {
   background: var(--color-accent);
-  color: var(--color-primary);
+  color: var(--gray-800);
 }
 
 .delete-confirm-button.confirm:hover {
@@ -933,7 +933,7 @@
 
 .delete-confirm-button.cancel {
   background: var(--color-background-components, var(--bg-card));
-  color: var(--color-primary);
+  color: var(--gray-800);
 }
 
 .delete-confirm-button.cancel:hover {
