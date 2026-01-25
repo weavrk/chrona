@@ -120,31 +120,31 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd }: AddReco
           </button>
         </div>
 
-        <div className="bottom-sheet-content">
-          {/* Record Type Chips */}
-          <div className="form-chips-single chip-bar-variant-record">
-            <div className="chip-bar-single-select">
-              {RECORD_TYPES.map((type) => (
-                <button
-                  key={type.id}
-                  className={`ds-chip-single-select ${selectedType === type.id ? 'active' : ''}`}
-                  style={
-                    selectedType === type.id
-                      ? { backgroundColor: type.color, borderColor: type.color }
-                      : { color: type.color, borderColor: type.color }
-                  }
-                  onClick={() => {
-                    setSelectedType(type.id);
-                    setIntensity('');
-                    setMood('');
-                  }}
-                >
-                  <span>{type.label}</span>
-                </button>
-              ))}
-            </div>
+        {/* Record Type Chips */}
+        <div className="form-chips-single chip-bar-variant-record">
+          <div className="chip-bar-single-select">
+            {RECORD_TYPES.map((type) => (
+              <button
+                key={type.id}
+                className={`ds-chip-single-select ${selectedType === type.id ? 'active' : ''}`}
+                style={
+                  selectedType === type.id
+                    ? { backgroundColor: type.color, borderColor: type.color }
+                    : { color: type.color, borderColor: type.color }
+                }
+                onClick={() => {
+                  setSelectedType(type.id);
+                  setIntensity('');
+                  setMood('');
+                }}
+              >
+                <span>{type.label}</span>
+              </button>
+            ))}
           </div>
+        </div>
 
+        <div className="bottom-sheet-content">
           {/* form-date-selector */}
           <div className="form-date-selector">
             <label className="form-label">Date Range</label>
