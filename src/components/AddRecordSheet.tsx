@@ -29,6 +29,9 @@ export interface RecordData {
     includePlacebo?: boolean;
     mood?: string;
     notes?: string;
+    workoutType?: string;
+    duration?: number;
+    durationUnit?: string;
     treatments?: Array<{
       drugName?: string;
       dose?: number;
@@ -122,6 +125,34 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd, labels }:
     }
   }, [selectedDate]);
 
+  const loadDrugNames = async (type: 'hr' | 'hs'): Promise<string[]> => {
+    if (!user) return [];
+    try {
+      const response = await fetch(`${import.meta.env.BASE_URL}data/${user.username}/drug-names-${type}-${user.username}.json?t=${Date.now()}`);
+      if (response.ok) {
+        const data = await response.json();
+        return Array.isArray(data) ? data : [];
+      }
+    } catch (error) {
+      console.error(`Failed to load ${type} drug names:`, error);
+    }
+    return [];
+  };
+
+  const loadWorkoutTypes = async (): Promise<string[]> => {
+    if (!user) return [];
+    try {
+      const response = await fetch(`${import.meta.env.BASE_URL}data/${user.username}/workout-type-wo-${user.username}.json?t=${Date.now()}`);
+      if (response.ok) {
+        const data = await response.json();
+        return Array.isArray(data) ? data : [];
+      }
+    } catch (error) {
+      console.error('Failed to load workout types:', error);
+    }
+    return [];
+  };
+
   // Load workout types when workout is selected
   useEffect(() => {
     if (selectedType === 'workout' && user) {
@@ -136,20 +167,6 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd, labels }:
       loadDrugNames('hs').then(setHsDrugNames);
     }
   }, [user, isOpen]);
-
-  const loadDrugNames = async (type: 'hr' | 'hs'): Promise<string[]> => {
-    if (!user) return [];
-    try {
-      const response = await fetch(`${import.meta.env.BASE_URL}data/${user.username}/drug-names-${type}-${user.username}.json?t=${Date.now()}`);
-      if (response.ok) {
-        const data = await response.json();
-        return Array.isArray(data) ? data : [];
-      }
-    } catch (error) {
-      console.error(`Failed to load ${type} drug names:`, error);
-    }
-    return [];
-  };
 
   const saveDrugName = async (type: 'hr' | 'hs', drugName: string) => {
     if (!drugName.trim() || !user) return;
