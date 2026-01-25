@@ -1066,7 +1066,7 @@ export function DesignSystemPanel() {
                 </section>
 
                 <section className="design-system-section">
-                  <h3 className="section-header">Form Components</h3>
+                  <h3 className="section-header">Form Inputs</h3>
                   
                   <div className="button-components-demo">
                     <div className="button-demo-item">
