@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { X, Laugh, Smile, Meh, Frown, Annoyed, Angry, CheckCircle2, Plus } from 'lucide-react';
 import { useDesignSystem } from '../contexts/DesignSystemContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -19,6 +19,7 @@ export interface RecordData {
     hadBreakout?: boolean;
     severity?: string;
     repeatForward?: boolean;
+    includePlacebo?: boolean;
     mood?: string;
     notes?: string;
     treatments?: Array<{
@@ -82,7 +83,7 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd }: AddReco
     repeatForward: false,
   }]);
   const [hrDrugNames, setHrDrugNames] = useState<string[]>([]);
-  const [hrNewDrugName, setHrNewDrugName] = useState<string>('');
+  const [_hrNewDrugName, setHrNewDrugName] = useState<string>('');
 
   // HS specific state
   const [hsDrugName, setHsDrugName] = useState<string>('');
@@ -91,7 +92,7 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd }: AddReco
   const [hsFrequency, setHsFrequency] = useState<string>('');
   const [hsFrequencyUnit, setHsFrequencyUnit] = useState<string>('daily');
   const [hsDrugNames, setHsDrugNames] = useState<string[]>([]);
-  const [hsNewDrugName, setHsNewDrugName] = useState<string>('');
+  const [_hsNewDrugName, setHsNewDrugName] = useState<string>('');
 
   useEffect(() => {
     if (selectedDate) {
@@ -120,7 +121,7 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd }: AddReco
   const loadDrugNames = async (type: 'hr' | 'hs'): Promise<string[]> => {
     if (!user) return [];
     try {
-      const response = await fetch(`/data/drug-names-${type}-${user.username}.json?t=${Date.now()}`);
+      const response = await fetch(`/data/${user.username}/drug-names-${type}-${user.username}.json?t=${Date.now()}`);
       if (response.ok) {
         const data = await response.json();
         return Array.isArray(data) ? data : [];

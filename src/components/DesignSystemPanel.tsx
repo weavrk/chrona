@@ -363,29 +363,6 @@ export function DesignSystemPanel() {
     });
   };
 
-  const handleAddNew = () => {
-    // Generate a unique key (avoid deprecated names)
-    let newKey = 'new-color';
-    let counter = 1;
-    while (newKey in localTokens || orderedSemanticColors.includes(newKey)) {
-      newKey = `new-color-${counter}`;
-      counter++;
-    }
-    
-    // Add to tokens with default value 'primary' (which maps to gray-900/white)
-    const updated = { ...localTokens, [newKey]: 'primary' } as typeof tokens;
-    setLocalTokens(updated);
-    updateTokens(updated);
-    
-    // Add to order
-    const newOrder = [...orderedSemanticColors, newKey];
-    setSemanticColorsOrder(newOrder);
-    
-    // Start editing the name immediately
-    setEditingName(newKey);
-    setEditingValue(newKey);
-  };
-
   const handleAddNewPrimitive = () => {
     // Generate a unique key
     let newKey = 'ocean';

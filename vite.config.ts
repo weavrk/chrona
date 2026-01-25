@@ -112,60 +112,6 @@ function apiPlugin() {
         next();
       });
 
-      // API endpoint to save chip labels
-      server.middlewares.use('/api/save_chip_labels.php', async (req, res, next) => {
-        if (req.method !== 'POST') {
-          res.statusCode = 405;
-          res.end(JSON.stringify({ error: 'Method not allowed' }));
-          return;
-        }
-
-        let body = '';
-        req.on('data', chunk => { body += chunk.toString(); });
-        req.on('end', async () => {
-          try {
-            const { labels } = JSON.parse(body);
-            const srcLabelsPath = path.join(__dirname, 'src', 'data', 'chip-labels.json');
-            const publicLabelsPath = path.join(__dirname, 'public', 'data', 'chip-labels.json');
-            
-            const labelsJson = JSON.stringify(labels, null, 2) + '\n';
-            
-            // Save to both src/data (for development) and public/data (for production access)
-            fs.writeFileSync(srcLabelsPath, labelsJson, 'utf-8');
-            fs.writeFileSync(publicLabelsPath, labelsJson, 'utf-8');
-            
-            res.setHeader('Content-Type', 'application/json');
-            res.setHeader('Access-Control-Allow-Origin', '*');
-            res.statusCode = 200;
-            res.end(JSON.stringify({ 
-              success: true, 
-              message: 'Chip labels saved successfully' 
-            }));
-          } catch (error) {
-            res.statusCode = 500;
-            res.setHeader('Content-Type', 'application/json');
-            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-            res.end(JSON.stringify({ 
-              success: false, 
-              error: errorMessage 
-            }));
-          }
-        });
-      });
-
-      // Handle CORS preflight for chip labels
-      server.middlewares.use('/api/save_chip_labels.php', (req, res, next) => {
-        if (req.method === 'OPTIONS') {
-          res.setHeader('Access-Control-Allow-Origin', '*');
-          res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-          res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-          res.statusCode = 200;
-          res.end();
-          return;
-        }
-        next();
-      });
-
       // API endpoint to save user labels
       server.middlewares.use('/api/save_user_labels.php', async (req, res, next) => {
         if (req.method !== 'POST') {
@@ -179,19 +125,19 @@ function apiPlugin() {
         req.on('end', async () => {
           try {
             const { username, labels } = JSON.parse(body);
-            const srcDataDir = path.join(__dirname, 'src', 'data');
-            const publicDataDir = path.join(__dirname, 'public', 'data');
+            const srcUserDir = path.join(__dirname, 'src', 'data', username);
+            const publicUserDir = path.join(__dirname, 'public', 'data', username);
             
-            // Ensure directories exist
-            if (!fs.existsSync(srcDataDir)) {
-              fs.mkdirSync(srcDataDir, { recursive: true });
+            // Ensure user directories exist
+            if (!fs.existsSync(srcUserDir)) {
+              fs.mkdirSync(srcUserDir, { recursive: true });
             }
-            if (!fs.existsSync(publicDataDir)) {
-              fs.mkdirSync(publicDataDir, { recursive: true });
+            if (!fs.existsSync(publicUserDir)) {
+              fs.mkdirSync(publicUserDir, { recursive: true });
             }
             
-            const srcLabelsPath = path.join(srcDataDir, `label-list-user-${username}.json`);
-            const publicLabelsPath = path.join(publicDataDir, `label-list-user-${username}.json`);
+            const srcLabelsPath = path.join(srcUserDir, `label-list-user-${username}.json`);
+            const publicLabelsPath = path.join(publicUserDir, `label-list-user-${username}.json`);
             
             const labelsJson = JSON.stringify(labels, null, 2) + '\n';
             
@@ -241,19 +187,19 @@ function apiPlugin() {
               return;
             }
             
-            const srcDataDir = path.join(__dirname, 'src', 'data');
-            const publicDataDir = path.join(__dirname, 'public', 'data');
+            const srcUserDir = path.join(__dirname, 'src', 'data', username);
+            const publicUserDir = path.join(__dirname, 'public', 'data', username);
             
-            // Ensure directories exist
-            if (!fs.existsSync(srcDataDir)) {
-              fs.mkdirSync(srcDataDir, { recursive: true });
+            // Ensure user directories exist
+            if (!fs.existsSync(srcUserDir)) {
+              fs.mkdirSync(srcUserDir, { recursive: true });
             }
-            if (!fs.existsSync(publicDataDir)) {
-              fs.mkdirSync(publicDataDir, { recursive: true });
+            if (!fs.existsSync(publicUserDir)) {
+              fs.mkdirSync(publicUserDir, { recursive: true });
             }
             
-            const srcDrugsPath = path.join(srcDataDir, `drug-names-${type}-${username}.json`);
-            const publicDrugsPath = path.join(publicDataDir, `drug-names-${type}-${username}.json`);
+            const srcDrugsPath = path.join(srcUserDir, `drug-names-${type}-${username}.json`);
+            const publicDrugsPath = path.join(publicUserDir, `drug-names-${type}-${username}.json`);
             
             const drugsJson = JSON.stringify(drugNames, null, 2) + '\n';
             

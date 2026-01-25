@@ -1,6 +1,6 @@
 <?php
 /**
- * Save drug names to public/data/drug-names-{type}-{username}.json
+ * Save drug names to public/data/{username}/drug-names-{type}-{username}.json
  * POST /api/save_drug_names.php
  * Body: { "username": string, "type": "hr" | "hs", "drugNames": array }
  * Returns: { "success": true, "message": string }
@@ -44,14 +44,14 @@ if (!in_array($type, ['hr', 'hs'])) {
 // Get the absolute path to the project root
 $projectRoot = dirname(dirname(__FILE__));
 
-// Ensure the data directory exists
-$dataDir = $projectRoot . '/public/data';
-if (!is_dir($dataDir)) {
-    mkdir($dataDir, 0755, true);
+// Ensure the user data directory exists
+$publicUserDir = $projectRoot . '/public/data/' . $username;
+if (!is_dir($publicUserDir)) {
+    mkdir($publicUserDir, 0755, true);
 }
 
-// Save to public/data/drug-names-{type}-{username}.json (for production access)
-$publicFilePath = $dataDir . '/drug-names-' . $type . '-' . $username . '.json';
+// Save to public/data/{username}/drug-names-{type}-{username}.json (for production access)
+$publicFilePath = $publicUserDir . '/drug-names-' . $type . '-' . $username . '.json';
 $jsonString = json_encode($drugNames, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 $result = file_put_contents($publicFilePath, $jsonString);
 
@@ -61,12 +61,12 @@ if ($result === false) {
     exit;
 }
 
-// Also save to src/data/drug-names-{type}-{username}.json (for development consistency)
-$srcDataDir = $projectRoot . '/src/data';
-if (!is_dir($srcDataDir)) {
-    mkdir($srcDataDir, 0755, true);
+// Also save to src/data/{username}/drug-names-{type}-{username}.json (for development consistency)
+$srcUserDir = $projectRoot . '/src/data/' . $username;
+if (!is_dir($srcUserDir)) {
+    mkdir($srcUserDir, 0755, true);
 }
-$srcFilePath = $srcDataDir . '/drug-names-' . $type . '-' . $username . '.json';
+$srcFilePath = $srcUserDir . '/drug-names-' . $type . '-' . $username . '.json';
 file_put_contents($srcFilePath, $jsonString);
 
 echo json_encode([

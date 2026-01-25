@@ -1,6 +1,6 @@
 <?php
 /**
- * Save user labels to public/data/label-list-user-{username}.json
+ * Save user labels to public/data/{username}/label-list-user-{username}.json
  * POST /api/save_user_labels.php
  * Body: { "username": string, "labels": array }
  * Returns: { "success": true, "message": string }
@@ -37,14 +37,14 @@ $labels = $data['labels'];
 // Get the absolute path to the project root
 $projectRoot = dirname(dirname(__FILE__));
 
-// Ensure the data directory exists
-$dataDir = $projectRoot . '/public/data';
-if (!is_dir($dataDir)) {
-    mkdir($dataDir, 0755, true);
+// Ensure the user data directory exists
+$publicUserDir = $projectRoot . '/public/data/' . $username;
+if (!is_dir($publicUserDir)) {
+    mkdir($publicUserDir, 0755, true);
 }
 
-// Save to public/data/label-list-user-{username}.json (for production access)
-$publicFilePath = $dataDir . '/label-list-user-' . $username . '.json';
+// Save to public/data/{username}/label-list-user-{username}.json (for production access)
+$publicFilePath = $publicUserDir . '/label-list-user-' . $username . '.json';
 $jsonString = json_encode($labels, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 $result = file_put_contents($publicFilePath, $jsonString);
 
@@ -54,12 +54,12 @@ if ($result === false) {
     exit;
 }
 
-// Also save to src/data/label-list-user-{username}.json (for development consistency)
-$srcDataDir = $projectRoot . '/src/data';
-if (!is_dir($srcDataDir)) {
-    mkdir($srcDataDir, 0755, true);
+// Also save to src/data/{username}/label-list-user-{username}.json (for development consistency)
+$srcUserDir = $projectRoot . '/src/data/' . $username;
+if (!is_dir($srcUserDir)) {
+    mkdir($srcUserDir, 0755, true);
 }
-$srcFilePath = $srcDataDir . '/label-list-user-' . $username . '.json';
+$srcFilePath = $srcUserDir . '/label-list-user-' . $username . '.json';
 file_put_contents($srcFilePath, $jsonString);
 
 echo json_encode([

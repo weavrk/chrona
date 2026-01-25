@@ -8,7 +8,6 @@ import { LoginScreen } from './LoginScreen';
 import { CreateAccountScreen } from './CreateAccountScreen';
 import { AddLabelModal } from './AddLabelModal';
 import { EditLabelsModal } from './EditLabelsModal';
-import { ChipBar } from './ChipBar';
 
 interface ChipLabel {
   id: string;
@@ -32,7 +31,7 @@ export function App() {
   const loadLabels = async () => {
     if (!user) return;
     try {
-      const response = await fetch(`/data/label-list-user-${user.username}.json?t=${Date.now()}`);
+      const response = await fetch(`/data/${user.username}/label-list-user-${user.username}.json?t=${Date.now()}`);
       if (response.ok) {
         const loadedLabels = await response.json();
         setChipLabels(Array.isArray(loadedLabels) ? loadedLabels : []);

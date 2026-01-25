@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Chip } from './Chip';
 import { useAuth } from '../contexts/AuthContext';
-import { useDesignSystem } from '../contexts/DesignSystemContext';
 
 interface ChipLabel {
   id: string;
@@ -15,7 +14,6 @@ interface ChipBarProps {
 
 export function ChipBar({ labels }: ChipBarProps) {
   const { user } = useAuth();
-  const { tokens } = useDesignSystem();
   const [activeChips, setActiveChips] = useState<Set<string>>(new Set());
   const [activeRecordTypes, setActiveRecordTypes] = useState<Set<string>>(new Set());
 

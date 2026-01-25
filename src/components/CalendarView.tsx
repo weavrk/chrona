@@ -68,7 +68,7 @@ function generateCalendarMonths(startDate: Date, monthCount: number): CalendarMo
   return months;
 }
 
-export function CalendarView({ isSheetOpen, selectedDate, onSheetClose, onSheetDateChange, onAddRecord, chipLabels }: CalendarViewProps) {
+export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selectedDate, onSheetClose: _onSheetClose, onSheetDateChange, onAddRecord: _onAddRecord, chipLabels }: CalendarViewProps) {
   const [showTodayButton, setShowTodayButton] = useState(false);
   const [observersReady, setObserversReady] = useState(false);
   const calendarRef = useRef<HTMLDivElement>(null);
