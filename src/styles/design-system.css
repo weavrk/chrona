@@ -279,7 +279,7 @@
   background: var(--bg-secondary);
   border: 1px solid transparent;
   border-radius: 4px;
-  color: var(--text-primary);
+  color: var(--gray-800);
   font-size: 0.875rem;
   font-family: var(--font-family);
   cursor: pointer;
@@ -552,9 +552,9 @@ button.ds-chip.ds-chip-active span {
   font-size: 14px;
   font-weight: 500;
   font-family: var(--font-family);
-  border: 2px solid var(--color-secondary);
+  color: var(--gray-700);
+  border: 2px solid var(--gray-700);
   background: transparent;
-  color: var(--color-secondary);
   cursor: pointer;
   transition: all 0.2s;
   white-space: nowrap;
@@ -791,11 +791,11 @@ button.ds-chip-single-select.active span {
 
 .color-circle:hover:not(.used):not(:disabled) {
   transform: scale(1.1);
-  border-color: var(--color-primary);
+  border-color: var(--gray-800);
 }
 
 .color-circle.selected {
-  border-color: var(--color-primary);
+  border-color: var(--gray-800);
   border-width: 3px;
   box-shadow: 0 0 0 2px var(--color-background-body);
 }
@@ -878,11 +878,11 @@ button.ds-chip-single-select.active span {
 
 .color-circle-small:hover:not(.used):not(:disabled) {
   transform: scale(1.1);
-  border-color: var(--color-primary);
+  border-color: var(--gray-800);
 }
 
 .color-circle-small.selected {
-  border-color: var(--color-primary);
+  border-color: var(--gray-800);
   border-width: 3px;
   box-shadow: 0 0 0 2px var(--color-background-body);
 }

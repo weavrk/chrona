@@ -10,15 +10,14 @@ interface DesignTokens {
   'gray-600': string;
   'gray-700': string;
   'gray-800': string;
-  // CMYK Colors
-  'cyan-light': string;
-  'cyan-dark': string;
-  'green-light': string;
-  'green-dark': string;
-  'yellow-light': string;
-  'yellow-dark': string;
-  'magenta-light': string;
-  'magenta-dark': string;
+  // Palette Colors
+  'steel': string;
+  'teal': string;
+  'sage': string;
+  'sand': string;
+  'amber': string;
+  'coral': string;
+  'brick': string;
   
   // Semantic Colors (reference primitive names)
   'brand-primary': string;
@@ -55,25 +54,24 @@ const defaultTokens: DesignTokens = {
   'gray-600': '#808080',
   'gray-700': '#b3b3b3',
   'gray-800': '#f2f2f2',
-  // CMYK Colors
-  'cyan-light': '#7EC8E3',
-  'cyan-dark': '#4A90E2',
-  'green-light': '#6fd3a7',
-  'green-dark': '#1ebeab',
-  'yellow-light': '#f5ed94',
-  'yellow-dark': '#ffdd00',
-  'magenta-light': '#F06292',
-  'magenta-dark': '#D81B60',
+  // Palette Colors
+  'steel': '#577E89',
+  'teal': '#5B95A5',
+  'sage': '#6F9F9C',
+  'sand': '#DEC484',
+  'amber': '#E1A36F',
+  'coral': '#F7AD97',
+  'brick': '#C75B5B',
   
   // Semantic Colors (reference primitive names)
-  'brand-primary': 'magenta-light',
+  'brand-primary': 'coral',
   'primary': 'gray-100',
   'secondary': 'gray-500',
   'tertiary': 'gray-300',
-  'accent': 'cyan-light',
-  'accent-2': 'cyan-dark',
-  'accent-3': 'yellow-light',
-  'accent-4': 'green-dark',
+  'accent': 'teal',
+  'accent-2': 'sage',
+  'accent-3': 'sand',
+  'accent-4': 'coral',
   'button-primary': 'gray-300',
   'background-body': 'gray-100',
   'background-shells': 'gray-200',
@@ -84,20 +82,19 @@ const defaultTokens: DesignTokens = {
 
 const DesignSystemContext = createContext<DesignSystemContextType | undefined>(undefined);
 
-// Get a random brand color from CMYK primitives (excluding grays)
+// Get a random brand color from palette primitives (excluding grays)
 function getRandomBrandColor(): string {
-  const cmykColors = [
-    'cyan-light',
-    'cyan-dark',
-    'green-light',
-    'green-dark',
-    'yellow-light',
-    'yellow-dark',
-    'magenta-light',
-    'magenta-dark',
+  const paletteColors = [
+    'steel',
+    'teal',
+    'sage',
+    'sand',
+    'amber',
+    'coral',
+    'brick',
   ];
-  const randomIndex = Math.floor(Math.random() * cmykColors.length);
-  return cmykColors[randomIndex];
+  const randomIndex = Math.floor(Math.random() * paletteColors.length);
+  return paletteColors[randomIndex];
 }
 
 export function DesignSystemProvider({ children }: { children: ReactNode }) {

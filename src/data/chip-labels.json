@@ -2,21 +2,21 @@
   {
     "id": "period",
     "label": "PE",
-    "color": "magenta-dark"
+    "color": "brick"
   },
   {
     "id": "hsv",
     "label": "HS",
-    "color": "yellow-light"
+    "color": "sand"
   },
   {
     "id": "pill",
     "label": "HR",
-    "color": "cyan-light"
+    "color": "teal"
   },
   {
     "id": "mental",
     "label": "ID",
-    "color": "cyan-dark"
+    "color": "steel"
   }
 ]

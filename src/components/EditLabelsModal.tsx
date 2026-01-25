@@ -16,14 +16,13 @@ interface EditLabelsModalProps {
 
 // Get primitive colors excluding gray series
 const PRIMITIVE_COLORS = [
-  { name: 'cyan-light', value: '#7EC8E3' },
-  { name: 'cyan-dark', value: '#4A90E2' },
-  { name: 'green-light', value: '#6fd3a7' },
-  { name: 'green-dark', value: '#1ebeab' },
-  { name: 'yellow-light', value: '#f5ed94' },
-  { name: 'yellow-dark', value: '#ffdd00' },
-  { name: 'magenta-light', value: '#F06292' },
-  { name: 'magenta-dark', value: '#D81B60' },
+  { name: 'steel', value: '#577E89' },
+  { name: 'teal', value: '#5B95A5' },
+  { name: 'sage', value: '#6F9F9C' },
+  { name: 'sand', value: '#DEC484' },
+  { name: 'amber', value: '#E1A36F' },
+  { name: 'coral', value: '#F7AD97' },
+  { name: 'brick', value: '#C75B5B' },
 ];
 
 export function EditLabelsModal({ isOpen, labels, onClose, onSave }: EditLabelsModalProps) {
