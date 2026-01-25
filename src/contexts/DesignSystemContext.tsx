@@ -10,7 +10,6 @@ interface DesignTokens {
   'gray-600': string;
   'gray-700': string;
   'gray-800': string;
-  'gray-900': string;
   // CMYK Colors
   'cyan-light': string;
   'cyan-dark': string;
@@ -29,6 +28,7 @@ interface DesignTokens {
   'accent': string;
   'accent-2': string;
   'accent-3': string;
+  'accent-4': string;
   'button-primary': string;
   'background-body': string;
   'background-shells': string;
@@ -41,45 +41,45 @@ interface DesignSystemContextType {
   tokens: DesignTokens;
   updateTokens: (tokens: Partial<DesignTokens>) => void;
   renameToken: (oldKey: string, newKey: string) => void;
-  applyTokens: () => void;
+  applyTokens: () => Promise<void>;
   exportTokens: () => void;
 }
 
 const defaultTokens: DesignTokens = {
   // Primitive Colors - Gray Scale (100-900, where 900 is white)
-  'gray-100': '#141414',  // Darkest
-  'gray-200': '#1A1A1A',  // Very dark (tertiary, gray-dark)
-  'gray-300': '#2a2a2a',  // Dark (button-primary)
-  'gray-400': '#6B6B6B',  // Medium (secondary, gray-light)
-  'gray-500': '#808080',  // Mid-gray
-  'gray-600': '#999999',  // Light gray
-  'gray-700': '#B3B3B3',  // Lighter gray
-  'gray-800': '#CCCCCC',  // Very light gray
-  'gray-900': '#FFFFFF',  // White (primary)
+  'gray-100': '#141414',
+  'gray-200': '#1f1f1f',
+  'gray-300': '#2a2a2a',
+  'gray-400': '#333333',
+  'gray-500': '#4d4d4d',
+  'gray-600': '#808080',
+  'gray-700': '#b3b3b3',
+  'gray-800': '#f2f2f2',
   // CMYK Colors
   'cyan-light': '#7EC8E3',
   'cyan-dark': '#4A90E2',
-  'green-light': '#41af7f',
-  'green-dark': '#1c9c8d',
+  'green-light': '#6fd3a7',
+  'green-dark': '#1ebeab',
   'yellow-light': '#f5ed94',
   'yellow-dark': '#ffdd00',
   'magenta-light': '#F06292',
   'magenta-dark': '#D81B60',
   
   // Semantic Colors (reference primitive names)
-  'brand-primary': 'cyan-light',
+  'brand-primary': 'magenta-light',
   'primary': 'gray-900',
-  'secondary': 'gray-400',
-  'tertiary': 'gray-200',
+  'secondary': 'gray-500',
+  'tertiary': 'gray-300',
   'accent': 'cyan-light',
-  'accent-2': 'magenta-light',
+  'accent-2': 'cyan-dark',
   'accent-3': 'yellow-light',
+  'accent-4': 'green-dark',
   'button-primary': 'gray-300',
   'background-body': 'gray-100',
   'background-shells': 'gray-200',
   'background-components': 'gray-300',
   'background-footer': 'gray-200',
-  'background-white': 'gray-900',
+  'background-white': 'gray-800',
 };
 
 const DesignSystemContext = createContext<DesignSystemContextType | undefined>(undefined);
@@ -88,37 +88,23 @@ export function DesignSystemProvider({ children }: { children: ReactNode }) {
   const [tokens, setTokens] = useState<DesignTokens>(defaultTokens);
   const [pendingTokens, setPendingTokens] = useState<DesignTokens>(defaultTokens);
 
-  // Load tokens: first from JSON file (for all users), then localStorage (for overrides)
+  // Load tokens: JSON file is the source of truth, defaults only as fallback
   useEffect(() => {
     const loadTokens = async () => {
       try {
-        // First, try to load from the JSON file (source of truth for all users)
+        // Try to load from the JSON file (source of truth)
         // Use BASE_URL so it works correctly under /hrefs/watchbox/ in production
         const response = await fetch(`${import.meta.env.BASE_URL}design-tokens.json`);
-        let loadedTokens = defaultTokens;
+        let loadedTokens: DesignTokens;
         
         if (response.ok) {
           const fileTokens = await response.json();
-          loadedTokens = { ...defaultTokens, ...fileTokens } as DesignTokens;
-        }
-        
-        // Then check localStorage for any user-specific overrides (for testing/preview)
-    const saved = localStorage.getItem('designTokens');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-            // Remove deprecated keys
-            const keysToRemove = ['background-primary', 'background-secondary', 'background-tertiary', 'untitled', 'untitled-1'];
-            keysToRemove.forEach(key => {
-              if (key in parsed) {
-                delete parsed[key];
-              }
-            });
-            // Merge: file tokens as base, localStorage as override
-            loadedTokens = { ...loadedTokens, ...parsed } as DesignTokens;
-          } catch (e) {
-            console.error('Failed to parse localStorage tokens:', e);
-          }
+          // JSON file is complete source of truth - use it directly
+          loadedTokens = fileTokens as DesignTokens;
+        } else {
+          // Only use defaults if JSON file doesn't exist
+          console.warn('Design tokens JSON file not found, using defaults');
+          loadedTokens = defaultTokens;
         }
         
         setTokens(loadedTokens);
@@ -126,9 +112,11 @@ export function DesignSystemProvider({ children }: { children: ReactNode }) {
         applyTokensToDOM(loadedTokens);
       } catch (e) {
         console.error('Failed to load design tokens:', e);
-        // Fallback to defaults
-      applyTokensToDOM(defaultTokens);
-    }
+        // Fallback to defaults only on error
+        applyTokensToDOM(defaultTokens);
+        setTokens(defaultTokens);
+        setPendingTokens(defaultTokens);
+      }
     };
     
     loadTokens();
@@ -149,7 +137,7 @@ export function DesignSystemProvider({ children }: { children: ReactNode }) {
     // List of semantic color keys (these reference primitives, not hex values)
     const semanticKeys = [
       'brand-primary', 'primary', 'secondary', 'tertiary', 'accent',
-      'accent-2', 'accent-3', 'button-primary', 'background-body',
+      'accent-2', 'accent-3', 'accent-4', 'button-primary', 'background-body',
       'background-shells', 'background-components', 'background-footer', 'background-white'
     ];
     
@@ -256,10 +244,10 @@ export function DesignSystemProvider({ children }: { children: ReactNode }) {
     applyTokensToDOM(updated as DesignTokens);
   };
 
-  const applyTokens = () => {
+  const applyTokens = async () => {
     // Clean up deprecated keys before applying
     const cleanedTokens = { ...pendingTokens } as any;
-    const keysToRemove = ['background-primary', 'background-secondary', 'background-tertiary', 'untitled', 'untitled-1'];
+    const keysToRemove = ['background-primary', 'background-secondary', 'background-tertiary', 'untitled', 'untitled-1', 'gray-900'];
     keysToRemove.forEach(key => {
       if (key in cleanedTokens) {
         delete cleanedTokens[key];
@@ -269,8 +257,30 @@ export function DesignSystemProvider({ children }: { children: ReactNode }) {
     setTokens(cleanedTokens as DesignTokens);
     setPendingTokens(cleanedTokens as DesignTokens);
     applyTokensToDOM(cleanedTokens as DesignTokens);
-    // Save to localStorage for immediate persistence (overrides JSON file for this user)
-    localStorage.setItem('designTokens', JSON.stringify(cleanedTokens));
+    
+    // Save to JSON file (source of truth)
+    try {
+      const response = await fetch('/api/save_design_tokens.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ tokens: cleanedTokens }),
+      });
+      
+      if (response.ok) {
+        // Clear localStorage so it always loads from JSON file
+        localStorage.removeItem('designTokens');
+      } else {
+        console.error('Failed to save design tokens to file:', await response.text());
+        // Fallback to localStorage if file save fails
+        localStorage.setItem('designTokens', JSON.stringify(cleanedTokens));
+      }
+    } catch (error) {
+      console.error('Error saving design tokens:', error);
+      // Fallback to localStorage if API call fails
+      localStorage.setItem('designTokens', JSON.stringify(cleanedTokens));
+    }
   };
 
   const exportTokens = () => {

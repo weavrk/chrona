@@ -271,6 +271,15 @@ async function deploy() {
           console.log('   Uploaded design-tokens.json');
         }
         
+        // Upload public/data/chip-labels.json if it exists
+        const chipLabelsFile = path.join(ROOT_DIR, 'public', 'data', 'chip-labels.json');
+        if (fs.existsSync(chipLabelsFile)) {
+          const chipLabelsRemotePath = env.FTP_REMOTE_PATH + '/data/chip-labels.json';
+          await client.ensureDir(env.FTP_REMOTE_PATH + '/data');
+          await client.uploadFrom(chipLabelsFile, chipLabelsRemotePath);
+          console.log('   Uploaded data/chip-labels.json');
+        }
+        
         // Upload public/icon-192.png if it exists (should be in dist already, but ensure it's there)
         const icon192File = path.join(ROOT_DIR, 'public', 'icon-192.png');
         if (fs.existsSync(icon192File)) {

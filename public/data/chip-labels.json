@@ -1,0 +1,27 @@
+[
+  {
+    "id": "period",
+    "label": "PE",
+    "color": "magenta-light"
+  },
+  {
+    "id": "hsv",
+    "label": "HS",
+    "color": "yellow-light"
+  },
+  {
+    "id": "pill",
+    "label": "HR",
+    "color": "cyan-light"
+  },
+  {
+    "id": "mental",
+    "label": "ID",
+    "color": "gray-700"
+  },
+  {
+    "id": "test",
+    "label": "test",
+    "color": "green-dark"
+  }
+]

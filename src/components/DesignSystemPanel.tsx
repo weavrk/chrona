@@ -7,7 +7,7 @@ export function DesignSystemPanel() {
   const { tokens, updateTokens, renameToken, applyTokens } = useDesignSystem();
   const [localTokens, setLocalTokens] = useState(tokens);
   const [showDestructiveConfirm, setShowDestructiveConfirm] = useState(false);
-  const [showExportMessage, setShowExportMessage] = useState(false);
+  const [applyButtonState, setApplyButtonState] = useState<'idle' | 'success'>('idle');
   const [copiedName, setCopiedName] = useState<string | null>(null);
   const [editingName, setEditingName] = useState<string | null>(null);
   const [editingValue, setEditingValue] = useState<string>('');
@@ -82,7 +82,7 @@ export function DesignSystemPanel() {
 
   const handleApply = async () => {
     // Clean up deprecated keys from semantic colors order
-    const deprecatedKeys = ['background-primary', 'background-secondary', 'background-tertiary', 'untitled', 'untitled-1'];
+    const deprecatedKeys = ['background-primary', 'background-secondary', 'background-tertiary', 'untitled', 'untitled-1', 'gray-900'];
     const cleanedOrder = semanticColorsOrder 
       ? semanticColorsOrder.filter(key => !deprecatedKeys.includes(key))
       : null;
@@ -120,27 +120,28 @@ export function DesignSystemPanel() {
       
       if (response.ok) {
         await response.json();
-    setShowExportMessage(true);
+        // Show success state on button
+        setApplyButtonState('success');
         // Reset password state
         setShowPasswordInput(false);
         setPasswordConfirmed(false);
-    // Auto-hide message after 5 seconds
-    setTimeout(() => setShowExportMessage(false), 5000);
+        // Reset button after 2 seconds
+        setTimeout(() => setApplyButtonState('idle'), 2000);
       } else {
         console.error('Failed to save design tokens:', await response.text());
-        // Still show success message for user, but log error
-        setShowExportMessage(true);
+        // Still show success for user, but log error
+        setApplyButtonState('success');
         setShowPasswordInput(false);
         setPasswordConfirmed(false);
-        setTimeout(() => setShowExportMessage(false), 5000);
+        setTimeout(() => setApplyButtonState('idle'), 2000);
       }
     } catch (error) {
       console.error('Error saving design tokens:', error);
-      // Still show success message for user, but log error
-      setShowExportMessage(true);
+      // Still show success for user, but log error
+      setApplyButtonState('success');
       setShowPasswordInput(false);
       setPasswordConfirmed(false);
-      setTimeout(() => setShowExportMessage(false), 5000);
+      setTimeout(() => setApplyButtonState('idle'), 2000);
     }
   };
 
@@ -204,6 +205,7 @@ export function DesignSystemPanel() {
     'accent',
     'accent-2',
     'accent-3',
+    'accent-4',
     'button-primary'
   ];
   
@@ -212,7 +214,7 @@ export function DesignSystemPanel() {
   
   // Identify all semantic colors dynamically (all keys that aren't primitives)
   // Also filter out deprecated keys
-  const deprecatedKeys = ['background-primary', 'background-secondary', 'background-tertiary', 'untitled', 'untitled-1'];
+  const deprecatedKeys = ['background-primary', 'background-secondary', 'background-tertiary', 'untitled', 'untitled-1', 'gray-900'];
   const allSemanticColorKeys = Object.keys(localTokens).filter(key => {
     // Skip deprecated keys
     if (deprecatedKeys.includes(key)) {
@@ -732,6 +734,14 @@ export function DesignSystemPanel() {
                     </div>
 
                     <div className="button-demo-item">
+                      <h4 className="button-demo-label">ds-button-secondary</h4>
+                      <button className="ds-button-secondary">
+                        Cancel
+                      </button>
+                      <p className="button-demo-description">Customizable button with same attributes as primary. Colors can be customized in the future.</p>
+                    </div>
+
+                    <div className="button-demo-item">
                       <h4 className="button-demo-label">ds-button-destructive</h4>
                       {!showDestructiveConfirm ? (
                         <button 
@@ -763,36 +773,89 @@ export function DesignSystemPanel() {
                       )}
                       <p className="button-demo-description">Button with built-in "Are you sure?" confirmation. Used for destructive actions like deleting profiles.</p>
                     </div>
+                  </div>
+                </section>
 
+                <section className="design-system-section">
+                  <h3 className="section-header">Chip Components</h3>
+                  
+                  <div className="button-components-demo">
                     <div className="button-demo-item">
-                      <h4 className="button-demo-label">ds-button-secondary</h4>
-                      <button className="ds-button-secondary">
-                        Cancel
-                      </button>
-                      <p className="button-demo-description">Customizable button with same attributes as primary. Colors can be customized in the future.</p>
+                      <h4 className="button-demo-label">ds-chip</h4>
+                      <div style={{ display: 'flex', gap: 'var(--spacing-sm)', flexWrap: 'wrap' }}>
+                        <button className="ds-chip ds-chip-inactive" style={{ color: '#F06292', borderColor: '#F06292' }}>
+                          <span>Period</span>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M12 5v14M5 12h14"/>
+                          </svg>
+                        </button>
+                        <button className="ds-chip ds-chip-active" style={{ backgroundColor: '#F06292', borderColor: '#F06292' }}>
+                          <span>Period</span>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M18 6L6 18M6 6l12 12"/>
+                          </svg>
+                        </button>
+                      </div>
+                      <p className="button-demo-description">Toggle-able chip component with plus icon (inactive) and x icon (active). Used for filtering and category selection.</p>
                     </div>
                   </div>
                 </section>
               </div>
               <div className="design-system-actions-bottom-sheet">
-                {showExportMessage && (
-                  <div style={{ 
-                    padding: 'var(--spacing-md)', 
-                    marginBottom: 'var(--spacing-md)',
-                    backgroundColor: 'var(--bg-card)',
-                    borderRadius: 'var(--border-radius)',
-                    fontSize: '0.9rem',
-                    color: 'var(--text-primary)'
-                  }}>
-                    <strong>Changes applied!</strong> Design tokens have been saved to <code style={{ fontSize: '0.85em' }}>public/design-tokens.json</code> and committed to git. All users will see these changes after the next deployment.
-                  </div>
-                )}
                 {!showPasswordInput && !passwordConfirmed ? (
                   <button
                     className="create-button-full"
                     onClick={handleApplyClick}
+                    disabled={applyButtonState === 'success'}
+                    style={{
+                      transition: 'all 0.3s ease',
+                      position: 'relative'
+                    }}
                   >
-                    Apply Changes
+                    <span style={{
+                      opacity: applyButtonState === 'idle' ? 1 : 0,
+                      transition: 'opacity 0.2s ease',
+                      position: applyButtonState === 'success' ? 'absolute' : 'relative'
+                    }}>
+                      Apply Changes
+                    </span>
+                    <span style={{
+                      opacity: applyButtonState === 'success' ? 1 : 0,
+                      transition: 'opacity 0.2s ease',
+                      position: applyButtonState === 'idle' ? 'absolute' : 'relative',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}>
+                      <svg width="24" height="24" viewBox="0 0 24 24" style={{ display: 'block' }}>
+                        <circle
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          style={{
+                            strokeDasharray: '63',
+                            strokeDashoffset: applyButtonState === 'success' ? '0' : '63',
+                            transition: 'stroke-dashoffset 0.4s ease-in-out'
+                          }}
+                        />
+                        <path
+                          d="M7 12l3 3 7-7"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          style={{
+                            strokeDasharray: '18',
+                            strokeDashoffset: applyButtonState === 'success' ? '0' : '18',
+                            transition: 'stroke-dashoffset 0.4s ease-in-out 0.2s'
+                          }}
+                        />
+                      </svg>
+                    </span>
                   </button>
                 ) : passwordConfirmed ? (
                   <div style={{

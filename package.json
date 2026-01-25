@@ -10,6 +10,7 @@
     "deploy": "node scripts/deploy.js"
   },
   "dependencies": {
+    "lucide-react": "^0.563.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
@@ -22,4 +23,3 @@
     "vite": "^5.0.8"
   }
 }
-
