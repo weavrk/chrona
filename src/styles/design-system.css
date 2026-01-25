@@ -330,6 +330,7 @@
 
 .component-visualization {
   border-top: 1px solid var(--color-secondary);
+  border-bottom: 1px solid var(--color-secondary);
   padding: var(--spacing-lg) 0;
   margin: var(--spacing-md) 0;
 }
@@ -811,7 +812,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
-  padding: 24px 0;
+  padding: 24px 0 24px 0;
   background: transparent;
   border-bottom: 1px solid var(--color-secondary);
   width: 100%;

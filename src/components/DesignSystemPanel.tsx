@@ -66,7 +66,7 @@ export function DesignSystemPanel() {
       setPassword('');
       setShowPasswordInput(false);
       // Go straight to applying changes
-      handleApply();
+        handleApply();
     } else {
       setPassword('');
       alert('Incorrect password');
@@ -74,7 +74,7 @@ export function DesignSystemPanel() {
   };
 
   const handleApplyClick = () => {
-    setShowPasswordInput(true);
+      setShowPasswordInput(true);
   };
 
   const handleApply = async () => {
@@ -444,7 +444,7 @@ export function DesignSystemPanel() {
                     {grayScale.map((grayName) => {
                       const isEditing = editingName === grayName;
                       return (
-                        <div key={grayName} className="color-swatch-card">
+                      <div key={grayName} className="color-swatch-card">
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
                           {isEditing ? (
                             <input
@@ -478,32 +478,32 @@ export function DesignSystemPanel() {
                               >
                                 {getDisplayName(grayName)}
                               </span>
-                              <button
-                                onClick={() => handleCopyToClipboard(grayName)}
-                                style={{
-                                  background: 'none',
-                                  border: 'none',
+                          <button
+                            onClick={() => handleCopyToClipboard(grayName)}
+                            style={{
+                              background: 'none',
+                              border: 'none',
                                   color: copiedName === grayName ? 'var(--color-accent)' : 'var(--gray-700)',
-                                  cursor: 'pointer',
-                                  padding: '2px',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  transition: 'color 0.2s'
-                                }}
-                                title="Copy to clipboard"
-                              >
-                                {copiedName === grayName ? (
-                                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <path d="M20 6L9 17l-5-5"/>
-                                  </svg>
-                                ) : (
-                                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
-                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-                                  </svg>
-                                )}
-                              </button>
+                              cursor: 'pointer',
+                              padding: '2px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              transition: 'color 0.2s'
+                            }}
+                            title="Copy to clipboard"
+                          >
+                            {copiedName === grayName ? (
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M20 6L9 17l-5-5"/>
+                              </svg>
+                            ) : (
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                              </svg>
+                            )}
+                          </button>
                             </>
                           )}
                         </div>
@@ -521,7 +521,7 @@ export function DesignSystemPanel() {
                             className="color-hex"
                           />
                         </div>
-                        </div>
+                      </div>
                       );
                     })}
 
@@ -627,7 +627,7 @@ export function DesignSystemPanel() {
                     {cmykColors.map((cmykName) => {
                       const isEditing = editingName === cmykName;
                       return (
-                        <div key={cmykName} className="color-swatch-card">
+                      <div key={cmykName} className="color-swatch-card">
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
                           {isEditing ? (
                             <input
@@ -661,32 +661,32 @@ export function DesignSystemPanel() {
                               >
                                 {getDisplayName(cmykName)}
                               </span>
-                              <button
-                                onClick={() => handleCopyToClipboard(cmykName)}
-                                style={{
-                                  background: 'none',
-                                  border: 'none',
+                          <button
+                            onClick={() => handleCopyToClipboard(cmykName)}
+                            style={{
+                              background: 'none',
+                              border: 'none',
                                   color: copiedName === cmykName ? 'var(--color-accent)' : 'var(--gray-700)',
-                                  cursor: 'pointer',
-                                  padding: '2px',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  transition: 'color 0.2s'
-                                }}
-                                title="Copy to clipboard"
-                              >
-                                {copiedName === cmykName ? (
-                                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <path d="M20 6L9 17l-5-5"/>
-                                  </svg>
-                                ) : (
-                                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
-                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-                                  </svg>
-                                )}
-                              </button>
+                              cursor: 'pointer',
+                              padding: '2px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              transition: 'color 0.2s'
+                            }}
+                            title="Copy to clipboard"
+                          >
+                            {copiedName === cmykName ? (
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M20 6L9 17l-5-5"/>
+                              </svg>
+                            ) : (
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                              </svg>
+                            )}
+                          </button>
                             </>
                           )}
                         </div>
@@ -704,7 +704,7 @@ export function DesignSystemPanel() {
                             className="color-hex"
                           />
                         </div>
-                        </div>
+                      </div>
                       );
                     })}
                     {/* Add New Primitive Color */}
@@ -990,7 +990,7 @@ export function DesignSystemPanel() {
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M12 5v14M5 12h14"/>
                           </svg>
-                        </button>
+                      </button>
                         <button className="ds-chip ds-chip-active" style={{ backgroundColor: '#F06292', borderColor: '#F06292', color: 'var(--color-primary)' }}>
                           <span>Period</span>
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -1081,7 +1081,7 @@ export function DesignSystemPanel() {
                             value="Sample Text"
                             readOnly
                           />
-                        </div>
+              </div>
                       </div>
                       <p className="button-demo-description">Standard text input with label. Used for collecting text data like names and descriptions.</p>
                       
@@ -1125,8 +1125,8 @@ box-sizing: border-box`}</pre>
                           <h5>Input:focus</h5>
                           <pre>{`outline: none
 border-color: var(--color-accent)`}</pre>
-                        </div>
-                      )}
+                  </div>
+                )}
                     </div>
 
                     <div className="button-demo-item">
@@ -1524,14 +1524,14 @@ transition: color 0.2s`}</pre>
                       transition: 'opacity 0.2s ease',
                       position: applyButtonState === 'success' ? 'absolute' : 'relative'
                     }}>
-                      Apply Changes
+                    Apply Changes
                     </span>
                     <span style={{
                       opacity: applyButtonState === 'success' ? 1 : 0,
                       transition: 'opacity 0.2s ease',
                       position: applyButtonState === 'idle' ? 'absolute' : 'relative',
                       display: 'inline-flex',
-                      alignItems: 'center',
+                    alignItems: 'center',
                       justifyContent: 'center'
                     }}>
                       <svg width="24" height="24" viewBox="0 0 24 24" style={{ display: 'block' }}>
@@ -1561,7 +1561,7 @@ transition: color 0.2s`}</pre>
                             transition: 'stroke-dashoffset 0.4s ease-in-out 0.2s'
                           }}
                         />
-                      </svg>
+                    </svg>
                     </span>
                   </button>
                 ) : (

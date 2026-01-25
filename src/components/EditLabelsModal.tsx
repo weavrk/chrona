@@ -159,42 +159,42 @@ export function EditLabelsModal({ isOpen, labels, onClose, onSave }: EditLabelsM
                     <label className="form-label">Color</label>
                     
                     <div className="color-picker-grid">
-                      {PRIMITIVE_COLORS.sort((a, b) => {
-                        const aUsed = usedColors.has(a.name);
-                        const bUsed = usedColors.has(b.name);
-                        if (aUsed === bUsed) return 0;
-                        return aUsed ? 1 : -1;
-                      }).map((color) => {
-                        const isUsed = usedColors.has(color.name);
-                        const isSelected = label.color === color.name;
-                        return (
-                          <button
-                            key={color.name}
-                            className={`color-circle-small ${isSelected ? 'selected' : ''} ${isUsed ? 'used' : ''}`}
-                            style={
-                              isUsed
-                                ? {
-                                    backgroundColor: 'transparent',
-                                    borderColor: color.value,
-                                    borderWidth: '2px',
-                                    borderStyle: 'solid',
-                                  }
-                                : {
-                                    backgroundColor: color.value,
-                                  }
+                    {PRIMITIVE_COLORS.sort((a, b) => {
+                      const aUsed = usedColors.has(a.name);
+                      const bUsed = usedColors.has(b.name);
+                      if (aUsed === bUsed) return 0;
+                      return aUsed ? 1 : -1;
+                    }).map((color) => {
+                      const isUsed = usedColors.has(color.name);
+                      const isSelected = label.color === color.name;
+                      return (
+                        <button
+                          key={color.name}
+                          className={`color-circle-small ${isSelected ? 'selected' : ''} ${isUsed ? 'used' : ''}`}
+                          style={
+                            isUsed
+                              ? {
+                                  backgroundColor: 'transparent',
+                                  borderColor: color.value,
+                                  borderWidth: '2px',
+                                  borderStyle: 'solid',
+                                }
+                              : {
+                                  backgroundColor: color.value,
+                                }
+                          }
+                          onClick={() => {
+                            if (!isUsed) {
+                              handleLabelChange(label.id, 'color', color.name);
                             }
-                            onClick={() => {
-                              if (!isUsed) {
-                                handleLabelChange(label.id, 'color', color.name);
-                              }
-                            }}
-                            disabled={isUsed}
-                            title={isUsed ? 'Already used by another label' : color.name}
-                          >
-                            {isUsed && <XIcon size={10} style={{ color: color.value }} />}
-                          </button>
-                        );
-                      })}
+                          }}
+                          disabled={isUsed}
+                          title={isUsed ? 'Already used by another label' : color.name}
+                        >
+                          {isUsed && <XIcon size={10} style={{ color: color.value }} />}
+                        </button>
+                      );
+                    })}
                     </div>
                   </div>
                 </div>

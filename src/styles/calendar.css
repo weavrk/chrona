@@ -292,7 +292,6 @@
   gap: var(--spacing-sm);
   align-items: center;
   padding-bottom: var(--spacing-md);
-  border-bottom: 1px solid var(--color-secondary);
 }
 
 /* Date Range */

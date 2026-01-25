@@ -77,7 +77,7 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd }: AddReco
     setIsAdding(true);
     
     setTimeout(() => {
-      handleClose();
+    handleClose();
       setIsAdding(false);
     }, 500);
   };
