@@ -998,6 +998,55 @@ export function DesignSystemPanel() {
                       </div>
                       <p className="button-demo-description">Single-select chip variant without icons. Used for mutually exclusive selections like record types and intensity levels.</p>
                     </div>
+
+                    <div className="button-demo-item">
+                      <h4 className="button-demo-label">ds-chip-bar-toggleable</h4>
+                      <div style={{ display: 'flex', gap: 'var(--spacing-sm)', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'flex-end', padding: '8px', background: 'var(--color-background-body)', borderRadius: 'var(--border-radius)', border: '1px solid var(--color-secondary)' }}>
+                        <button className="ds-chip ds-chip-inactive" style={{ color: '#F7AD97', borderColor: '#F7AD97' }}>
+                          <span>PE</span>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M12 5v14M5 12h14"/>
+                          </svg>
+                        </button>
+                        <button className="ds-chip ds-chip-active" style={{ backgroundColor: '#DEC484', borderColor: '#DEC484', color: 'var(--color-primary)' }}>
+                          <span>HS</span>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M18 6L6 18M6 6l12 12"/>
+                          </svg>
+                        </button>
+                        <button className="ds-chip ds-chip-inactive" style={{ color: '#5B95A5', borderColor: '#5B95A5' }}>
+                          <span>HR</span>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M12 5v14M5 12h14"/>
+                          </svg>
+                        </button>
+                        <div style={{ width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-secondary)', cursor: 'pointer' }}>
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/>
+                          </svg>
+                        </div>
+                      </div>
+                      <p className="button-demo-description">Toggleable chip bar container (form-chips-single variant). Fixed position bar with plus/x icon toggle states and ellipses menu. Used on calendar home screen for filtering.</p>
+                    </div>
+
+                    <div className="button-demo-item">
+                      <h4 className="button-demo-label">ds-chip-bar-record-selector</h4>
+                      <div style={{ display: 'flex', gap: 'var(--spacing-sm)', flexWrap: 'wrap' }}>
+                        <button className="ds-chip-single-select" style={{ color: '#F7AD97', borderColor: '#F7AD97' }}>
+                          <span>PE</span>
+                        </button>
+                        <button className="ds-chip-single-select active" style={{ backgroundColor: '#DEC484', borderColor: '#DEC484' }}>
+                          <span>HS</span>
+                        </button>
+                        <button className="ds-chip-single-select" style={{ color: '#5B95A5', borderColor: '#5B95A5' }}>
+                          <span>HR</span>
+                        </button>
+                        <button className="ds-chip-single-select" style={{ color: '#577E89', borderColor: '#577E89' }}>
+                          <span>ID</span>
+                        </button>
+                      </div>
+                      <p className="button-demo-description">Record type selector (form-chips-single variant). Single-select chip bar for choosing record types. Used in Add Record sheet.</p>
+                    </div>
                   </div>
                 </section>
 
@@ -1067,7 +1116,7 @@ export function DesignSystemPanel() {
                           </button>
                         </div>
                       </div>
-                      <p className="button-demo-description">Single-select chip bar for mutually exclusive options. Used for intensity levels and categories. Supports icon variant for mood selection.</p>
+                      <p className="button-demo-description">Single-select chip bar for mutually exclusive options. Used for intensity levels and categories. Includes 3 variants: standard (ds-chip-single-select), mood with icons, toggleable chip bar (calendar filter), and record type selector.</p>
                     </div>
 
                     <div className="button-demo-item">

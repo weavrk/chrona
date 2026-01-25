@@ -1228,4 +1228,37 @@
   color: var(--color-background-white);
 }
 
+/* form-chips-single - Container Variants */
+
+/* Variant A: Fixed chip bar with toggleable chips (calendar home screen) */
+.form-chips-single.chip-bar-variant-fixed .chip-bar-container {
+  position: fixed;
+  top: 60px;
+  left: 0;
+  right: 0;
+  z-index: 90;
+  background: var(--color-background-body, var(--bg-primary));
+  padding: 16px 0;
+  border-bottom: 1px solid var(--color-secondary);
+}
+
+.form-chips-single.chip-bar-variant-fixed .chip-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  align-items: center;
+  padding: 0 16px;
+  justify-content: flex-end;
+}
+
+/* Variant B: Record type selector (add record sheet) */
+.form-chips-single.chip-bar-variant-record .chip-bar-single-select {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  align-items: center;
+  padding: 0;
+  border: none;
+}
+
 
