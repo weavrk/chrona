@@ -77,7 +77,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     
     try {
       // Load global labels to get the mental-health label
-      const globalLabelsResponse = await fetch('/data/label-list-global.json?t=' + Date.now());
+      const globalLabelsResponse = await fetch(`${import.meta.env.BASE_URL}data/label-list-global.json?t=${Date.now()}`);
       if (globalLabelsResponse.ok) {
         const globalLabels = await globalLabelsResponse.json();
         const mentalHealthLabel = globalLabels.find((label: any) => label.id === 'mental-health');

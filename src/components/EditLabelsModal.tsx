@@ -47,7 +47,7 @@ export function EditLabelsModal({ isOpen, labels, onClose, onSave }: EditLabelsM
     if (!user) return;
     setIsLoading(true);
     try {
-      const response = await fetch(`/data/${user.username}/label-list-user-${user.username}.json?t=${Date.now()}`);
+      const response = await fetch(`${import.meta.env.BASE_URL}data/${user.username}/label-list-user-${user.username}.json?t=${Date.now()}`);
       if (response.ok) {
         const loadedLabels = await response.json();
         // Map from global structure (name, abbreviation, defaultColor) to component structure (label, color)

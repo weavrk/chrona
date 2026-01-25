@@ -128,7 +128,7 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd, labels }:
   const loadDrugNames = async (type: 'hr' | 'hs'): Promise<string[]> => {
     if (!user) return [];
     try {
-      const response = await fetch(`/data/${user.username}/drug-names-${type}-${user.username}.json?t=${Date.now()}`);
+      const response = await fetch(`${import.meta.env.BASE_URL}data/${user.username}/drug-names-${type}-${user.username}.json?t=${Date.now()}`);
       if (response.ok) {
         const data = await response.json();
         return Array.isArray(data) ? data : [];

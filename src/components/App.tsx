@@ -31,7 +31,7 @@ export function App() {
   const loadLabels = async () => {
     if (!user) return;
     try {
-      const response = await fetch(`/data/${user.username}/label-list-user-${user.username}.json?t=${Date.now()}`);
+      const response = await fetch(`${import.meta.env.BASE_URL}data/${user.username}/label-list-user-${user.username}.json?t=${Date.now()}`);
       if (response.ok) {
         const loadedLabels = await response.json();
         // Map from global structure (name, abbreviation, defaultColor) to component structure (label, color)
@@ -59,7 +59,7 @@ export function App() {
   // Load global labels to get name and abbreviation for mapping
   const loadGlobalLabels = async () => {
     try {
-      const response = await fetch(`/data/label-list-global.json?t=${Date.now()}`);
+      const response = await fetch(`${import.meta.env.BASE_URL}data/label-list-global.json?t=${Date.now()}`);
       if (response.ok) {
         const data = await response.json();
         return Array.isArray(data) ? data : [];
@@ -199,7 +199,7 @@ export function App() {
     
     try {
       // Load existing events
-      const response = await fetch(`/data/events-${user.username}.json?t=${Date.now()}`);
+      const response = await fetch(`${import.meta.env.BASE_URL}data/events-${user.username}.json?t=${Date.now()}`);
       let events = [];
       if (response.ok) {
         const data = await response.json();

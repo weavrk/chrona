@@ -39,7 +39,7 @@ export function AddLabelModal({ isOpen, existingLabels, onClose, onSave }: AddLa
 
   const loadGlobalLabels = async () => {
     try {
-      const response = await fetch(`/data/label-list-global.json?t=${Date.now()}`);
+      const response = await fetch(`${import.meta.env.BASE_URL}data/label-list-global.json?t=${Date.now()}`);
       if (response.ok) {
         const data = await response.json();
         setGlobalLabels(Array.isArray(data) ? data : []);
