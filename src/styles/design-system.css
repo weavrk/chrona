@@ -1288,10 +1288,10 @@
 
 /* Form Section Headers */
 .form-section-headers {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 500;
   color: var(--gray-800);
-  margin: 0;
+  margin-bottom: 8px;
   display: block;
 }
 
