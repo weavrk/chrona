@@ -3090,7 +3090,7 @@ img {
   width: 100%;
   padding: var(--spacing-md);
   background-color: var(--color-background-components, var(--button-primary, #2a2a2a));
-  color: var(--text-primary);
+  color: var(--gray-800);
   border: none;
   border-radius: var(--border-radius);
   font-size: 1rem;
