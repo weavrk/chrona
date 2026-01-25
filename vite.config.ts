@@ -225,6 +225,63 @@ function apiPlugin() {
         });
       });
 
+      // API endpoint to save workout types
+      server.middlewares.use('/api/save_workout_types.php', async (req, res, next) => {
+        if (req.method !== 'POST') {
+          res.statusCode = 405;
+          res.end(JSON.stringify({ error: 'Method not allowed' }));
+          return;
+        }
+
+        let body = '';
+        req.on('data', chunk => { body += chunk.toString(); });
+        req.on('end', async () => {
+          try {
+            const { username, workoutTypes } = JSON.parse(body);
+            if (!username) {
+              res.statusCode = 400;
+              res.end(JSON.stringify({ error: 'username is required' }));
+              return;
+            }
+            
+            const srcUserDir = path.join(__dirname, 'src', 'data', username);
+            const publicUserDir = path.join(__dirname, 'public', 'data', username);
+            
+            // Ensure user directories exist
+            if (!fs.existsSync(srcUserDir)) {
+              fs.mkdirSync(srcUserDir, { recursive: true });
+            }
+            if (!fs.existsSync(publicUserDir)) {
+              fs.mkdirSync(publicUserDir, { recursive: true });
+            }
+            
+            const srcWorkoutTypesPath = path.join(srcUserDir, `workout-type-wo-${username}.json`);
+            const publicWorkoutTypesPath = path.join(publicUserDir, `workout-type-wo-${username}.json`);
+            
+            const workoutTypesJson = JSON.stringify(workoutTypes, null, 2) + '\n';
+            
+            fs.writeFileSync(srcWorkoutTypesPath, workoutTypesJson, 'utf-8');
+            fs.writeFileSync(publicWorkoutTypesPath, workoutTypesJson, 'utf-8');
+            
+            res.setHeader('Content-Type', 'application/json');
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            res.statusCode = 200;
+            res.end(JSON.stringify({ 
+              success: true, 
+              message: 'Workout types saved successfully' 
+            }));
+          } catch (error) {
+            res.statusCode = 500;
+            res.setHeader('Content-Type', 'application/json');
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+            res.end(JSON.stringify({ 
+              success: false, 
+              error: errorMessage 
+            }));
+          }
+        });
+      });
+
       // API endpoint to save events
       server.middlewares.use('/api/save_events.php', async (req, res, next) => {
         if (req.method !== 'POST') {

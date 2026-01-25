@@ -2,7 +2,11 @@ import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { CheckCircle2 } from 'lucide-react';
 
-export function LoginScreen() {
+interface LoginScreenProps {
+  onShowCreateAccount?: () => void;
+}
+
+export function LoginScreen({ onShowCreateAccount }: LoginScreenProps) {
   const { login } = useAuth();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -86,6 +90,28 @@ export function LoginScreen() {
               'Login'
             )}
           </button>
+
+          {onShowCreateAccount && (
+            <button
+              className="login-create-account-link"
+              onClick={onShowCreateAccount}
+              style={{
+                width: '100%',
+                marginTop: 'var(--spacing-sm)',
+                background: 'transparent',
+                border: 'none',
+                color: 'var(--color-secondary)',
+                textDecoration: 'underline',
+                fontWeight: 500,
+                cursor: 'pointer',
+                fontSize: '1rem',
+                fontFamily: 'var(--font-family)',
+                padding: 'var(--spacing-sm) 0'
+              }}
+            >
+              Create Account
+            </button>
+          )}
         </div>
       </div>
     </div>

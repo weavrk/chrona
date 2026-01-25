@@ -169,17 +169,7 @@ export function App() {
     return showCreateAccount ? (
       <CreateAccountScreen onSwitchToLogin={() => setShowCreateAccount(false)} />
     ) : (
-      <>
-        <LoginScreen />
-        <div style={{ position: 'fixed', bottom: 'var(--spacing-lg)', left: '50%', transform: 'translateX(-50%)' }}>
-          <button
-            className="ds-button-secondary"
-            onClick={() => setShowCreateAccount(true)}
-          >
-            Create Account
-          </button>
-        </div>
-      </>
+      <LoginScreen onShowCreateAccount={() => setShowCreateAccount(true)} />
     );
   }
 

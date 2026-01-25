@@ -122,6 +122,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Don't fail account creation if drug name file creation fails
     }
     
+    // Create initial workout types file (empty array)
+    try {
+      await fetch('/api/save_workout_types.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: usernameLower, workoutTypes: [] }),
+      });
+    } catch (error) {
+      console.error('Failed to create initial workout types file for new user:', error);
+      // Don't fail account creation if workout types file creation fails
+    }
+    
     return true;
   };
 

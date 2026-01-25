@@ -35,7 +35,7 @@ export function CreateAccountScreen({ onSwitchToLogin }: CreateAccountScreenProp
   return (
     <div className="login-screen">
       <div className="login-container">
-        <h1 className="login-title">Create Account</h1>
+        <h1 className="login-title">Chrona</h1>
         
         <div className="login-form">
           <div className="form-text-input">
@@ -80,23 +80,35 @@ export function CreateAccountScreen({ onSwitchToLogin }: CreateAccountScreenProp
 
           <button
             className="ds-button-primary"
-            onClick={onSwitchToLogin}
-            style={{ width: '100%', marginTop: 'var(--spacing-md)' }}
-          >
-            Login to Existing Account
-          </button>
-
-          <button
-            className="ds-button-secondary"
             onClick={handleCreateAccount}
             disabled={isCreating}
-            style={{ width: '100%', marginTop: 'var(--spacing-sm)' }}
+            style={{ width: '100%', marginTop: 'var(--spacing-md)' }}
           >
             {isCreating ? (
               <CheckCircle2 size={24} className="checkmark-animation" />
             ) : (
               'Create Account'
             )}
+          </button>
+
+          <button
+            className="login-create-account-link"
+            onClick={onSwitchToLogin}
+            style={{
+              width: '100%',
+              marginTop: 'var(--spacing-sm)',
+              background: 'transparent',
+              border: 'none',
+              color: 'var(--color-secondary)',
+              textDecoration: 'underline',
+              fontWeight: 500,
+              cursor: 'pointer',
+              fontSize: '1rem',
+              fontFamily: 'var(--font-family)',
+              padding: 'var(--spacing-sm) 0'
+            }}
+          >
+            Login with Existing Account
           </button>
         </div>
       </div>
