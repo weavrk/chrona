@@ -247,8 +247,8 @@ function apiPlugin() {
             fs.writeFileSync(publicEventsPath, eventsJson, 'utf-8');
             
             res.setHeader('Content-Type', 'application/json');
-            res.setHeader('Access-Control-Allow-Origin', '*');
-            res.statusCode = 200;
+          res.setHeader('Access-Control-Allow-Origin', '*');
+          res.statusCode = 200;
             res.end(JSON.stringify({ 
               success: true, 
               message: 'Events saved successfully' 

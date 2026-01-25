@@ -64,14 +64,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(userData);
     localStorage.setItem('chrona_user', JSON.stringify(userData));
     
-    // Create initial label list with only ID (Mental Health)
-    const initialLabels = [
+    // Create initial label list with only Mental Health
+    // Load from global labels file to get current values
+    let initialLabels = [
       {
         id: 'mental-health',
-        label: 'ID',
-        color: 'steel'
+        name: 'Mental Health',
+        abbreviation: 'ID',
+        defaultColor: 'steel'
       }
     ];
+    
+    try {
+      // Load global labels to get the mental-health label
+      const globalLabelsResponse = await fetch('/data/label-list-global.json?t=' + Date.now());
+      if (globalLabelsResponse.ok) {
+        const globalLabels = await globalLabelsResponse.json();
+        const mentalHealthLabel = globalLabels.find((label: any) => label.id === 'mental-health');
+        if (mentalHealthLabel) {
+          initialLabels = [mentalHealthLabel];
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load global labels, using fallback values:', error);
+      // Continue with hardcoded fallback values
+    }
     
     // Save initial labels to user's JSON file
     try {

@@ -1229,8 +1229,9 @@
 
 .form-label-color-picker .color-picker-grid {
   display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  gap: 8px;
+  grid-template-columns: repeat(5, 1fr);
+  column-gap: 32px;
+  row-gap: 16px;
   width: 100%;
 }
 
@@ -1254,14 +1255,24 @@
 }
 
 .form-label-color-picker .color-circle-small.selected {
-  border-color: var(--gray-800);
-  border-width: 3px;
-  box-shadow: 0 0 0 2px var(--color-background-body);
+  border-width: 2px;
+  border-style: solid;
+  background-color: transparent !important;
+}
+
+.form-label-color-picker .color-circle-small.selected::after {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  background-color: var(--selected-color);
+  pointer-events: none;
 }
 
 .form-label-color-picker .color-circle-small.used {
   cursor: not-allowed;
   background: transparent !important;
+  border-width: 1px;
 }
 
 .form-label-color-picker .color-circle-small:disabled {

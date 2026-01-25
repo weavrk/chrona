@@ -12,17 +12,21 @@ interface ChipBarProps {
   labels: ChipLabel[];
 }
 
+// Default record type IDs that should always appear first
+const DEFAULT_RECORD_TYPE_IDS = ['period', 'hormone-replacement-therapy', 'hsv', 'mental-health'];
+
 export function ChipBar({ labels }: ChipBarProps) {
   const { user } = useAuth();
   const [activeChips, setActiveChips] = useState<Set<string>>(new Set());
   const [activeRecordTypes, setActiveRecordTypes] = useState<Set<string>>(new Set());
 
-  const RECORD_TYPES = [
-    { id: 'period', label: 'PE', color: 'brick', defaultColor: 'brick' },
-    { id: 'hormone-replacement-therapy', label: 'HR', color: 'ocean', defaultColor: 'ocean' },
-    { id: 'hsv', label: 'HS', color: 'sand', defaultColor: 'sand' },
-    { id: 'mental-health', label: 'ID', color: 'steel', defaultColor: 'steel' },
-  ];
+  // Separate default record types from user-defined labels
+  // Maintain order: period, hormone-replacement-therapy, hsv, mental-health
+  // Labels come in component format (label, color) from App.tsx mapping
+  const recordTypes = DEFAULT_RECORD_TYPE_IDS
+    .map(id => labels.find(label => label.id === id))
+    .filter((label): label is ChipLabel => label !== undefined);
+  const userLabels = labels.filter(label => !DEFAULT_RECORD_TYPE_IDS.includes(label.id));
 
   const toggleChip = (chipId: string) => {
     setActiveChips(prev => {
@@ -51,9 +55,9 @@ export function ChipBar({ labels }: ChipBarProps) {
   if (!user) return null;
 
   return (
-    <div className="chip-bar-container">
-      <div className="chip-bar">
-        {RECORD_TYPES.map((recordType) => (
+      <div className="chip-bar-container">
+        <div className="chip-bar">
+        {recordTypes.map((recordType) => (
           <Chip
             key={recordType.id}
             label={recordType.label}
@@ -62,15 +66,15 @@ export function ChipBar({ labels }: ChipBarProps) {
             onClick={() => toggleRecordType(recordType.id)}
           />
         ))}
-        {labels.map((chip) => (
-          <Chip
-            key={chip.id}
-            label={chip.label}
-            color={chip.color}
-            active={activeChips.has(chip.id)}
-            onClick={() => toggleChip(chip.id)}
-          />
-        ))}
+        {userLabels.map((chip) => (
+            <Chip
+              key={chip.id}
+              label={chip.label}
+              color={chip.color}
+              active={activeChips.has(chip.id)}
+              onClick={() => toggleChip(chip.id)}
+            />
+          ))}
       </div>
     </div>
   );

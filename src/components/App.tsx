@@ -34,7 +34,13 @@ export function App() {
       const response = await fetch(`/data/${user.username}/label-list-user-${user.username}.json?t=${Date.now()}`);
       if (response.ok) {
         const loadedLabels = await response.json();
-        setChipLabels(Array.isArray(loadedLabels) ? loadedLabels : []);
+        // Map from global structure (name, abbreviation, defaultColor) to component structure (label, color)
+        const mappedLabels = (Array.isArray(loadedLabels) ? loadedLabels : []).map((label: any) => ({
+          id: label.id,
+          label: label.abbreviation || label.label || '',
+          color: label.defaultColor || label.color || ''
+        }));
+        setChipLabels(mappedLabels);
       } else {
         setChipLabels([]);
       }
@@ -50,13 +56,53 @@ export function App() {
     }
   }, [user]);
 
+  // Load global labels to get name and abbreviation for mapping
+  const loadGlobalLabels = async () => {
+    try {
+      const response = await fetch(`/data/label-list-global.json?t=${Date.now()}`);
+      if (response.ok) {
+        const data = await response.json();
+        return Array.isArray(data) ? data : [];
+      }
+    } catch (error) {
+      console.error('Failed to load global labels:', error);
+    }
+    return [];
+  };
+
   const saveLabels = async (labels: ChipLabel[]) => {
     if (!user) return;
     try {
+      // Load global labels to get name and abbreviation
+      const globalLabels = await loadGlobalLabels();
+      
+      // Convert component structure (label, color) back to global structure (name, abbreviation, defaultColor)
+      const labelsToSave = labels.map((label) => {
+        const globalLabel = globalLabels.find((gl: any) => gl.id === label.id);
+        if (globalLabel) {
+          // Default record type - use global name and abbreviation
+          return {
+            id: label.id,
+            name: globalLabel.name,
+            abbreviation: globalLabel.abbreviation,
+            defaultColor: label.color // Use the color as defaultColor
+          };
+        } else {
+          // User-defined label - need to get name from label string
+          // For now, use the label as both name and abbreviation
+          return {
+            id: label.id,
+            name: label.label,
+            abbreviation: label.label,
+            defaultColor: label.color
+          };
+        }
+      });
+
       const response = await fetch('/api/save_user_labels.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: user.username, labels }),
+        body: JSON.stringify({ username: user.username, labels: labelsToSave }),
       });
 
       if (!response.ok) {
@@ -72,11 +118,15 @@ export function App() {
     }
   };
 
-  const handleAddLabel = async (label: string, color: string) => {
+  const handleAddLabel = async (labelName: string, color: string) => {
     if (!user) return;
+    // Load global labels to get the full structure
+    const globalLabels = await loadGlobalLabels();
+    const globalLabel = globalLabels.find((gl: any) => gl.name === labelName);
+    
     const newLabel: ChipLabel = {
-      id: label.toLowerCase().replace(/\s+/g, '-'),
-      label: label,
+      id: globalLabel ? globalLabel.id : labelName.toLowerCase().replace(/\s+/g, '-'),
+      label: globalLabel ? globalLabel.abbreviation : labelName,
       color: color,
     };
     const updatedLabels = [...chipLabels, newLabel];
@@ -187,13 +237,13 @@ export function App() {
       <header className="chrona-header">
         <div className="chrona-wordmark">Chrona</div>
         <div style={{ display: 'flex', gap: 'var(--spacing-sm)', alignItems: 'center' }}>
-          <button 
-            className="chrona-header-add-button"
-            onClick={handleAddRecordClick}
-            aria-label="Add record"
-          >
-            <Plus size={20} style={{ color: 'var(--color-primary)' }} />
-          </button>
+        <button 
+          className="chrona-header-add-button"
+          onClick={handleAddRecordClick}
+          aria-label="Add record"
+        >
+          <Plus size={20} style={{ color: 'var(--color-primary)' }} />
+        </button>
           <div className="chip-bar-menu-wrapper">
             <button
               ref={userMenuButtonRef}
@@ -254,6 +304,7 @@ export function App() {
         selectedDate={selectedDate}
         onClose={() => setIsSheetOpen(false)}
         onAdd={handleAddRecord}
+        labels={chipLabels}
       />
 
       <AddLabelModal

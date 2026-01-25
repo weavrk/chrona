@@ -198,12 +198,7 @@ export function AddLabelModal({ isOpen, existingLabels, onClose, onSave }: AddLa
             <label className="form-label">Label Color</label>
             
             <div className="color-picker-grid">
-              {PRIMITIVE_COLORS.sort((a, b) => {
-                const aUsed = usedColors.has(a.name);
-                const bUsed = usedColors.has(b.name);
-                if (aUsed === bUsed) return 0;
-                return aUsed ? 1 : -1;
-              }).map((color) => {
+              {PRIMITIVE_COLORS.map((color) => {
                 const isUsed = usedColors.has(color.name);
                 const isSelected = selectedColor === color.name;
                 return (
@@ -215,9 +210,14 @@ export function AddLabelModal({ isOpen, existingLabels, onClose, onSave }: AddLa
                         ? {
                             backgroundColor: 'transparent',
                             borderColor: color.value,
-                            borderWidth: '2px',
+                            borderWidth: '1px',
                             borderStyle: 'solid',
                           }
+                        : isSelected
+                        ? {
+                            backgroundColor: 'transparent',
+                            '--selected-color': color.value,
+                          } as React.CSSProperties & { '--selected-color': string }
                         : {
                             backgroundColor: color.value,
                           }
@@ -230,7 +230,7 @@ export function AddLabelModal({ isOpen, existingLabels, onClose, onSave }: AddLa
                     disabled={isUsed}
                     title={isUsed ? 'Already used by another label' : color.name}
                   >
-                    {isUsed && <X size={12} style={{ color: color.value }} />}
+                    {isUsed && <X size={18} strokeWidth={2} style={{ color: color.value }} />}
                   </button>
                 );
               })}

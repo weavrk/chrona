@@ -30,7 +30,7 @@ export function DesignSystemPanel() {
       try {
         const parsed = JSON.parse(saved);
         // Remove deprecated keys from order
-        const keysToRemove = ['background-primary', 'background-secondary', 'background-tertiary', 'ocean', 'ocean-1'];
+        const keysToRemove = ['background-primary', 'background-secondary', 'background-tertiary', 'ocean-1'];
         const filtered = parsed.filter((key: string) => !keysToRemove.includes(key));
         // Only return if there are items, otherwise return null to use default
         return filtered.length > 0 ? filtered : null;
@@ -202,7 +202,7 @@ export function DesignSystemPanel() {
       return a.includes('dark') ? -1 : 1;
     });
   
-  // Palette colors (after grays) - these are used for labels: steel, turquiose, sage, sand, marigold, coral, brick
+  // Palette colors (after grays) - these are used for labels: steel, sea-glass, sage, sand, marigold, coral, brick, ocean, iris, moss
   const paletteColors = primitiveNames
     .filter(name => 
       !name.startsWith('gray-') && 
@@ -229,7 +229,7 @@ export function DesignSystemPanel() {
   
   // Identify all semantic colors dynamically (all keys that aren't primitives)
   // Also filter out deprecated keys
-  const deprecatedKeys = ['background-primary', 'background-secondary', 'background-tertiary', 'ocean', 'ocean-1', 'gray-900'];
+  const deprecatedKeys = ['background-primary', 'background-secondary', 'background-tertiary', 'ocean-1', 'gray-900'];
   const allSemanticColorKeys = Object.keys(localTokens).filter(key => {
     // Skip deprecated keys
     if (deprecatedKeys.includes(key)) {
@@ -414,47 +414,20 @@ export function DesignSystemPanel() {
             <div className="design-system-content">
               <div className="design-system-scrollable">
                 <section className="design-system-section">
+                  <p style={{ fontSize: '12px', lineHeight: '140%', color: 'var(--gray-700)', marginBottom: 'var(--spacing-md)' }}>
+                    You found the styles library. Any changes you make here will not be saved unless you have the password.
+                  </p>
                   <h3 className="section-header">Primitive Colors</h3>
                   
                   <div className="color-grid">
                     {/* Gray Scale */}
                     {grayScale.map((grayName) => {
-                      const isEditing = editingName === grayName;
                       return (
                       <div key={grayName} className="color-swatch-card">
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
-                          {isEditing ? (
-                            <input
-                              type="text"
-                              value={editingValue}
-                              onChange={(e) => setEditingValue(e.target.value)}
-                              onBlur={() => handleFinishEdit(grayName)}
-                              onKeyDown={(e) => handleKeyDown(e, grayName)}
-                              autoFocus
-                              style={{
-                                background: 'var(--bg-card)',
-                                border: '1px solid var(--color-accent)',
-                                borderRadius: 'var(--border-radius)',
-                                padding: '4px 8px',
-                                color: 'var(--gray-800)',
-                                fontFamily: 'inherit',
-                                fontSize: '0.75rem',
-                                fontWeight: 500,
-                                outline: 'none',
-                                flex: 1,
-                                maxWidth: '120px'
-                              }}
-                            />
-                          ) : (
-                            <>
-                              <span 
-                                className="color-name" 
-                                style={{ cursor: 'text' }}
-                                onClick={() => handleStartEdit(grayName)}
-                                title="Click to rename"
-                              >
-                                {getDisplayName(grayName)}
-                              </span>
+                          <span className="color-name">
+                            {getDisplayName(grayName)}
+                          </span>
                           <button
                             onClick={() => handleCopyToClipboard(grayName)}
                             style={{
@@ -481,8 +454,6 @@ export function DesignSystemPanel() {
                               </svg>
                             )}
                           </button>
-                            </>
-                          )}
                         </div>
                         <input
                           type="color"
@@ -504,70 +475,38 @@ export function DesignSystemPanel() {
 
                     {/* Palette Colors (used for labels) */}
                     {paletteColors.map((paletteName) => {
-                      const isEditing = editingName === paletteName;
                       return (
                         <div key={paletteName} className="color-swatch-card">
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
-                          {isEditing ? (
-                            <input
-                              type="text"
-                              value={editingValue}
-                              onChange={(e) => setEditingValue(e.target.value)}
-                              onBlur={() => handleFinishEdit(paletteName)}
-                              onKeyDown={(e) => handleKeyDown(e, paletteName)}
-                              autoFocus
-                              style={{
-                                background: 'var(--bg-card)',
-                                border: '1px solid var(--color-accent)',
-                                borderRadius: 'var(--border-radius)',
-                                padding: '4px 8px',
-                                color: 'var(--gray-800)',
-                                fontFamily: 'inherit',
-                                fontSize: '0.75rem',
-                                fontWeight: 500,
-                                outline: 'none',
-                                flex: 1,
-                                maxWidth: '120px'
-                              }}
-                            />
-                          ) : (
-                            <>
-                              <span 
-                                className="color-name" 
-                                style={{ cursor: 'text' }}
-                                onClick={() => handleStartEdit(paletteName)}
-                                title="Click to rename"
-                              >
-                                {getDisplayName(paletteName)}
-                              </span>
-                              <button
-                                onClick={() => handleCopyToClipboard(paletteName)}
-                                style={{
-                                  background: 'none',
-                                  border: 'none',
-                                  color: copiedName === paletteName ? 'var(--color-accent)' : 'var(--gray-700)',
-                                  cursor: 'pointer',
-                                  padding: '2px',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  transition: 'color 0.2s'
-                                }}
-                                title="Copy to clipboard"
-                              >
-                                {copiedName === paletteName ? (
-                                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <path d="M20 6L9 17l-5-5"/>
-                                  </svg>
-                                ) : (
-                                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
-                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-                                  </svg>
-                                )}
-                              </button>
-                            </>
-                          )}
+                          <span className="color-name">
+                            {getDisplayName(paletteName)}
+                          </span>
+                          <button
+                            onClick={() => handleCopyToClipboard(paletteName)}
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              color: copiedName === paletteName ? 'var(--color-accent)' : 'var(--gray-700)',
+                              cursor: 'pointer',
+                              padding: '2px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              transition: 'color 0.2s'
+                            }}
+                            title="Copy to clipboard"
+                          >
+                            {copiedName === paletteName ? (
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M20 6L9 17l-5-5"/>
+                              </svg>
+                            ) : (
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                              </svg>
+                            )}
+                          </button>
                         </div>
                         <input
                           type="color"
@@ -602,42 +541,12 @@ export function DesignSystemPanel() {
 
                     {/* CMYK Colors */}
                     {cmykColors.map((cmykName) => {
-                      const isEditing = editingName === cmykName;
                       return (
                       <div key={cmykName} className="color-swatch-card">
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
-                          {isEditing ? (
-                            <input
-                              type="text"
-                              value={editingValue}
-                              onChange={(e) => setEditingValue(e.target.value)}
-                              onBlur={() => handleFinishEdit(cmykName)}
-                              onKeyDown={(e) => handleKeyDown(e, cmykName)}
-                              autoFocus
-                              style={{
-                                background: 'var(--bg-card)',
-                                border: '1px solid var(--color-accent)',
-                                borderRadius: 'var(--border-radius)',
-                                padding: '4px 8px',
-                                color: 'var(--gray-800)',
-                                fontFamily: 'inherit',
-                                fontSize: '0.75rem',
-                                fontWeight: 500,
-                                outline: 'none',
-                                flex: 1,
-                                maxWidth: '120px'
-                              }}
-                            />
-                          ) : (
-                            <>
-                              <span 
-                                className="color-name" 
-                                style={{ cursor: 'text' }}
-                                onClick={() => handleStartEdit(cmykName)}
-                                title="Click to rename"
-                              >
-                                {getDisplayName(cmykName)}
-                              </span>
+                          <span className="color-name">
+                            {getDisplayName(cmykName)}
+                          </span>
                           <button
                             onClick={() => handleCopyToClipboard(cmykName)}
                             style={{
@@ -664,8 +573,6 @@ export function DesignSystemPanel() {
                               </svg>
                             )}
                           </button>
-                            </>
-                          )}
                         </div>
                         <input
                           type="color"
@@ -1325,7 +1232,7 @@ Location: Add Record sheet (PE intensity, HS severity)`}</pre>
                             <path d="M18 6L6 18M6 6l12 12"/>
                           </svg>
                         </button>
-                        <button className="ds-chip ds-chip-inactive" style={{ color: 'var(--turquiose)', borderColor: 'var(--turquiose)' }}>
+                        <button className="ds-chip ds-chip-inactive" style={{ color: 'var(--sea-glass)', borderColor: 'var(--sea-glass)' }}>
                           <span>HR</span>
                           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M12 5v14M5 12h14"/>
@@ -1421,7 +1328,7 @@ Related: ds-chip component`}</pre>
                         <button className="ds-chip-single-select active" style={{ backgroundColor: 'var(--marigold)', borderColor: 'var(--marigold)' }}>
                           <span>HS</span>
                         </button>
-                        <button className="ds-chip-single-select" style={{ color: 'var(--turquiose)', borderColor: 'var(--turquiose)' }}>
+                        <button className="ds-chip-single-select" style={{ color: 'var(--sea-glass)', borderColor: 'var(--sea-glass)' }}>
                           <span>HR</span>
                         </button>
                         <button className="ds-chip-single-select" style={{ color: 'var(--sage)', borderColor: 'var(--sage)' }}>
@@ -1882,7 +1789,7 @@ color: var(--color-background-white)`}</pre>
                             <button className="color-circle-small" style={{ backgroundColor: 'var(--brick)' }} />
                             <button className="color-circle-small selected" style={{ backgroundColor: 'var(--coral)' }} />
                             <button className="color-circle-small" style={{ backgroundColor: 'var(--marigold)' }} />
-                            <button className="color-circle-small" style={{ backgroundColor: 'var(--turquiose)' }} />
+                            <button className="color-circle-small" style={{ backgroundColor: 'var(--sea-glass)' }} />
                             <button className="color-circle-small" style={{ backgroundColor: 'var(--sand)' }} />
                             <button className="color-circle-small used" style={{ backgroundColor: 'transparent', borderColor: 'var(--sage)', borderWidth: '2px', borderStyle: 'solid' }}>
                               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--sage)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

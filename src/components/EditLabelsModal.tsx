@@ -50,7 +50,12 @@ export function EditLabelsModal({ isOpen, labels, onClose, onSave }: EditLabelsM
       const response = await fetch(`/data/${user.username}/label-list-user-${user.username}.json?t=${Date.now()}`);
       if (response.ok) {
         const loadedLabels = await response.json();
-        const labelsArray = Array.isArray(loadedLabels) ? loadedLabels : [];
+        // Map from global structure (name, abbreviation, defaultColor) to component structure (label, color)
+        const labelsArray = (Array.isArray(loadedLabels) ? loadedLabels : []).map((label: any) => ({
+          id: label.id,
+          label: label.abbreviation || label.label || '',
+          color: label.defaultColor || label.color || ''
+        }));
         setEditedLabels(labelsArray);
       } else {
         setEditedLabels([]);
@@ -144,8 +149,8 @@ export function EditLabelsModal({ isOpen, labels, onClose, onSave }: EditLabelsM
               No labels found. Add labels using the "Add Label" option.
             </div>
           ) : (
-            <div className="edit-labels-list">
-              {editedLabels.map((label) => {
+          <div className="edit-labels-list">
+            {editedLabels.map((label) => {
               const usedColors = getUsedColors(label.id);
               const isDeleting = deletingId === label.id;
               
@@ -193,12 +198,7 @@ export function EditLabelsModal({ isOpen, labels, onClose, onSave }: EditLabelsM
                     <label className="form-label">Color</label>
                     
                     <div className="color-picker-grid">
-                    {PRIMITIVE_COLORS.sort((a, b) => {
-                      const aUsed = usedColors.has(a.name);
-                      const bUsed = usedColors.has(b.name);
-                      if (aUsed === bUsed) return 0;
-                      return aUsed ? 1 : -1;
-                    }).map((color) => {
+                    {PRIMITIVE_COLORS.map((color) => {
                       const isUsed = usedColors.has(color.name);
                       const isSelected = label.color === color.name;
                       return (
@@ -210,9 +210,17 @@ export function EditLabelsModal({ isOpen, labels, onClose, onSave }: EditLabelsM
                               ? {
                                   backgroundColor: 'transparent',
                                   borderColor: color.value,
-                                  borderWidth: '2px',
+                                  borderWidth: '1px',
                                   borderStyle: 'solid',
                                 }
+                              : isSelected
+                              ? {
+                                  backgroundColor: 'transparent',
+                                  borderColor: color.value,
+                                  borderWidth: '2px',
+                                  borderStyle: 'solid',
+                                  '--selected-color': color.value,
+                                } as React.CSSProperties & { '--selected-color': string }
                               : {
                                   backgroundColor: color.value,
                                 }
@@ -225,7 +233,7 @@ export function EditLabelsModal({ isOpen, labels, onClose, onSave }: EditLabelsM
                           disabled={isUsed}
                           title={isUsed ? 'Already used by another label' : color.name}
                         >
-                          {isUsed && <XIcon size={10} style={{ color: color.value }} />}
+                          {isUsed && <XIcon size={15} strokeWidth={2} style={{ color: color.value }} />}
                         </button>
                       );
                     })}
@@ -233,8 +241,8 @@ export function EditLabelsModal({ isOpen, labels, onClose, onSave }: EditLabelsM
                   </div>
                 </div>
               );
-              })}
-            </div>
+            })}
+          </div>
           )}
         </div>
 

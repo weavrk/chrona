@@ -10,9 +10,9 @@ import './styles/calendar.css'
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <AuthProvider>
-      <DesignSystemProvider>
-        <App />
-      </DesignSystemProvider>
+    <DesignSystemProvider>
+      <App />
+    </DesignSystemProvider>
     </AuthProvider>
   </React.StrictMode>,
 )

@@ -12,12 +12,15 @@ interface DesignTokens {
   'gray-800': string;
   // Palette Colors
   'steel': string;
-  'turquiose': string;
+  'sea-glass': string;
   'sage': string;
   'sand': string;
   'marigold': string;
   'coral': string;
   'brick': string;
+  'ocean': string;
+  'iris': string;
+  'moss': string;
   
   // Semantic Colors (reference primitive names)
   'brand-primary': string;
@@ -56,19 +59,22 @@ const defaultTokens: DesignTokens = {
   'gray-800': '#f2f2f2',
   // Palette Colors
   'steel': '#577E89',
-  'turquiose': '#5B95A5',
+  'sea-glass': '#5B95A5',
   'sage': '#6F9F9C',
   'sand': '#DEC484',
   'marigold': '#E1A36F',
   'coral': '#F7AD97',
   'brick': '#C75B5B',
+  'ocean': '#5B95B5',
+  'iris': '#6B6FAE',
+  'moss': '#3F6B57',
   
   // Semantic Colors (reference primitive names)
   'brand-primary': 'coral',
   'primary': 'gray-100',
   'secondary': 'gray-500',
   'tertiary': 'gray-300',
-  'accent': 'turquiose',
+    'accent': 'sea-glass',
   'accent-2': 'sage',
   'accent-3': 'sand',
   'accent-4': 'coral',
@@ -86,12 +92,15 @@ const DesignSystemContext = createContext<DesignSystemContextType | undefined>(u
 function getRandomBrandColor(): string {
   const paletteColors = [
     'steel',
-    'turquiose',
+    'sea-glass',
     'sage',
     'sand',
     'marigold',
     'coral',
     'brick',
+    'ocean',
+    'iris',
+    'moss',
   ];
   const randomIndex = Math.floor(Math.random() * paletteColors.length);
   return paletteColors[randomIndex];
@@ -264,7 +273,7 @@ export function DesignSystemProvider({ children }: { children: ReactNode }) {
   const applyTokens = async () => {
     // Clean up deprecated keys before applying
     const cleanedTokens = { ...pendingTokens } as any;
-    const keysToRemove = ['background-primary', 'background-secondary', 'background-tertiary', 'ocean', 'ocean-1', 'gray-900'];
+    const keysToRemove = ['background-primary', 'background-secondary', 'background-tertiary', 'ocean-1', 'gray-900'];
     keysToRemove.forEach(key => {
       if (key in cleanedTokens) {
         delete cleanedTokens[key];

@@ -3,11 +3,18 @@ import { X, Laugh, Smile, Meh, Frown, Annoyed, Angry, CheckCircle2, Plus } from 
 import { useDesignSystem } from '../contexts/DesignSystemContext';
 import { useAuth } from '../contexts/AuthContext';
 
+interface ChipLabel {
+  id: string;
+  label: string;
+  color: string;
+}
+
 interface AddRecordSheetProps {
   isOpen: boolean;
   selectedDate: Date | null;
   onClose: () => void;
   onAdd: (record: RecordData) => void;
+  labels: ChipLabel[];
 }
 
 export interface RecordData {
@@ -57,7 +64,7 @@ const MOODS = [
   { id: 'angry', icon: Angry, label: 'Angry' },
 ];
 
-export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd }: AddRecordSheetProps) {
+export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd, labels }: AddRecordSheetProps) {
   const { user } = useAuth();
   const [selectedType, setSelectedType] = useState<string>('period');
   const [startDate, setStartDate] = useState<string>('');
@@ -266,12 +273,18 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd }: AddReco
     return (tokens as any)[colorName] || '#B3B3B3';
   };
 
-  const RECORD_TYPES = [
-    { id: 'period', label: 'PE', color: getLabelColor('coral'), defaultColor: 'brick' },
-    { id: 'hormone-replacement-therapy', label: 'HR', color: getLabelColor('turquiose'), defaultColor: 'ocean' },
-    { id: 'hsv', label: 'HS', color: getLabelColor('marigold'), defaultColor: 'sand' },
-    { id: 'mental-health', label: 'ID', color: getLabelColor('sage'), defaultColor: 'steel' },
-  ];
+  // Filter labels to only include default record types for the selector
+  // Maintain order: period, hormone-replacement-therapy, hsv, mental-health
+  const DEFAULT_RECORD_TYPE_IDS = ['period', 'hormone-replacement-therapy', 'hsv', 'mental-health'];
+  const RECORD_TYPES = DEFAULT_RECORD_TYPE_IDS
+    .map(id => labels.find(label => label.id === id))
+    .filter((label): label is ChipLabel => label !== undefined)
+    .map(label => ({
+      id: label.id,
+      label: label.label,
+      color: getLabelColor(label.color),
+      defaultColor: label.color
+    }));
 
   if (!isOpen || !selectedDate) return null;
 
