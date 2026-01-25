@@ -21,6 +21,7 @@ export function DesignSystemPanel() {
   const [showPasswordInput, setShowPasswordInput] = useState(false);
   const [password, setPassword] = useState<string>('');
   const [pendingRenames, setPendingRenames] = useState<Array<{ oldName: string, newName: string }>>([]);
+  const [expandedStyleSections, setExpandedStyleSections] = useState<Set<string>>(new Set());
   
   // Semantic colors order - load from localStorage or use default
   const [semanticColorsOrder, setSemanticColorsOrder] = useState<string[]>(() => {
@@ -348,6 +349,18 @@ export function DesignSystemPanel() {
   const handleDragEnd = () => {
     setDraggedIndex(null);
     setDragOverIndex(null);
+  };
+
+  const toggleStyleSection = (sectionId: string) => {
+    setExpandedStyleSections(prev => {
+      const next = new Set(prev);
+      if (next.has(sectionId)) {
+        next.delete(sectionId);
+      } else {
+        next.add(sectionId);
+      }
+      return next;
+    });
   };
 
   const handleAddNew = () => {
@@ -1069,6 +1082,49 @@ export function DesignSystemPanel() {
                         />
                       </div>
                       <p className="button-demo-description">Standard text input with label. Used for collecting text data like names and descriptions.</p>
+                      
+                      <button
+                        className="style-reference-toggle"
+                        onClick={() => toggleStyleSection('form-text-input')}
+                      >
+                        <span>Style Reference</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ transform: expandedStyleSections.has('form-text-input') ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
+                          <path d="m6 9 6 6 6-6"/>
+                        </svg>
+                      </button>
+                      
+                      {expandedStyleSections.has('form-text-input') && (
+                        <div className="style-reference-content">
+                          <h5>Container: .form-text-input</h5>
+                          <pre>{`display: flex
+flex-direction: column
+gap: var(--spacing-sm)
+width: 100%`}</pre>
+                          
+                          <h5>Label: .form-label</h5>
+                          <pre>{`display: block
+font-size: 0.875rem
+font-weight: 500
+color: var(--gray-700)
+margin: 0`}</pre>
+                          
+                          <h5>Input: .form-input</h5>
+                          <pre>{`width: 100%
+padding: var(--spacing-sm) var(--spacing-md)
+background: var(--color-background-components)
+border: 1px solid var(--color-background-components)
+border-radius: var(--border-radius)
+color: var(--gray-800)
+font-size: 1rem
+font-family: var(--font-family)
+transition: border-color 0.2s
+box-sizing: border-box`}</pre>
+                          
+                          <h5>Input:focus</h5>
+                          <pre>{`outline: none
+border-color: var(--color-accent)`}</pre>
+                        </div>
+                      )}
                     </div>
 
                     <div className="button-demo-item">
@@ -1097,6 +1153,67 @@ export function DesignSystemPanel() {
                         </div>
                       </div>
                       <p className="button-demo-description">Date range selector with start and end dates. Used for defining time periods.</p>
+                      
+                      <button
+                        className="style-reference-toggle"
+                        onClick={() => toggleStyleSection('form-date-selector')}
+                      >
+                        <span>Style Reference</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ transform: expandedStyleSections.has('form-date-selector') ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
+                          <path d="m6 9 6 6 6-6"/>
+                        </svg>
+                      </button>
+                      
+                      {expandedStyleSections.has('form-date-selector') && (
+                        <div className="style-reference-content">
+                          <h5>Container: .form-date-selector</h5>
+                          <pre>{`display: flex
+flex-direction: column
+gap: var(--spacing-sm)
+width: 100%`}</pre>
+                          
+                          <h5>Label: .form-label</h5>
+                          <pre>{`display: block
+font-size: 0.875rem
+font-weight: 500
+color: var(--gray-700)
+margin: 0`}</pre>
+                          
+                          <h5>Date Range Container: .date-range-container</h5>
+                          <pre>{`display: flex
+gap: var(--spacing-md)
+width: 100%`}</pre>
+                          
+                          <h5>Date Input Group: .date-input-group</h5>
+                          <pre>{`display: flex
+flex-direction: column
+gap: 8px
+width: calc(100% - 72px)
+min-width: 0`}</pre>
+                          
+                          <h5>Date Label: .date-label</h5>
+                          <pre>{`font-size: 0.875rem
+font-weight: 500
+color: var(--gray-700)`}</pre>
+                          
+                          <h5>Date Input: .date-input</h5>
+                          <pre>{`width: 100%
+padding: var(--spacing-sm) var(--spacing-md)
+background: var(--color-background-components)
+border: 1px solid var(--color-background-components)
+border-radius: var(--border-radius)
+color: var(--gray-800)
+font-size: 1rem
+font-family: var(--font-family)
+cursor: pointer
+transition: border-color 0.2s
+box-sizing: border-box`}</pre>
+                          
+                          <h5>Date Input:focus</h5>
+                          <pre>{`outline: none
+border-color: var(--color-accent)`}</pre>
+                        </div>
+                      )}
                     </div>
 
                     <div className="button-demo-item">
@@ -1119,6 +1236,83 @@ export function DesignSystemPanel() {
                         </div>
                       </div>
                       <p className="button-demo-description">Single-select chip bar for mutually exclusive options. Used for intensity levels and categories. Includes 3 variants: standard (ds-chip-single-select), mood with icons, toggleable chip bar (calendar filter), and record type selector.</p>
+                      
+                      <button
+                        className="style-reference-toggle"
+                        onClick={() => toggleStyleSection('form-chips-single')}
+                      >
+                        <span>Style Reference</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ transform: expandedStyleSections.has('form-chips-single') ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
+                          <path d="m6 9 6 6 6-6"/>
+                        </svg>
+                      </button>
+                      
+                      {expandedStyleSections.has('form-chips-single') && (
+                        <div className="style-reference-content">
+                          <h5>Container: .form-chips-single</h5>
+                          <pre>{`display: flex
+flex-direction: column
+gap: var(--spacing-sm)
+width: 100%`}</pre>
+                          
+                          <h5>Label: .form-label</h5>
+                          <pre>{`display: block
+font-size: 0.875rem
+font-weight: 500
+color: var(--gray-700)
+margin: 0`}</pre>
+                          
+                          <h5>Chip Bar Container: .chip-bar-single-select</h5>
+                          <pre>{`display: flex
+flex-wrap: wrap
+gap: var(--spacing-sm)
+align-items: center`}</pre>
+                          
+                          <h5>Chip: .ds-chip-single-select</h5>
+                          <pre>{`display: inline-flex
+align-items: center
+gap: 8px
+padding: 6px 12px
+border-radius: 20px
+font-size: 14px
+font-weight: 500
+font-family: var(--font-family)
+border: 2px solid var(--color-secondary)
+background: transparent
+color: var(--color-secondary)
+cursor: pointer
+transition: all 0.2s
+white-space: nowrap`}</pre>
+                          
+                          <h5>Chip Active: .ds-chip-single-select.active</h5>
+                          <pre>{`color: var(--color-background-white)
+/* backgroundColor and borderColor set via inline styles */`}</pre>
+                          
+                          <h5>Mood Variant Container: .mood-chips</h5>
+                          <pre>{`display: flex
+flex-wrap: wrap
+gap: var(--spacing-sm)
+align-items: center`}</pre>
+                          
+                          <h5>Mood Chip: .mood-chip</h5>
+                          <pre>{`display: flex
+align-items: center
+justify-content: center
+width: 48px
+height: 48px
+border-radius: 50%
+border: 2px solid var(--color-secondary)
+background: transparent
+color: var(--color-secondary)
+cursor: pointer
+transition: all 0.2s`}</pre>
+                          
+                          <h5>Mood Chip Active: .mood-chip.active</h5>
+                          <pre>{`background-color: var(--color-accent)
+border-color: var(--color-accent)
+color: var(--color-background-white)`}</pre>
+                        </div>
+                      )}
                     </div>
 
                     <div className="button-demo-item">
@@ -1145,6 +1339,66 @@ export function DesignSystemPanel() {
                         </div>
                       </div>
                       <p className="button-demo-description">Color picker grid for selecting label colors. Shows available colors and marks used colors with X. Used in Add Label and Edit Labels modals.</p>
+                      
+                      <button
+                        className="style-reference-toggle"
+                        onClick={() => toggleStyleSection('form-label-color-picker')}
+                      >
+                        <span>Style Reference</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ transform: expandedStyleSections.has('form-label-color-picker') ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
+                          <path d="m6 9 6 6 6-6"/>
+                        </svg>
+                      </button>
+                      
+                      {expandedStyleSections.has('form-label-color-picker') && (
+                        <div className="style-reference-content">
+                          <h5>Container: .form-label-color-picker</h5>
+                          <pre>{`display: flex
+flex-direction: column
+gap: var(--spacing-sm)
+width: 100%`}</pre>
+                          
+                          <h5>Label: .form-label</h5>
+                          <pre>{`display: block
+font-size: 0.875rem
+font-weight: 500
+color: var(--gray-700)
+margin: 0`}</pre>
+                          
+                          <h5>Color Grid: .color-picker-grid</h5>
+                          <pre>{`display: grid
+grid-template-columns: repeat(8, 1fr)
+gap: 8px
+width: 100%`}</pre>
+                          
+                          <h5>Color Circle: .color-circle-small</h5>
+                          <pre>{`width: 100%
+aspect-ratio: 1
+border-radius: 50%
+border: 2px solid transparent
+cursor: pointer
+transition: all 0.2s
+padding: 0
+position: relative
+display: flex
+align-items: center
+justify-content: center`}</pre>
+                          
+                          <h5>Color Circle Hover: .color-circle-small:hover:not(.used):not(:disabled)</h5>
+                          <pre>{`transform: scale(1.1)
+border-color: var(--gray-800)`}</pre>
+                          
+                          <h5>Color Circle Selected: .color-circle-small.selected</h5>
+                          <pre>{`border-color: var(--gray-800)
+border-width: 3px
+box-shadow: 0 0 0 2px var(--color-background-body)`}</pre>
+                          
+                          <h5>Color Circle Used: .color-circle-small.used</h5>
+                          <pre>{`cursor: not-allowed
+background: transparent !important
+/* borderColor and borderWidth set via inline styles */`}</pre>
+                        </div>
+                      )}
                     </div>
 
                     <div className="button-demo-item">
@@ -1166,6 +1420,61 @@ export function DesignSystemPanel() {
                         </div>
                       </div>
                       <p className="button-demo-description">Editable label header with delete action. Used in Edit Labels modal for managing individual label items.</p>
+                      
+                      <button
+                        className="style-reference-toggle"
+                        onClick={() => toggleStyleSection('form-edit-label-header')}
+                      >
+                        <span>Style Reference</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ transform: expandedStyleSections.has('form-edit-label-header') ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
+                          <path d="m6 9 6 6 6-6"/>
+                        </svg>
+                      </button>
+                      
+                      {expandedStyleSections.has('form-edit-label-header') && (
+                        <div className="style-reference-content">
+                          <h5>Container: .form-edit-label-header</h5>
+                          <pre>{`display: flex
+align-items: center
+gap: var(--spacing-md)
+width: 100%`}</pre>
+                          
+                          <h5>Input: .edit-label-input</h5>
+                          <pre>{`flex: 1
+min-width: 0
+padding: var(--spacing-sm) var(--spacing-md)
+background: var(--color-background-body)
+border: 1px solid var(--color-background-components)
+border-radius: var(--border-radius)
+color: var(--gray-800)
+font-size: 1rem
+font-family: var(--font-family)
+transition: border-color 0.2s`}</pre>
+                          
+                          <h5>Input:focus</h5>
+                          <pre>{`outline: none
+border-color: var(--color-accent)`}</pre>
+                          
+                          <h5>Actions Container: .edit-label-actions</h5>
+                          <pre>{`display: flex
+align-items: center
+flex-shrink: 0`}</pre>
+                          
+                          <h5>Delete Button: .delete-button</h5>
+                          <pre>{`background: transparent
+border: none
+color: var(--gray-700)
+cursor: pointer
+padding: 6px
+display: flex
+align-items: center
+justify-content: center
+transition: color 0.2s`}</pre>
+                          
+                          <h5>Delete Button Hover: .delete-button:hover</h5>
+                          <pre>{`color: var(--gray-800)`}</pre>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </section>
