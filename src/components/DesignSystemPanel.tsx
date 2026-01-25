@@ -1132,9 +1132,9 @@ export function DesignSystemPanel() {
                           <pre>{`display: inline-flex
 align-items: center
 gap: 6px
-padding: 6px 12px
+padding: 4px 8px
 border-radius: 20px
-font-size: 14px
+font-size: 12px
 font-weight: 500
 border: 1.5px solid
 cursor: pointer
@@ -1219,9 +1219,9 @@ Location: Calendar home screen filter bar`}</pre>
                           <pre>{`display: inline-flex
 align-items: center
 gap: 8px
-padding: 6px 12px
+padding: 4px 8px
 border-radius: 20px
-font-size: 14px
+font-size: 12px
 font-weight: 500
 border: 2px solid var(--color-secondary)
 background: transparent
@@ -1750,9 +1750,9 @@ border-bottom: 1px solid var(--color-secondary)
                           <pre>{`display: inline-flex
 align-items: center
 gap: 8px
-padding: 6px 12px
+padding: 4px 8px
 border-radius: 20px
-font-size: 14px
+font-size: 12px
 font-weight: 500
 font-family: var(--font-family)
 border: 2px solid var(--color-secondary)
