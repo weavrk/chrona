@@ -1101,14 +1101,14 @@ export function DesignSystemPanel() {
                       </button>
                       </h4>
                       <div style={{ display: 'flex', gap: 'var(--spacing-sm)', flexWrap: 'wrap' }}>
-                        <button className="ds-chip ds-chip-inactive" style={{ color: '#F06292', borderColor: '#F06292' }}>
-                          <span>Period</span>
+                        <button className="ds-chip ds-chip-inactive" style={{ color: 'var(--coral)', borderColor: 'var(--coral)' }}>
+                          <span>PE</span>
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M12 5v14M5 12h14"/>
                           </svg>
                       </button>
-                        <button className="ds-chip ds-chip-active" style={{ backgroundColor: '#F06292', borderColor: '#F06292', color: 'var(--color-primary)' }}>
-                          <span>Period</span>
+                        <button className="ds-chip ds-chip-active" style={{ backgroundColor: 'var(--coral)', borderColor: 'var(--coral)', color: 'var(--color-primary)' }}>
+                          <span>PE</span>
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M18 6L6 18M6 6l12 12"/>
                           </svg>
@@ -1194,11 +1194,11 @@ Location: Calendar home screen filter bar`}</pre>
                         </button>
                       </h4>
                       <div style={{ display: 'flex', gap: 'var(--spacing-sm)', flexWrap: 'wrap' }}>
-                        <button className="ds-chip-single-select" style={{ color: '#F06292', borderColor: '#F06292' }}>
-                          <span>Period</span>
+                        <button className="ds-chip-single-select" style={{ color: 'var(--coral)', borderColor: 'var(--coral)' }}>
+                          <span>PE</span>
                         </button>
-                        <button className="ds-chip-single-select active" style={{ backgroundColor: '#F06292', borderColor: '#F06292' }}>
-                          <span>Period</span>
+                        <button className="ds-chip-single-select active" style={{ backgroundColor: 'var(--coral)', borderColor: 'var(--coral)' }}>
+                          <span>PE</span>
                         </button>
                       </div>
                       <p className="button-demo-description">Single-select chip variant without icons. Used in AddRecordSheet for record type selection (PE/HS/HR/ID) and intensity/severity levels. See also: chip-bar-variant-record, form-chips-single.</p>
@@ -1280,19 +1280,19 @@ Location: Add Record sheet (record type selector, intensity, severity)`}</pre>
                         </button>
                       </h4>
                       <div style={{ display: 'flex', gap: 'var(--spacing-sm)', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'flex-end', padding: '8px', background: 'var(--color-background-body)', borderRadius: 'var(--border-radius)', border: '1px solid var(--color-secondary)' }}>
-                        <button className="ds-chip ds-chip-inactive" style={{ color: '#F7AD97', borderColor: '#F7AD97' }}>
+                        <button className="ds-chip ds-chip-inactive" style={{ color: 'var(--coral)', borderColor: 'var(--coral)' }}>
                           <span>PE</span>
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M12 5v14M5 12h14"/>
                           </svg>
                         </button>
-                        <button className="ds-chip ds-chip-active" style={{ backgroundColor: '#DEC484', borderColor: '#DEC484', color: 'var(--color-primary)' }}>
+                        <button className="ds-chip ds-chip-active" style={{ backgroundColor: 'var(--marigold)', borderColor: 'var(--marigold)', color: 'var(--color-primary)' }}>
                           <span>HS</span>
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M18 6L6 18M6 6l12 12"/>
                           </svg>
                         </button>
-                        <button className="ds-chip ds-chip-inactive" style={{ color: '#5B95A5', borderColor: '#5B95A5' }}>
+                        <button className="ds-chip ds-chip-inactive" style={{ color: 'var(--turquiose)', borderColor: 'var(--turquiose)' }}>
                           <span>HR</span>
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M12 5v14M5 12h14"/>
@@ -1382,16 +1382,16 @@ Related: ds-chip component`}</pre>
                         </button>
                       </h4>
                       <div style={{ display: 'flex', gap: 'var(--spacing-sm)', flexWrap: 'wrap' }}>
-                        <button className="ds-chip-single-select" style={{ color: '#F7AD97', borderColor: '#F7AD97' }}>
+                        <button className="ds-chip-single-select" style={{ color: 'var(--coral)', borderColor: 'var(--coral)' }}>
                           <span>PE</span>
                         </button>
-                        <button className="ds-chip-single-select active" style={{ backgroundColor: '#DEC484', borderColor: '#DEC484' }}>
+                        <button className="ds-chip-single-select active" style={{ backgroundColor: 'var(--marigold)', borderColor: 'var(--marigold)' }}>
                           <span>HS</span>
                         </button>
-                        <button className="ds-chip-single-select" style={{ color: '#5B95A5', borderColor: '#5B95A5' }}>
+                        <button className="ds-chip-single-select" style={{ color: 'var(--turquiose)', borderColor: 'var(--turquiose)' }}>
                           <span>HR</span>
                         </button>
-                        <button className="ds-chip-single-select" style={{ color: '#577E89', borderColor: '#577E89' }}>
+                        <button className="ds-chip-single-select" style={{ color: 'var(--sage)', borderColor: 'var(--sage)' }}>
                           <span>ID</span>
                         </button>
                       </div>
@@ -1568,7 +1568,7 @@ border-color: var(--color-accent)`}</pre>
                       </h4>
                       <div className="component-visualization">
                         <div className="form-date-selector">
-                          <label className="form-label">Date Range</label>
+                          <label className="form-section-headers">Date Range</label>
                           <div className="date-range-container">
                             <div className="date-input-group">
                               <label className="date-label">Start</label>
@@ -1688,12 +1688,12 @@ border-color: var(--color-accent)`}</pre>
                       </h4>
                       <div className="component-visualization">
                         <div className="form-chips-single">
-                          <label className="form-label">Intensity</label>
+                          <label className="form-section-headers">Intensity</label>
                           <div className="chip-bar-single-select">
                             <button className="ds-chip-single-select">
                               <span>Heavy</span>
                             </button>
-                            <button className="ds-chip-single-select active" style={{ backgroundColor: '#C75B5B', borderColor: '#C75B5B' }}>
+                            <button className="ds-chip-single-select active" style={{ backgroundColor: 'var(--brick)', borderColor: 'var(--brick)' }}>
                               <span>Medium</span>
                             </button>
                             <button className="ds-chip-single-select">
@@ -1828,19 +1828,18 @@ color: var(--color-background-white)`}</pre>
                         <div className="form-label-color-picker">
                           <label className="form-label">Label Color</label>
                           <div className="color-picker-grid">
-                            <button className="color-circle-small" style={{ backgroundColor: '#C75B5B' }} />
-                            <button className="color-circle-small selected" style={{ backgroundColor: '#F7AD97' }} />
-                            <button className="color-circle-small" style={{ backgroundColor: '#E1A36F' }} />
-                            <button className="color-circle-small" style={{ backgroundColor: '#DBFAFF' }} />
-                            <button className="color-circle-small" style={{ backgroundColor: '#DEC484' }} />
-                            <button className="color-circle-small" style={{ backgroundColor: '#5B95A5' }} />
-                            <button className="color-circle-small used" style={{ backgroundColor: 'transparent', borderColor: '#6F9F9C', borderWidth: '2px', borderStyle: 'solid' }}>
-                              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#6F9F9C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <button className="color-circle-small" style={{ backgroundColor: 'var(--brick)' }} />
+                            <button className="color-circle-small selected" style={{ backgroundColor: 'var(--coral)' }} />
+                            <button className="color-circle-small" style={{ backgroundColor: 'var(--marigold)' }} />
+                            <button className="color-circle-small" style={{ backgroundColor: 'var(--turquiose)' }} />
+                            <button className="color-circle-small" style={{ backgroundColor: 'var(--sand)' }} />
+                            <button className="color-circle-small used" style={{ backgroundColor: 'transparent', borderColor: 'var(--sage)', borderWidth: '2px', borderStyle: 'solid' }}>
+                              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--sage)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <path d="M18 6 6 18M6 6l12 12"/>
                               </svg>
                             </button>
-                            <button className="color-circle-small used" style={{ backgroundColor: 'transparent', borderColor: '#577E89', borderWidth: '2px', borderStyle: 'solid' }}>
-                              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#577E89" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <button className="color-circle-small used" style={{ backgroundColor: 'transparent', borderColor: 'var(--steel)', borderWidth: '2px', borderStyle: 'solid' }}>
+                              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--steel)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <path d="M18 6 6 18M6 6l12 12"/>
                               </svg>
                             </button>
