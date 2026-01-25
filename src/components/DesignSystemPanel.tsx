@@ -1011,7 +1011,7 @@ export function DesignSystemPanel() {
                               <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
                             </svg>
                           )}
-                        </button>
+                      </button>
                       </h4>
                       <div style={{ display: 'flex', gap: 'var(--spacing-sm)', flexWrap: 'wrap' }}>
                         <button className="ds-chip ds-chip-inactive" style={{ color: '#F06292', borderColor: '#F06292' }}>
@@ -1451,7 +1451,7 @@ border-color: var(--color-accent)`}</pre>
                     <div className="button-demo-item">
                       <h4 className="button-demo-label">
                         form-date-selector
-                        <button
+                  <button
                           onClick={() => handleCopyToClipboard('form-date-selector')}
                           style={{
                             background: 'none',
@@ -1477,7 +1477,7 @@ border-color: var(--color-accent)`}</pre>
                               <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
                             </svg>
                           )}
-                        </button>
+                  </button>
                       </h4>
                       <div className="component-visualization">
                         <div className="form-date-selector">
@@ -1580,8 +1580,8 @@ border-color: var(--color-accent)`}</pre>
                             cursor: 'pointer',
                             padding: '2px',
                             display: 'inline-flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                             transition: 'color 0.2s',
                             marginLeft: '8px'
                           }}
@@ -1589,8 +1589,8 @@ border-color: var(--color-accent)`}</pre>
                         >
                           {copiedName === 'form-chips-single' ? (
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                              <path d="M20 6L9 17l-5-5"/>
-                            </svg>
+                      <path d="M20 6L9 17l-5-5"/>
+                    </svg>
                           ) : (
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                               <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
@@ -1615,7 +1615,7 @@ border-color: var(--color-accent)`}</pre>
                             <button className="ds-chip-single-select">
                               <span>Spotting</span>
                             </button>
-                          </div>
+                  </div>
                         </div>
                       </div>
                       <p className="button-demo-description">Single-select chip bar for mutually exclusive options. Used for intensity levels and categories. Includes 3 variants: standard (ds-chip-single-select), mood with icons, toggleable chip bar (calendar filter), and record type selector.</p>
@@ -1937,7 +1937,36 @@ transition: color 0.2s`}</pre>
                   
                   <div className="button-components-demo">
                     <div className="button-demo-item">
-                      <h4 className="button-demo-label">ds-header</h4>
+                      <h4 className="button-demo-label">
+                        ds-header
+                        <button
+                          onClick={() => handleCopyToClipboard('ds-header')}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: copiedName === 'ds-header' ? 'var(--color-accent)' : 'var(--gray-700)',
+                            cursor: 'pointer',
+                            padding: '2px',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            transition: 'color 0.2s',
+                            marginLeft: '8px'
+                          }}
+                          title="Copy to clipboard"
+                        >
+                          {copiedName === 'ds-header' ? (
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M20 6L9 17l-5-5"/>
+                            </svg>
+                          ) : (
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                            </svg>
+                          )}
+                        </button>
+                      </h4>
                       <div className="ds-header" style={{ position: 'relative' }}>
                         <h2>Modal Title</h2>
                         <button className="ds-header-close">
@@ -1946,7 +1975,67 @@ transition: color 0.2s`}</pre>
                           </svg>
                         </button>
                       </div>
-                      <p className="button-demo-description">Standardized header component with title and close button. Used across all modals, bottom sheets, and panels (Add Label, Edit Labels, Add Record, Design System Panel). Includes sticky positioning and consistent spacing.</p>
+                      <p className="button-demo-description">Standardized header component with title and close button. Used across all modals, bottom sheets, and panels (AddLabelModal, EditLabelsModal, AddRecordSheet, DesignSystemPanel). Includes sticky positioning and consistent spacing.</p>
+                      
+                      <button
+                        className="style-reference-toggle"
+                        onClick={() => toggleStyleSection('ds-header')}
+                      >
+                        <span>Style Reference</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ transform: expandedStyleSections.has('ds-header') ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
+                          <path d="m6 9 6 6 6-6"/>
+                        </svg>
+                      </button>
+                      
+                      {expandedStyleSections.has('ds-header') && (
+                        <div className="style-reference-content">
+                          <h5>Container: <code>.ds-header</code></h5>
+                          <pre>{`display: flex
+justify-content: space-between
+align-items: center
+padding: 16px 24px
+border-bottom: 1px solid var(--color-secondary)
+flex-shrink: 0
+position: sticky
+top: 0
+background-color: var(--color-background-shells)
+z-index: 10`}</pre>
+                          
+                          <h5>Title: <code>.ds-header h2</code></h5>
+                          <pre>{`margin: 0
+font-size: 1.5rem
+font-weight: 600
+color: var(--gray-800)`}</pre>
+                          
+                          <h5>Close Button: <code>.ds-header-close</code></h5>
+                          <pre>{`background: transparent
+border: none
+color: var(--gray-700)
+cursor: pointer
+padding: 4px
+display: flex
+align-items: center
+justify-content: center
+transition: color 0.2s
+
+.ds-header-close:hover {
+  color: var(--gray-800)
+}`}</pre>
+                          
+                          <h5>Icon Size</h5>
+                          <pre>{`width: 24px
+height: 24px`}</pre>
+                          
+                          <h5>Used In:</h5>
+                          <pre>{`Components:
+- AddLabelModal.tsx
+- EditLabelsModal.tsx  
+- AddRecordSheet.tsx
+- DesignSystemPanel.tsx
+
+Usage: Modal and bottom sheet headers`}</pre>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </section>
