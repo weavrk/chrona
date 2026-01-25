@@ -1272,7 +1272,15 @@ margin: 0`}</pre>
                           <pre>{`display: flex
 flex-wrap: wrap
 gap: var(--spacing-sm)
-align-items: center`}</pre>
+align-items: center
+padding: 8px
+border-bottom: 1px solid var(--color-secondary)
+
+/* Override for form variants */
+.form-chips-single .chip-bar-single-select {
+  padding: 0;
+  border: none;
+}`}</pre>
                           
                           <h5>Chip: .ds-chip-single-select</h5>
                           <pre>{`display: inline-flex
