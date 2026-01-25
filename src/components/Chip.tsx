@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Plus, X } from 'lucide-react';
 import { useDesignSystem } from '../contexts/DesignSystemContext';
 
 interface ChipProps {
@@ -51,6 +52,7 @@ export function Chip({ label, color, active, onClick }: ChipProps) {
       onClick={onClick}
     >
       <span>{label}</span>
+      {active ? <X size={14} /> : <Plus size={14} />}
     </button>
   );
 }
