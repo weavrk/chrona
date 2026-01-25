@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>SVG to PNG Converter</title>
+</head>
+<body>
+  <h1>Convert SVG to PNG</h1>
+  <canvas id="canvas" width="180" height="180"></canvas>
+  <br>
+  <button onclick="download()">Download PNG</button>
+  
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+    
+    img.onload = function() {
+      ctx.drawImage(img, 0, 0);
+    };
+    
+    img.src = '../public/apple-touch-icon.svg';
+    
+    function download() {
+      canvas.toBlob(function(blob) {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'apple-touch-icon.png';
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+    }
+  </script>
+</body>
+</html>
+
