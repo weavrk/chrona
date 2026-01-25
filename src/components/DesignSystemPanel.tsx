@@ -1103,13 +1103,13 @@ export function DesignSystemPanel() {
                       <div style={{ display: 'flex', gap: 'var(--spacing-sm)', flexWrap: 'wrap' }}>
                         <button className="ds-chip ds-chip-inactive" style={{ color: 'var(--coral)', borderColor: 'var(--coral)' }}>
                           <span>PE</span>
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M12 5v14M5 12h14"/>
                           </svg>
                       </button>
                         <button className="ds-chip ds-chip-active" style={{ backgroundColor: 'var(--coral)', borderColor: 'var(--coral)', color: 'var(--color-primary)' }}>
                           <span>PE</span>
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M18 6L6 18M6 6l12 12"/>
                           </svg>
                         </button>
@@ -1150,8 +1150,8 @@ background: transparent`}</pre>
 color: var(--color-primary)`}</pre>
                           
                           <h5>SVG Icons</h5>
-                          <pre>{`width: 14px
-height: 14px
+                          <pre>{`width: 12px
+height: 12px
 flex-shrink: 0`}</pre>
                           
                           <h5>Used In:</h5>
@@ -1282,19 +1282,19 @@ Location: Add Record sheet (record type selector, intensity, severity)`}</pre>
                       <div style={{ display: 'flex', gap: 'var(--spacing-sm)', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'flex-end', padding: '8px', background: 'var(--color-background-body)', borderRadius: 'var(--border-radius)', border: '1px solid var(--color-secondary)' }}>
                         <button className="ds-chip ds-chip-inactive" style={{ color: 'var(--coral)', borderColor: 'var(--coral)' }}>
                           <span>PE</span>
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M12 5v14M5 12h14"/>
                           </svg>
                         </button>
                         <button className="ds-chip ds-chip-active" style={{ backgroundColor: 'var(--marigold)', borderColor: 'var(--marigold)', color: 'var(--color-primary)' }}>
                           <span>HS</span>
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M18 6L6 18M6 6l12 12"/>
                           </svg>
                         </button>
                         <button className="ds-chip ds-chip-inactive" style={{ color: 'var(--turquiose)', borderColor: 'var(--turquiose)' }}>
                           <span>HR</span>
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M12 5v14M5 12h14"/>
                           </svg>
                         </button>

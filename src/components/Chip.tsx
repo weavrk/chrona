@@ -52,7 +52,7 @@ export function Chip({ label, color, active, onClick }: ChipProps) {
       onClick={onClick}
     >
       <span>{label}</span>
-      {active ? <X size={14} /> : <Plus size={14} />}
+      {active ? <X size={12} /> : <Plus size={12} />}
     </button>
   );
 }
