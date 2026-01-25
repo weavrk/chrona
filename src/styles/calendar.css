@@ -182,6 +182,7 @@
 
 .bottom-sheet {
   position: fixed;
+  top: 48px;
   bottom: 0;
   left: 0;
   right: 0;
@@ -191,7 +192,7 @@
   animation: slideUp 0.3s ease-out;
   display: flex;
   flex-direction: column;
-  max-height: 85vh;
+  overflow: hidden;
 }
 
 @keyframes fadeIn {
@@ -242,6 +243,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xl);
+  min-height: 0;
 }
 
 .bottom-sheet-actions {
@@ -252,6 +254,9 @@
   flex-direction: column;
   gap: 8px;
   background: var(--color-background-footer);
+  flex-shrink: 0;
+  position: sticky;
+  bottom: 0;
 }
 
 .checkmark-animation {
