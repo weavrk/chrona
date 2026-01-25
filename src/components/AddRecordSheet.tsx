@@ -147,7 +147,7 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd }: AddReco
         <div className="bottom-sheet-content">
           {/* form-date-selector */}
           <div className="form-date-selector">
-            <label className="form-label">Date Range</label>
+            <label className="form-section-headers">Date Range</label>
             <div className="date-range-container">
               <div className="date-input-group">
                 <label className="date-label">Start</label>
@@ -174,7 +174,7 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd }: AddReco
           {selectedType === 'period' && (
             /* form-chips-single */
             <div className="form-chips-single">
-              <label className="form-label">Intensity</label>
+              <label className="form-section-headers">Intensity</label>
               <div className="chip-bar-single-select">
                 {PERIOD_INTENSITY.map((level) => (
                   <button
@@ -193,7 +193,7 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd }: AddReco
           {selectedType === 'hsv' && (
             /* form-chips-single */
             <div className="form-chips-single">
-              <label className="form-label">Severity</label>
+              <label className="form-section-headers">Severity</label>
               <div className="chip-bar-single-select">
                 {HSV_INTENSITY.map((level) => (
                   <button
@@ -211,7 +211,7 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd }: AddReco
 
           {selectedType === 'pill' && (
             <div className="form-section">
-              <label className="form-label">Options</label>
+              <label className="form-section-headers">Options</label>
               <div className="checkbox-group">
                 <label className="checkbox-label">
                   <input
@@ -238,7 +238,7 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd }: AddReco
           {selectedType === 'mental' && (
             /* form-chips-single with mood variant */
             <div className="form-chips-single">
-              <label className="form-label">Mood</label>
+              <label className="form-section-headers">Mood</label>
               <div className="mood-chips">
                 {MOODS.map((moodItem) => (
                   <button

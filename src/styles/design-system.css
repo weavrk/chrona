@@ -1278,6 +1278,15 @@
   margin: 0;
 }
 
+/* Form Section Headers */
+.form-section-headers {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--gray-800);
+  margin: 0;
+  display: block;
+}
+
 .form-chips-single .chip-bar-single-select {
   display: flex;
   flex-wrap: wrap;
