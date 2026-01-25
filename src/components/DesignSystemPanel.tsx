@@ -1027,7 +1027,52 @@ export function DesignSystemPanel() {
                           </svg>
                         </button>
                       </div>
-                      <p className="button-demo-description">Toggle-able chip component with plus icon (inactive) and x icon (active). Used for filtering and category selection.</p>
+                      <p className="button-demo-description">Toggleable chip component with plus icon (inactive) and x icon (active). Used in chip-bar-container on calendar home screen for filtering records (PE/HS/HR/ID). See also: ds-chip-bar-toggleable.</p>
+                      
+                      <button
+                        className="style-reference-toggle"
+                        onClick={() => toggleStyleSection('ds-chip')}
+                      >
+                        <span>Style Reference</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ transform: expandedStyleSections.has('ds-chip') ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
+                          <path d="m6 9 6 6 6-6"/>
+                        </svg>
+                      </button>
+                      
+                      {expandedStyleSections.has('ds-chip') && (
+                        <div className="style-reference-content">
+                          <h5>Base Class: <code>.ds-chip</code></h5>
+                          <pre>{`display: inline-flex
+align-items: center
+gap: 6px
+padding: 6px 12px
+border-radius: 20px
+font-size: 14px
+font-weight: 500
+border: 1.5px solid
+cursor: pointer
+transition: all 0.2s ease
+background: transparent`}</pre>
+                          
+                          <h5>Inactive State: <code>.ds-chip-inactive</code></h5>
+                          <pre>{`background: transparent
+/* Border and text colors set via inline styles */`}</pre>
+                          
+                          <h5>Active State: <code>.ds-chip-active</code></h5>
+                          <pre>{`/* Background and border colors set via inline styles */
+color: var(--color-primary)`}</pre>
+                          
+                          <h5>SVG Icons</h5>
+                          <pre>{`width: 14px
+height: 14px
+flex-shrink: 0`}</pre>
+                          
+                          <h5>Used In:</h5>
+                          <pre>{`Components: ChipBar.tsx (chip-bar-container)
+Containers: .chip-bar
+Location: Calendar home screen filter bar`}</pre>
+                        </div>
+                      )}
                     </div>
 
                     <div className="button-demo-item">
@@ -1069,7 +1114,51 @@ export function DesignSystemPanel() {
                           <span>Period</span>
                         </button>
                       </div>
-                      <p className="button-demo-description">Single-select chip variant without icons. Used for mutually exclusive selections like record types and intensity levels.</p>
+                      <p className="button-demo-description">Single-select chip variant without icons. Used in AddRecordSheet for record type selection (PE/HS/HR/ID) and intensity/severity levels. See also: chip-bar-variant-record, form-chips-single.</p>
+                      
+                      <button
+                        className="style-reference-toggle"
+                        onClick={() => toggleStyleSection('ds-chip-single-select')}
+                      >
+                        <span>Style Reference</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ transform: expandedStyleSections.has('ds-chip-single-select') ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
+                          <path d="m6 9 6 6 6-6"/>
+                        </svg>
+                      </button>
+                      
+                      {expandedStyleSections.has('ds-chip-single-select') && (
+                        <div className="style-reference-content">
+                          <h5>Base Class: <code>.ds-chip-single-select</code></h5>
+                          <pre>{`display: inline-flex
+align-items: center
+gap: 8px
+padding: 6px 12px
+border-radius: 20px
+font-size: 14px
+font-weight: 500
+border: 2px solid var(--color-secondary)
+background: transparent
+color: var(--color-secondary)
+cursor: pointer
+transition: all 0.2s
+white-space: nowrap`}</pre>
+                          
+                          <h5>Active State: <code>.ds-chip-single-select.active</code></h5>
+                          <pre>{`color: var(--color-background-white)
+/* Background and border colors set via inline styles */`}</pre>
+                          
+                          <h5>Container: <code>.chip-bar-single-select</code></h5>
+                          <pre>{`display: flex
+flex-wrap: nowrap
+gap: var(--spacing-sm)
+align-items: center`}</pre>
+                          
+                          <h5>Used In:</h5>
+                          <pre>{`Components: AddRecordSheet.tsx
+Containers: .chip-bar-variant-record, .form-chips-single
+Location: Add Record sheet (record type selector, intensity, severity)`}</pre>
+                        </div>
+                      )}
                     </div>
 
                     <div className="button-demo-item">
@@ -1128,7 +1217,50 @@ export function DesignSystemPanel() {
                           </svg>
                         </div>
                       </div>
-                      <p className="button-demo-description">Toggleable chip bar container (form-chips-single variant). Fixed position bar with plus/x icon toggle states and ellipses menu. Used on calendar home screen for filtering.</p>
+                      <p className="button-demo-description">Toggleable chip bar with plus/x icon toggle states and ellipses menu. Uses ds-chip components in chip-bar-container. Fixed position at top of calendar home screen for filtering records (PE/HS/HR/ID).</p>
+                      
+                      <button
+                        className="style-reference-toggle"
+                        onClick={() => toggleStyleSection('ds-chip-bar-toggleable')}
+                      >
+                        <span>Style Reference</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ transform: expandedStyleSections.has('ds-chip-bar-toggleable') ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
+                          <path d="m6 9 6 6 6-6"/>
+                        </svg>
+                      </button>
+                      
+                      {expandedStyleSections.has('ds-chip-bar-toggleable') && (
+                        <div className="style-reference-content">
+                          <h5>Container: <code>.chip-bar-container</code></h5>
+                          <pre>{`position: fixed
+top: 60px
+left: 0
+right: 0
+z-index: 90
+background: var(--color-background-body)
+padding: 16px 0
+border-bottom: 1px solid var(--color-secondary)
+overflow-x: auto
+overflow-y: hidden
+scrollbar-width: none`}</pre>
+                          
+                          <h5>Inner Container: <code>.chip-bar</code></h5>
+                          <pre>{`display: flex
+flex-wrap: nowrap
+gap: var(--spacing-sm)
+align-items: center
+padding: 0 16px 0 0
+justify-content: flex-end`}</pre>
+                          
+                          <h5>Chips Used: <code>.ds-chip</code></h5>
+                          <pre>{`See ds-chip component for styling`}</pre>
+                          
+                          <h5>Used In:</h5>
+                          <pre>{`Components: ChipBar.tsx
+Location: Calendar home screen (fixed top bar)
+Related: ds-chip component`}</pre>
+                        </div>
+                      )}
                     </div>
 
                     <div className="button-demo-item">
@@ -1176,7 +1308,49 @@ export function DesignSystemPanel() {
                           <span>ID</span>
                         </button>
                       </div>
-                      <p className="button-demo-description">Record type selector (form-chips-single variant). Single-select chip bar for choosing record types. Used in Add Record sheet.</p>
+                      <p className="button-demo-description">Record type selector using ds-chip-single-select components. Horizontally scrollable chip bar for choosing record types (PE/HS/HR/ID). Used in AddRecordSheet below header.</p>
+                      
+                      <button
+                        className="style-reference-toggle"
+                        onClick={() => toggleStyleSection('ds-chip-bar-record-selector')}
+                      >
+                        <span>Style Reference</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ transform: expandedStyleSections.has('ds-chip-bar-record-selector') ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
+                          <path d="m6 9 6 6 6-6"/>
+                        </svg>
+                      </button>
+                      
+                      {expandedStyleSections.has('ds-chip-bar-record-selector') && (
+                        <div className="style-reference-content">
+                          <h5>Container: <code>.chip-bar-variant-record</code></h5>
+                          <pre>{`padding: 8px 0
+border-bottom: 1px solid var(--color-secondary)
+flex-shrink: 0
+position: sticky
+top: 65px
+background-color: var(--color-background-shells)
+z-index: 9
+overflow-x: auto
+overflow-y: hidden
+scrollbar-width: none`}</pre>
+                          
+                          <h5>Inner Container: <code>.chip-bar-single-select</code></h5>
+                          <pre>{`display: flex
+flex-wrap: nowrap
+gap: var(--spacing-sm)
+align-items: center
+padding: 0 0 0 24px
+border: none`}</pre>
+                          
+                          <h5>Chips Used: <code>.ds-chip-single-select</code></h5>
+                          <pre>{`See ds-chip-single-select component for styling`}</pre>
+                          
+                          <h5>Used In:</h5>
+                          <pre>{`Components: AddRecordSheet.tsx
+Location: Add Record bottom sheet (below header, above form)
+Related: ds-chip-single-select component`}</pre>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </section>
@@ -1186,7 +1360,36 @@ export function DesignSystemPanel() {
                   
                   <div className="button-components-demo">
                     <div className="button-demo-item">
-                      <h4 className="button-demo-label">form-text-input</h4>
+                      <h4 className="button-demo-label">
+                        form-text-input
+                        <button
+                          onClick={() => handleCopyToClipboard('form-text-input')}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: copiedName === 'form-text-input' ? 'var(--color-accent)' : 'var(--gray-700)',
+                            cursor: 'pointer',
+                            padding: '2px',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            transition: 'color 0.2s',
+                            marginLeft: '8px'
+                          }}
+                          title="Copy to clipboard"
+                        >
+                          {copiedName === 'form-text-input' ? (
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M20 6L9 17l-5-5"/>
+                            </svg>
+                          ) : (
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                            </svg>
+                          )}
+                        </button>
+                      </h4>
                       <div className="component-visualization">
                         <div className="form-text-input">
                           <label className="form-label">Label Name</label>
@@ -1246,7 +1449,36 @@ border-color: var(--color-accent)`}</pre>
                     </div>
 
                     <div className="button-demo-item">
-                      <h4 className="button-demo-label">form-date-selector</h4>
+                      <h4 className="button-demo-label">
+                        form-date-selector
+                        <button
+                          onClick={() => handleCopyToClipboard('form-date-selector')}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: copiedName === 'form-date-selector' ? 'var(--color-accent)' : 'var(--gray-700)',
+                            cursor: 'pointer',
+                            padding: '2px',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            transition: 'color 0.2s',
+                            marginLeft: '8px'
+                          }}
+                          title="Copy to clipboard"
+                        >
+                          {copiedName === 'form-date-selector' ? (
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M20 6L9 17l-5-5"/>
+                            </svg>
+                          ) : (
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                            </svg>
+                          )}
+                        </button>
+                      </h4>
                       <div className="component-visualization">
                         <div className="form-date-selector">
                           <label className="form-label">Date Range</label>
@@ -1337,7 +1569,36 @@ border-color: var(--color-accent)`}</pre>
                     </div>
 
                     <div className="button-demo-item">
-                      <h4 className="button-demo-label">form-chips-single</h4>
+                      <h4 className="button-demo-label">
+                        form-chips-single
+                        <button
+                          onClick={() => handleCopyToClipboard('form-chips-single')}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: copiedName === 'form-chips-single' ? 'var(--color-accent)' : 'var(--gray-700)',
+                            cursor: 'pointer',
+                            padding: '2px',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            transition: 'color 0.2s',
+                            marginLeft: '8px'
+                          }}
+                          title="Copy to clipboard"
+                        >
+                          {copiedName === 'form-chips-single' ? (
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M20 6L9 17l-5-5"/>
+                            </svg>
+                          ) : (
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                            </svg>
+                          )}
+                        </button>
+                      </h4>
                       <div className="component-visualization">
                         <div className="form-chips-single">
                           <label className="form-label">Intensity</label>
@@ -1446,7 +1707,36 @@ color: var(--color-background-white)`}</pre>
                     </div>
 
                     <div className="button-demo-item">
-                      <h4 className="button-demo-label">form-label-color-picker</h4>
+                      <h4 className="button-demo-label">
+                        form-label-color-picker
+                        <button
+                          onClick={() => handleCopyToClipboard('form-label-color-picker')}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: copiedName === 'form-label-color-picker' ? 'var(--color-accent)' : 'var(--gray-700)',
+                            cursor: 'pointer',
+                            padding: '2px',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            transition: 'color 0.2s',
+                            marginLeft: '8px'
+                          }}
+                          title="Copy to clipboard"
+                        >
+                          {copiedName === 'form-label-color-picker' ? (
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M20 6L9 17l-5-5"/>
+                            </svg>
+                          ) : (
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                            </svg>
+                          )}
+                        </button>
+                      </h4>
                       <div className="component-visualization">
                         <div className="form-label-color-picker">
                           <label className="form-label">Label Color</label>
@@ -1534,7 +1824,36 @@ background: transparent !important
                     </div>
 
                     <div className="button-demo-item">
-                      <h4 className="button-demo-label">form-edit-label-header</h4>
+                      <h4 className="button-demo-label">
+                        form-edit-label-header
+                        <button
+                          onClick={() => handleCopyToClipboard('form-edit-label-header')}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: copiedName === 'form-edit-label-header' ? 'var(--color-accent)' : 'var(--gray-700)',
+                            cursor: 'pointer',
+                            padding: '2px',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            transition: 'color 0.2s',
+                            marginLeft: '8px'
+                          }}
+                          title="Copy to clipboard"
+                        >
+                          {copiedName === 'form-edit-label-header' ? (
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M20 6L9 17l-5-5"/>
+                            </svg>
+                          ) : (
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                            </svg>
+                          )}
+                        </button>
+                      </h4>
                       <div className="component-visualization">
                         <div className="form-edit-label-header">
                           <input
