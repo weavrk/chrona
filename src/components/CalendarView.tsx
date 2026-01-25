@@ -398,6 +398,59 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
       scrollContainer.removeEventListener('scroll', handleScroll);
     };
   }, []);
+
+  // Handle orientation change and window resize to force grid recalculation
+  useEffect(() => {
+    let resizeTimeout: ReturnType<typeof setTimeout>;
+    
+    const handleResize = () => {
+      // Clear any pending resize handlers
+      clearTimeout(resizeTimeout);
+      
+      // Debounce resize to avoid excessive recalculations
+      resizeTimeout = setTimeout(() => {
+        // Force a reflow to recalculate grid layout
+        if (calendarRef.current) {
+          // Trigger a reflow by reading offsetHeight
+          void calendarRef.current.offsetHeight;
+          
+          // Force recalculation of grid by temporarily changing display
+          const dayGrids = calendarRef.current.querySelectorAll('.calendar-days');
+          dayGrids.forEach((grid) => {
+            const htmlGrid = grid as HTMLElement;
+            // Force browser to recalculate grid
+            htmlGrid.style.display = 'grid';
+            // Trigger reflow
+            void htmlGrid.offsetHeight;
+          });
+        }
+      }, 50);
+    };
+
+    // Listen for both resize and orientation change
+    window.addEventListener('resize', handleResize);
+    
+    // Handle orientation change with a longer delay to ensure it's complete
+    const handleOrientationChange = () => {
+      // Use a longer delay for orientation change as it takes more time
+      setTimeout(() => {
+        handleResize();
+        // Also trigger a visual update
+        if (calendarRef.current) {
+          const event = new Event('resize');
+          window.dispatchEvent(event);
+        }
+      }, 200);
+    };
+    
+    window.addEventListener('orientationchange', handleOrientationChange);
+
+    return () => {
+      clearTimeout(resizeTimeout);
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleOrientationChange);
+    };
+  }, []);
   
   return (
     <>
