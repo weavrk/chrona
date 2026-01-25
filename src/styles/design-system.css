@@ -575,14 +575,22 @@
   background: var(--color-background-body, var(--bg-primary));
   padding: 16px 0;
   border-bottom: 1px solid var(--color-secondary);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.chip-bar-container::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
 }
 
 .chip-bar {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: var(--spacing-sm);
   align-items: center;
-  padding: 0 16px;
+  padding: 0 16px 0 0;
   justify-content: flex-end;
 }
 
@@ -1362,14 +1370,22 @@
   background: var(--color-background-body, var(--bg-primary));
   padding: 16px 0;
   border-bottom: 1px solid var(--color-secondary);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.form-chips-single.chip-bar-variant-fixed .chip-bar-container::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
 }
 
 .form-chips-single.chip-bar-variant-fixed .chip-bar {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: var(--spacing-sm);
   align-items: center;
-  padding: 0 16px;
+  padding: 0 16px 0 0;
   justify-content: flex-end;
 }
 
