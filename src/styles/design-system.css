@@ -317,13 +317,13 @@
 .button-demo-label {
   font-size: 1rem;
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--gray-800);
   margin: 0;
 }
 
 .button-demo-description {
   font-size: 0.875rem;
-  color: var(--text-secondary);
+  color: var(--gray-800);
   margin: 0;
   line-height: 1.5;
 }
@@ -453,8 +453,8 @@
 .ds-button-secondary {
   width: 100%;
   padding: var(--spacing-md);
-  background-color: var(--color-background-footer);
-  color: var(--gray-800);
+  background-color: transparent;
+  color: var(--gray-700);
   border: none;
   border-radius: var(--border-radius);
   font-size: 1rem;
@@ -465,21 +465,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  /* Dark neumorphic styling - same as primary but customizable */
-  box-shadow: 
-    4px 4px 12px rgba(0, 0, 0, 0.5),
-    -4px -4px 12px rgba(255, 255, 255, 0.08),
-    inset 0 -2px 4px rgba(0, 0, 0, 0.4),
-    inset 0 2px 4px rgba(255, 255, 255, 0.1);
+  /* No drop shadows */
+  box-shadow: none;
 }
 
 .ds-button-secondary:hover:not(:disabled) {
-  background-color: var(--color-background-shells);
-  box-shadow: 
-    3px 3px 8px rgba(0, 0, 0, 0.6),
-    -3px -3px 8px rgba(255, 255, 255, 0.1),
-    inset 0 -2px 4px rgba(0, 0, 0, 0.5),
-    inset 0 2px 4px rgba(255, 255, 255, 0.12);
+  background-color: transparent;
+  box-shadow: none;
 }
 
 .ds-button-secondary:disabled {

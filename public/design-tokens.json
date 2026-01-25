@@ -7,8 +7,6 @@
   "gray-600": "#808080",
   "gray-700": "#b3b3b3",
   "gray-800": "#f2f2f2",
-  "steel": "#577E89",
-  "teal": "#5B95A5",
   "sage": "#6F9F9C",
   "sand": "#DEC484",
   "coral": "#F7AD97",
@@ -17,7 +15,7 @@
   "primary": "gray-100",
   "secondary": "gray-500",
   "tertiary": "gray-300",
-  "accent": "teal",
+  "accent": "turquiose",
   "accent-2": "sage",
   "accent-3": "sand",
   "accent-4": "coral",
@@ -27,5 +25,8 @@
   "background-components": "gray-300",
   "background-footer": "gray-200",
   "background-white": "gray-800",
-  "marigold": "#E1A36F"
+  "marigold": "#E1A36F",
+  "turquiose": "#5B95A5",
+  "steel": "#577E89",
+  "ocean": "#dbf9ff"
 }

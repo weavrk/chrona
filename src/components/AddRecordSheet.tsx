@@ -103,7 +103,7 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd }: AddReco
   const RECORD_TYPES = [
     { id: 'period', label: 'PE', color: getLabelColor('coral') },
     { id: 'hsv', label: 'HS', color: getLabelColor('sand') },
-    { id: 'pill', label: 'HR', color: getLabelColor('teal') },
+    { id: 'pill', label: 'HR', color: getLabelColor('turquiose') },
     { id: 'mental', label: 'ID', color: getLabelColor('steel') },
   ];
 

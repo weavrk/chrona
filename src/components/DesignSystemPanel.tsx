@@ -20,7 +20,6 @@ export function DesignSystemPanel() {
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const [showPasswordInput, setShowPasswordInput] = useState(false);
   const [password, setPassword] = useState<string>('');
-  const [passwordConfirmed, setPasswordConfirmed] = useState(false);
   const [pendingRenames, setPendingRenames] = useState<Array<{ oldName: string, newName: string }>>([]);
   
   // Semantic colors order - load from localStorage or use default
@@ -30,7 +29,7 @@ export function DesignSystemPanel() {
       try {
         const parsed = JSON.parse(saved);
         // Remove deprecated keys from order
-        const keysToRemove = ['background-primary', 'background-secondary', 'background-tertiary', 'untitled', 'untitled-1'];
+        const keysToRemove = ['background-primary', 'background-secondary', 'background-tertiary', 'ocean', 'ocean-1'];
         const filtered = parsed.filter((key: string) => !keysToRemove.includes(key));
         // Only return if there are items, otherwise return null to use default
         return filtered.length > 0 ? filtered : null;
@@ -63,12 +62,10 @@ export function DesignSystemPanel() {
       e.preventDefault();
     }
     if (password === 'p') {
-      setPasswordConfirmed(true);
       setPassword('');
-      // Auto-apply after confirmation
-      setTimeout(() => {
-        handleApply();
-      }, 500);
+      setShowPasswordInput(false);
+      // Go straight to applying changes
+      handleApply();
     } else {
       setPassword('');
       alert('Incorrect password');
@@ -76,16 +73,12 @@ export function DesignSystemPanel() {
   };
 
   const handleApplyClick = () => {
-    if (!passwordConfirmed) {
-      setShowPasswordInput(true);
-    } else {
-      handleApply();
-    }
+    setShowPasswordInput(true);
   };
 
   const handleApply = async () => {
     // Clean up deprecated keys from semantic colors order
-    const deprecatedKeys = ['background-primary', 'background-secondary', 'background-tertiary', 'untitled', 'untitled-1', 'gray-900'];
+    const deprecatedKeys = ['background-primary', 'background-secondary', 'background-tertiary', 'ocean', 'ocean-1', 'gray-900'];
     const cleanedOrder = semanticColorsOrder 
       ? semanticColorsOrder.filter(key => !deprecatedKeys.includes(key))
       : null;
@@ -135,7 +128,6 @@ export function DesignSystemPanel() {
         setApplyButtonState('success');
         // Reset password state
         setShowPasswordInput(false);
-        setPasswordConfirmed(false);
         // Reset button after 2 seconds
         setTimeout(() => setApplyButtonState('idle'), 2000);
       } else {
@@ -143,7 +135,6 @@ export function DesignSystemPanel() {
         // Still show success for user, but log error
         setApplyButtonState('success');
         setShowPasswordInput(false);
-        setPasswordConfirmed(false);
         setTimeout(() => setApplyButtonState('idle'), 2000);
       }
     } catch (error) {
@@ -151,7 +142,6 @@ export function DesignSystemPanel() {
       // Still show success for user, but log error
       setApplyButtonState('success');
       setShowPasswordInput(false);
-      setPasswordConfirmed(false);
       setTimeout(() => setApplyButtonState('idle'), 2000);
     }
   };
@@ -180,7 +170,8 @@ export function DesignSystemPanel() {
     if (primitiveName.startsWith('#')) {
       return primitiveName;
     }
-    return (tokens as any)[primitiveName] || '#000000';
+    // Use localTokens to get the current value (includes renames)
+    return (localTokens as any)[primitiveName] || '#000000';
   };
 
   // Alias for getColorValue (used in palette colors section)
@@ -210,7 +201,7 @@ export function DesignSystemPanel() {
       return a.includes('dark') ? -1 : 1;
     });
   
-  // Palette colors (after grays) - these are used for labels: steel, teal, sage, sand, marigold, coral, brick
+  // Palette colors (after grays) - these are used for labels: steel, turquiose, sage, sand, marigold, coral, brick
   const paletteColors = primitiveNames
     .filter(name => 
       !name.startsWith('gray-') && 
@@ -237,7 +228,7 @@ export function DesignSystemPanel() {
   
   // Identify all semantic colors dynamically (all keys that aren't primitives)
   // Also filter out deprecated keys
-  const deprecatedKeys = ['background-primary', 'background-secondary', 'background-tertiary', 'untitled', 'untitled-1', 'gray-900'];
+  const deprecatedKeys = ['background-primary', 'background-secondary', 'background-tertiary', 'ocean', 'ocean-1', 'gray-900'];
   const allSemanticColorKeys = Object.keys(localTokens).filter(key => {
     // Skip deprecated keys
     if (deprecatedKeys.includes(key)) {
@@ -384,10 +375,10 @@ export function DesignSystemPanel() {
 
   const handleAddNewPrimitive = () => {
     // Generate a unique key
-    let newKey = 'untitled';
+    let newKey = 'ocean';
     let counter = 1;
     while (newKey in localTokens) {
-      newKey = `untitled-${counter}`;
+      newKey = `ocean-${counter}`;
       counter++;
     }
     
@@ -994,11 +985,24 @@ export function DesignSystemPanel() {
                       </div>
                       <p className="button-demo-description">Toggle-able chip component with plus icon (inactive) and x icon (active). Used for filtering and category selection.</p>
                     </div>
+
+                    <div className="button-demo-item">
+                      <h4 className="button-demo-label">ds-chip-single-select</h4>
+                      <div style={{ display: 'flex', gap: 'var(--spacing-sm)', flexWrap: 'wrap' }}>
+                        <button className="ds-chip-single-select" style={{ color: '#F06292', borderColor: '#F06292' }}>
+                          <span>Period</span>
+                        </button>
+                        <button className="ds-chip-single-select active" style={{ backgroundColor: '#F06292', borderColor: '#F06292' }}>
+                          <span>Period</span>
+                        </button>
+                      </div>
+                      <p className="button-demo-description">Single-select chip variant without icons. Used for mutually exclusive selections like record types and intensity levels.</p>
+                    </div>
                   </div>
                 </section>
               </div>
               <div className="design-system-actions-bottom-sheet">
-                {!showPasswordInput && !passwordConfirmed ? (
+                {!showPasswordInput ? (
                   <button
                     className="create-button-full"
                     onClick={handleApplyClick}
@@ -1029,7 +1033,7 @@ export function DesignSystemPanel() {
                           cy="12"
                           r="10"
                           fill="none"
-                          stroke="currentColor"
+                          stroke="var(--gray-800)"
                           strokeWidth="2"
                           style={{
                             strokeDasharray: '63',
@@ -1040,7 +1044,7 @@ export function DesignSystemPanel() {
                         <path
                           d="M7 12l3 3 7-7"
                           fill="none"
-                          stroke="currentColor"
+                          stroke="var(--gray-800)"
                           strokeWidth="2"
                           strokeLinecap="round"
                           strokeLinejoin="round"
@@ -1053,23 +1057,6 @@ export function DesignSystemPanel() {
                       </svg>
                     </span>
                   </button>
-                ) : passwordConfirmed ? (
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 'var(--spacing-sm)',
-                    padding: 'var(--spacing-md)',
-                    backgroundColor: 'var(--color-background-components, var(--bg-card))',
-                    borderRadius: 'var(--border-radius)',
-                    color: 'var(--text-primary)',
-                    fontSize: '0.9rem'
-                  }}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ color: 'var(--color-accent)' }}>
-                      <path d="M20 6L9 17l-5-5"/>
-                    </svg>
-                    <span>Password confirmed. Applying changes...</span>
-                  </div>
                 ) : (
                   <form
                     onSubmit={handlePasswordSubmit}
@@ -1100,35 +1087,21 @@ export function DesignSystemPanel() {
                         backgroundColor: 'var(--bg-secondary)',
                         border: '1px solid var(--bg-card)',
                         borderRadius: 'var(--border-radius)',
-                        color: 'var(--text-primary)',
+                        color: 'var(--gray-800)',
                         fontFamily: 'var(--font-family)',
                         fontSize: '1rem'
                       }}
                     />
                     <button 
                       type="button"
+                      className="ds-button-secondary"
                       onClick={() => {
                         setShowPasswordInput(false);
                         setPassword('');
                       }}
                       style={{
-                        padding: 'var(--spacing-md) var(--spacing-lg)',
-                        backgroundColor: 'transparent',
-                        border: '1px solid var(--bg-card)',
-                        borderRadius: 'var(--border-radius)',
-                        color: 'var(--text-secondary)',
-                        fontFamily: 'var(--font-family)',
-                        fontSize: '1rem',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.color = 'var(--text-primary)';
-                        e.currentTarget.style.borderColor = 'var(--accent)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.color = 'var(--text-secondary)';
-                        e.currentTarget.style.borderColor = 'var(--bg-card)';
+                        width: 'auto',
+                        minWidth: '80px'
                       }}
                     >
                       Cancel

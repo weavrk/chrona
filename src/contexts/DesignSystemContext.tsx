@@ -12,7 +12,7 @@ interface DesignTokens {
   'gray-800': string;
   // Palette Colors
   'steel': string;
-  'teal': string;
+  'turquiose': string;
   'sage': string;
   'sand': string;
   'marigold': string;
@@ -56,7 +56,7 @@ const defaultTokens: DesignTokens = {
   'gray-800': '#f2f2f2',
   // Palette Colors
   'steel': '#577E89',
-  'teal': '#5B95A5',
+  'turquiose': '#5B95A5',
   'sage': '#6F9F9C',
   'sand': '#DEC484',
   'marigold': '#E1A36F',
@@ -68,7 +68,7 @@ const defaultTokens: DesignTokens = {
   'primary': 'gray-100',
   'secondary': 'gray-500',
   'tertiary': 'gray-300',
-  'accent': 'teal',
+  'accent': 'turquiose',
   'accent-2': 'sage',
   'accent-3': 'sand',
   'accent-4': 'coral',
@@ -86,7 +86,7 @@ const DesignSystemContext = createContext<DesignSystemContextType | undefined>(u
 function getRandomBrandColor(): string {
   const paletteColors = [
     'steel',
-    'teal',
+    'turquiose',
     'sage',
     'sand',
     'marigold',
@@ -264,7 +264,7 @@ export function DesignSystemProvider({ children }: { children: ReactNode }) {
   const applyTokens = async () => {
     // Clean up deprecated keys before applying
     const cleanedTokens = { ...pendingTokens } as any;
-    const keysToRemove = ['background-primary', 'background-secondary', 'background-tertiary', 'untitled', 'untitled-1', 'gray-900'];
+    const keysToRemove = ['background-primary', 'background-secondary', 'background-tertiary', 'ocean', 'ocean-1', 'gray-900'];
     keysToRemove.forEach(key => {
       if (key in cleanedTokens) {
         delete cleanedTokens[key];
