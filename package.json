@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "deploy": "node scripts/deploy.js"
+    "deploy": "node scripts/deploy.js",
+    "set-permissions": "node scripts/set-permissions.js",
+    "test-prod": "node scripts/test-production.js"
   },
   "dependencies": {
     "lucide-react": "^0.563.0",

@@ -188,80 +188,15 @@ async function deploy() {
         await client.uploadFromDir(distDir, env.FTP_REMOTE_PATH);
         console.log('   Uploaded dist/ files');
         
-        // Upload API files
+        // Upload API files to the same directory as the app
         const apiSrc = path.join(ROOT_DIR, 'api');
-        const baseRemotePath = env.FTP_REMOTE_PATH.replace('/hrefs/chrona', '');
         if (fs.existsSync(apiSrc)) {
-          const apiRemotePath = baseRemotePath + '/api';
+          const apiRemotePath = env.FTP_REMOTE_PATH + '/api';
           await client.ensureDir(apiRemotePath);
           await client.uploadFromDir(apiSrc, apiRemotePath);
           console.log('   Uploaded api/ files');
         }
         
-        // Upload data/users folder (user profiles)
-        const usersDir = path.join(ROOT_DIR, 'data', 'users');
-        if (fs.existsSync(usersDir)) {
-          const usersRemotePath = baseRemotePath + '/data/users';
-          await client.ensureDir(usersRemotePath);
-          await client.uploadFromDir(usersDir, usersRemotePath);
-          console.log('   Uploaded data/users/ files');
-        }
-        
-        // Upload data/avatars folder (avatar SVGs)
-        const avatarsDir = path.join(ROOT_DIR, 'data', 'avatars');
-        if (fs.existsSync(avatarsDir)) {
-          const avatarsRemotePath = baseRemotePath + '/data/avatars';
-          await client.ensureDir(avatarsRemotePath);
-          // Upload only SVG files, skip x.archive subfolder
-          const avatarFiles = fs.readdirSync(avatarsDir);
-          for (const file of avatarFiles) {
-            const filePath = path.join(avatarsDir, file);
-            if (fs.statSync(filePath).isFile() && file.endsWith('.svg')) {
-              await client.uploadFrom(filePath, avatarsRemotePath + '/' + file);
-            }
-          }
-          console.log('   Uploaded data/avatars/ files');
-        }
-        
-        // Upload data/streaming JSON files (explore content + defaults)
-        const moviesJson = path.join(ROOT_DIR, 'data', 'streaming-movies-results.json');
-        const showsJson = path.join(ROOT_DIR, 'data', 'streaming-shows-results.json');
-        const defaultServicesJson = path.join(ROOT_DIR, 'data', 'default_streaming_services.json');
-        const dataRemotePath = baseRemotePath + '/data';
-        await client.ensureDir(dataRemotePath);
-        
-        if (fs.existsSync(moviesJson)) {
-          await client.uploadFrom(moviesJson, dataRemotePath + '/streaming-movies-results.json');
-          console.log('   Uploaded data/streaming-movies-results.json');
-        }
-        
-        if (fs.existsSync(showsJson)) {
-          await client.uploadFrom(showsJson, dataRemotePath + '/streaming-shows-results.json');
-          console.log('   Uploaded data/streaming-shows-results.json');
-        }
-        
-        if (fs.existsSync(defaultServicesJson)) {
-          await client.uploadFrom(defaultServicesJson, dataRemotePath + '/default_streaming_services.json');
-          console.log('   Uploaded data/default_streaming_services.json');
-        }
-        
-        // Upload data/streaming folder (streaming service logos)
-        const streamingDir = path.join(ROOT_DIR, 'data', 'streaming');
-        if (fs.existsSync(streamingDir)) {
-          const streamingRemotePath = baseRemotePath + '/data/streaming';
-          await client.ensureDir(streamingRemotePath);
-          await client.uploadFromDir(streamingDir, streamingRemotePath);
-          console.log('   Uploaded data/streaming/ files');
-        }
-        
-        // Upload data/posters folder (poster images)
-        const postersDir = path.join(ROOT_DIR, 'data', 'posters');
-        if (fs.existsSync(postersDir)) {
-          const postersRemotePath = baseRemotePath + '/data/posters';
-          await client.ensureDir(postersRemotePath);
-          await client.uploadFromDir(postersDir, postersRemotePath);
-          console.log('   Uploaded data/posters/ files');
-        }
         
         // Upload public/design-tokens.json if it exists
         const designTokensFile = path.join(ROOT_DIR, 'public', 'design-tokens.json');
