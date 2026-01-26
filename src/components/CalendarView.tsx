@@ -1220,7 +1220,7 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
               const labelColor = getLabelColorForSummary(type.id);
               return (
               <div key={type.id} className="summary-section">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                <div className="summary-section-header-container">
                   <h2 className="summary-section-header">{type.label}</h2>
                   <button 
                     className="ds-chip-single-select"
