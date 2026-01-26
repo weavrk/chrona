@@ -1175,10 +1175,6 @@
   flex-direction: column;
   gap: var(--spacing-sm);
   width: 100%;
-}
-
-/* Borders under form sections in bottom-sheet-content */
-.bottom-sheet-content > .form-date-selector {
   border-bottom: 1px solid var(--color-secondary);
   padding-bottom: var(--spacing-lg);
 }

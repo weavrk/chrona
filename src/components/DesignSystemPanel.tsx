@@ -1517,7 +1517,7 @@ border-color: var(--color-accent)`}</pre>
                               <input
                                 type="date"
                                 className="date-input"
-                                value="2026-01-25"
+                                value="2026-01-26"
                                 readOnly
                               />
                             </div>
@@ -1526,7 +1526,7 @@ border-color: var(--color-accent)`}</pre>
                               <input
                                 type="date"
                                 className="date-input"
-                                value="2026-01-25"
+                                value="2026-01-26"
                                 readOnly
                               />
                             </div>
@@ -1551,9 +1551,11 @@ border-color: var(--color-accent)`}</pre>
                           <pre>{`display: flex
 flex-direction: column
 gap: var(--spacing-sm)
-width: 100%`}</pre>
+width: 100%
+border-bottom: 1px solid var(--color-secondary)
+padding-bottom: var(--spacing-lg)`}</pre>
                           
-                          <h5>Label: .form-label</h5>
+                          <h5>Label: .form-section-headers</h5>
                           <pre>{`display: block
 font-size: 0.875rem
 font-weight: 500
