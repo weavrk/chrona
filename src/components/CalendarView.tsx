@@ -80,6 +80,7 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
   const [showTodayButton, setShowTodayButton] = useState(false);
   const [observersReady, setObserversReady] = useState(false);
   const [visibleMonth, setVisibleMonth] = useState<{ year: number; month: number } | null>(null);
+  const [visibleDate, setVisibleDate] = useState<{ year: number; month: number; day: number } | null>(null);
   const calendarRef = useRef<HTMLDivElement>(null);
   const listViewRef = useRef<HTMLDivElement>(null);
   const firstMonthRef = useRef<HTMLDivElement>(null);
@@ -519,6 +520,48 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
     }
   }, []);
 
+  // Function to sync calendar view to a specific date
+  const syncCalendarViewToDate = useCallback((year: number, month: number, _day: number) => {
+    if (!calendarRef.current) return;
+    
+    const scrollContainer = document.querySelector('.chrona-main') as HTMLElement;
+    if (!scrollContainer) return;
+    
+    // Find the month element
+    const monthElement = calendarRef.current.querySelector(
+      `[data-month-key="${year}-${month}"]`
+    ) as HTMLElement;
+    
+    if (monthElement) {
+      // Get header and chip bar heights
+      const header = document.querySelector('.chrona-header') as HTMLElement;
+      const chipBar = document.querySelector('.chip-bar-container') as HTMLElement;
+      const headerHeight = header ? header.offsetHeight : 68;
+      const chipBarHeight = chipBar ? chipBar.offsetHeight : 62;
+      const targetTop = headerHeight + chipBarHeight;
+      
+      // Get the month header
+      const monthHeader = monthElement.querySelector('.calendar-month-header') as HTMLElement;
+      if (monthHeader) {
+        const containerRect = scrollContainer.getBoundingClientRect();
+        const elementRect = monthHeader.getBoundingClientRect();
+        const currentScroll = scrollContainer.scrollTop;
+        
+        // Calculate the scroll position needed
+        const elementTopRelativeToContainer = elementRect.top - containerRect.top + currentScroll;
+        const scrollPosition = Math.max(0, elementTopRelativeToContainer - targetTop);
+        
+        // Use setTimeout to ensure DOM is ready after view switch
+        setTimeout(() => {
+          scrollContainer.scrollTo({
+            top: scrollPosition,
+            behavior: 'smooth',
+          });
+        }, 100);
+      }
+    }
+  }, []);
+
   // Scroll handler for Today button visibility (based on scroll origin)
   useEffect(() => {
     const scrollContainer = document.querySelector('.chrona-main') as HTMLElement;
@@ -572,6 +615,64 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
       syncListViewToMonth(visibleMonth.year, visibleMonth.month);
     }
   }, [viewMode, visibleMonth, syncListViewToMonth]);
+
+  // Sync calendar view when switching to calendar mode
+  useEffect(() => {
+    if (viewMode === 'calendar' && visibleDate) {
+      syncCalendarViewToDate(visibleDate.year, visibleDate.month, visibleDate.day);
+    }
+  }, [viewMode, visibleDate, syncCalendarViewToDate]);
+
+  // Track visible date in list view
+  useEffect(() => {
+    if (viewMode !== 'list' || !listViewRef.current) return;
+    
+    const scrollContainer = document.querySelector('.chrona-main') as HTMLElement;
+    if (!scrollContainer) return;
+    
+    const updateVisibleDate = () => {
+      const listItems = listViewRef.current?.querySelectorAll('.list-view-item');
+      if (!listItems || listItems.length === 0) return;
+      
+      const containerRect = scrollContainer.getBoundingClientRect();
+      const header = document.querySelector('.chrona-header') as HTMLElement;
+      const chipBar = document.querySelector('.chip-bar-container') as HTMLElement;
+      const headerHeight = header ? header.offsetHeight : 68;
+      const chipBarHeight = chipBar ? chipBar.offsetHeight : 62;
+      const targetTop = containerRect.top + headerHeight + chipBarHeight;
+      
+      let topVisibleDate: { year: number; month: number; day: number } | null = null;
+      let minDistance = Infinity;
+      
+      listItems.forEach((item) => {
+        const rect = item.getBoundingClientRect();
+        const distanceFromTop = Math.abs(rect.top - targetTop);
+        
+        // Check if item is at or above the target position
+        if (rect.top <= targetTop + 100 && distanceFromTop < minDistance) {
+          const dateKey = item.getAttribute('data-date-key');
+          if (dateKey) {
+            const [year, month, day] = dateKey.split('-').map(Number);
+            topVisibleDate = { year, month, day };
+            minDistance = distanceFromTop;
+          }
+        }
+      });
+      
+      if (topVisibleDate) {
+        setVisibleDate(topVisibleDate);
+      }
+    };
+    
+    // Update on scroll
+    scrollContainer.addEventListener('scroll', updateVisibleDate);
+    // Initial update
+    updateVisibleDate();
+    
+    return () => {
+      scrollContainer.removeEventListener('scroll', updateVisibleDate);
+    };
+  }, [viewMode]);
 
   // Handle orientation change and window resize to force grid recalculation
   useEffect(() => {
@@ -654,6 +755,12 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
       } else if (distance < 0 && viewMode === 'list') {
         // Swipe right: switch to calendar view
         setViewMode('calendar');
+        // Sync to visible date after a short delay to ensure DOM is ready
+        if (visibleDate) {
+          setTimeout(() => {
+            syncCalendarViewToDate(visibleDate.year, visibleDate.month, visibleDate.day);
+          }, 150);
+        }
       }
     }
     
