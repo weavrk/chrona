@@ -999,57 +999,70 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
         </div>
       </div>
       
-      <div className="fab-container" style={{ display: (showTodayButton && (viewMode === 'calendar' || viewMode === 'list')) ? 'flex' : 'none' }}>
+      <div className="fab-container">
         {viewMode === 'list' && (
-          <button 
-            className="calendar-view-switcher-fab"
-            onClick={() => setViewMode('calendar')}
-            aria-label="Switch to calendar view"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="m15 18-6-6 6-6"/>
-            </svg>
-          </button>
+          <>
+            <button 
+              className="calendar-view-switcher-fab"
+              onClick={() => setViewMode('calendar')}
+              aria-label="Switch to calendar view"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="m15 18-6-6 6-6"/>
+              </svg>
+            </button>
+            <button 
+              className="calendar-today-fab"
+              onClick={handleScrollToToday}
+              aria-label="Scroll to today"
+              style={{ display: showTodayButton ? 'flex' : 'none' }}
+            >
+              Go to Today
+            </button>
+          </>
         )}
         {viewMode === 'calendar' && (
-          <button 
-            className="calendar-view-switcher-fab"
-            onClick={() => setViewMode('summary')}
-            aria-label="Switch to summary view"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="m15 18-6-6 6-6"/>
-            </svg>
-          </button>
+          <>
+            <button 
+              className="calendar-view-switcher-fab"
+              onClick={() => setViewMode('summary')}
+              aria-label="Switch to summary view"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="m15 18-6-6 6-6"/>
+              </svg>
+            </button>
+            <button 
+              className="calendar-today-fab"
+              onClick={handleScrollToToday}
+              aria-label="Scroll to today"
+              style={{ display: showTodayButton ? 'flex' : 'none' }}
+            >
+              Go to Today
+            </button>
+            <button 
+              className="calendar-view-switcher-fab"
+              onClick={() => setViewMode('list')}
+              aria-label="Switch to list view"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="m9 18 6-6-6-6"/>
+              </svg>
+            </button>
+          </>
         )}
         {viewMode === 'summary' && (
-          <button 
-            className="calendar-view-switcher-fab"
-            onClick={() => setViewMode('calendar')}
-            aria-label="Switch to calendar view"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="m9 18 6-6-6-6"/>
-            </svg>
-          </button>
-        )}
-        <button 
-          className="calendar-today-fab"
-          onClick={handleScrollToToday}
-          aria-label="Scroll to today"
-        >
-          Go to Today
-        </button>
-        {viewMode === 'calendar' && (
-          <button 
-            className="calendar-view-switcher-fab"
-            onClick={() => setViewMode('list')}
-            aria-label="Switch to list view"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="m9 18 6-6-6-6"/>
-            </svg>
-          </button>
+          <>
+            <button 
+              className="calendar-view-switcher-fab"
+              onClick={() => setViewMode('calendar')}
+              aria-label="Switch to calendar view"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="m9 18 6-6-6-6"/>
+              </svg>
+            </button>
+          </>
         )}
       </div>
     </>
