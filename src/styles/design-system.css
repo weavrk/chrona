@@ -1514,10 +1514,10 @@
 /* Nav Tab Bar - Pill container with tabs */
 .ds-nav-tab-bar {
   display: inline-flex;
-  background: var(--color-background-white);
+  background: var(--color-background-body);
   border-radius: 24px;
-  padding: 4px;
-  gap: 4px;
+  padding: 8px;
+  gap: 8px;
   align-items: center;
 }
 
