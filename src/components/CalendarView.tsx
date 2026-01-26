@@ -73,6 +73,7 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
   const [showTodayButton, setShowTodayButton] = useState(false);
   const [observersReady, setObserversReady] = useState(false);
   const calendarRef = useRef<HTMLDivElement>(null);
+  const listViewRef = useRef<HTMLDivElement>(null);
   const firstMonthRef = useRef<HTMLDivElement>(null);
   const lastMonthRef = useRef<HTMLDivElement>(null);
   const isLoadingPastRef = useRef(false);
@@ -133,25 +134,27 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
 
   const handleScrollToToday = () => {
     const scrollContainer = document.querySelector('.chrona-main') as HTMLElement;
-    if (!scrollContainer || !calendarRef.current) return;
+    if (!scrollContainer) return;
     
-    // Find the current month element using today's date
     const todayDate = new Date();
     const todayYear = todayDate.getFullYear();
     const todayMonth = todayDate.getMonth(); // 0-11
+    const todayDay = todayDate.getDate();
     
-    const currentMonthElement = calendarRef.current.querySelector(
-      `[data-month-key="${todayYear}-${todayMonth}"]`
-    ) as HTMLElement;
+    // Get actual header and chip bar heights from DOM
+    const header = document.querySelector('.chrona-header') as HTMLElement;
+    const chipBar = document.querySelector('.chip-bar-container') as HTMLElement;
+    const headerHeight = header ? header.offsetHeight : 68;
+    const chipBarHeight = chipBar ? chipBar.offsetHeight : 62;
+    const targetTop = headerHeight + chipBarHeight;
     
-    if (currentMonthElement) {
-        // Calculate scroll position to place month header at correct position from viewport top
-        // Get actual header and chip bar heights from DOM
-        const header = document.querySelector('.chrona-header') as HTMLElement;
-        const chipBar = document.querySelector('.chip-bar-container') as HTMLElement;
-        const headerHeight = header ? header.offsetHeight : 68;
-        const chipBarHeight = chipBar ? chipBar.offsetHeight : 62;
-        const targetTop = headerHeight + chipBarHeight;
+    if (viewMode === 'calendar' && calendarRef.current) {
+      // Calendar view: find the current month element
+      const currentMonthElement = calendarRef.current.querySelector(
+        `[data-month-key="${todayYear}-${todayMonth}"]`
+      ) as HTMLElement;
+      
+      if (currentMonthElement) {
         const monthHeaderTop = currentMonthElement.offsetTop;
         const scrollPosition = Math.max(0, monthHeaderTop - targetTop);
         
@@ -162,12 +165,36 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
         
         // Update origin
         scrollOriginRef.current = scrollPosition;
-    } else {
-      // Fallback to stored origin if element not found
-      scrollContainer.scrollTo({
-        top: scrollOriginRef.current,
-        behavior: 'smooth',
-      });
+      } else {
+        // Fallback to stored origin if element not found
+        scrollContainer.scrollTo({
+          top: scrollOriginRef.current,
+          behavior: 'smooth',
+        });
+      }
+    } else if (viewMode === 'list' && listViewRef.current) {
+      // List view: find today's date item
+      const todayItem = listViewRef.current.querySelector(
+        `[data-date-key="${todayYear}-${todayMonth}-${todayDay}"]`
+      ) as HTMLElement;
+      
+      if (todayItem) {
+        const containerRect = scrollContainer.getBoundingClientRect();
+        const elementRect = todayItem.getBoundingClientRect();
+        const currentScroll = scrollContainer.scrollTop;
+        
+        // Calculate the scroll position needed
+        const elementTopRelativeToContainer = elementRect.top - containerRect.top + currentScroll;
+        const scrollPosition = Math.max(0, elementTopRelativeToContainer - targetTop);
+        
+        scrollContainer.scrollTo({
+          top: scrollPosition,
+          behavior: 'smooth',
+        });
+        
+        // Update origin
+        scrollOriginRef.current = scrollPosition;
+      }
     }
   };
 
@@ -397,11 +424,23 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
     if (!scrollContainer) return;
 
     const handleScroll = () => {
+      const scrollTop = scrollContainer.scrollTop;
+      
+      // For list view, always show button if scrolled down
+      if (viewMode === 'list') {
+        if (scrollTop > 200) {
+          setShowTodayButton(true);
+        } else {
+          setShowTodayButton(false);
+        }
+        return;
+      }
+      
+      // For calendar view, use the original logic
       if (!hasInitiallyScrolledRef.current || scrollOriginRef.current === 0) {
         return;
       }
       
-      const scrollTop = scrollContainer.scrollTop;
       const scrollOrigin = scrollOriginRef.current;
       
       // Show button if scrolled away from origin (either direction)
@@ -423,7 +462,7 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
     return () => {
       scrollContainer.removeEventListener('scroll', handleScroll);
     };
-  }, []);
+  }, [viewMode]);
 
   // Handle orientation change and window resize to force grid recalculation
   useEffect(() => {
@@ -546,7 +585,7 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
     });
 
     return (
-      <div className="list-view">
+      <div className="list-view" ref={listViewRef}>
         <div className="list-view-content">
           {Array.from(datesByMonth.entries()).map(([monthKey, monthDates]) => {
             const firstDate = monthDates[0];
@@ -559,7 +598,8 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
                   const isToday = item.date.toDateString() === new Date().toDateString();
                   return (
                     <div 
-                      key={`${monthKey}-${index}`} 
+                      key={`${monthKey}-${index}`}
+                      data-date-key={`${item.year}-${item.month}-${item.dayNumber}`}
                       className={`list-view-item ${isToday ? 'list-view-item-today' : ''}`}
                       onClick={() => onSheetDateChange(item.date)}
                     >
@@ -649,21 +689,21 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
           );
         })}
           </div>
-          
-          <button 
-            className="calendar-today-fab"
-            onClick={handleScrollToToday}
-            aria-label="Scroll to today"
-            style={{ display: showTodayButton ? 'block' : 'none' }}
-          >
-            Go to Today
-          </button>
         </div>
         
         <div className={`view-container list-view ${viewMode === 'list' ? 'active' : ''}`}>
           <ListView />
         </div>
       </div>
+      
+      <button 
+        className="calendar-today-fab"
+        onClick={handleScrollToToday}
+        aria-label="Scroll to today"
+        style={{ display: showTodayButton ? 'block' : 'none' }}
+      >
+        Go to Today
+      </button>
     </>
   );
 }
