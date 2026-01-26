@@ -614,6 +614,10 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
   useEffect(() => {
     if (viewMode === 'list' && visibleMonth) {
       syncListViewToMonth(visibleMonth.year, visibleMonth.month);
+      // Set initial visible month for header
+      const monthDate = new Date(visibleMonth.year, visibleMonth.month, 1);
+      const monthName = toTitleCase(monthDate.toLocaleDateString('en-US', { month: 'long' }));
+      setVisibleListMonth({ year: visibleMonth.year, month: visibleMonth.month, monthName });
     }
   }, [viewMode, visibleMonth, syncListViewToMonth]);
 
@@ -655,18 +659,16 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
         if (rect.top <= targetTop + 100 && distanceFromTop < minDistance) {
           const dateKey = item.getAttribute('data-date-key');
           const monthKey = item.getAttribute('data-month-key');
-          if (dateKey) {
+          if (dateKey && monthKey) {
             const [year, month, day] = dateKey.split('-').map(Number);
             topVisibleDate = { year, month, day };
             minDistance = distanceFromTop;
             
-            // Track visible month for header
-            if (monthKey && !topVisibleMonth) {
-              const [monthYear, monthNum] = monthKey.split('-').map(Number);
-              const monthDate = new Date(monthYear, monthNum, 1);
-              const monthName = toTitleCase(monthDate.toLocaleDateString('en-US', { month: 'long' }));
-              topVisibleMonth = { year: monthYear, month: monthNum, monthName };
-            }
+            // Track visible month for header - always update when we find a closer item
+            const [monthYear, monthNum] = monthKey.split('-').map(Number);
+            const monthDate = new Date(monthYear, monthNum, 1);
+            const monthName = toTitleCase(monthDate.toLocaleDateString('en-US', { month: 'long' }));
+            topVisibleMonth = { year: monthYear, month: monthNum, monthName };
           }
         }
       });
@@ -682,8 +684,10 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
     
     // Update on scroll
     scrollContainer.addEventListener('scroll', updateVisibleDate);
-    // Initial update
-    updateVisibleDate();
+    // Initial update - use setTimeout to ensure DOM is ready
+    setTimeout(() => {
+      updateVisibleDate();
+    }, 100);
     
     return () => {
       scrollContainer.removeEventListener('scroll', updateVisibleDate);
@@ -812,13 +816,21 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
       }
     });
 
+    // Get default month (today's month) if visibleListMonth is not set
+    const displayMonth = visibleListMonth || (() => {
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = today.getMonth();
+      const monthDate = new Date(year, month, 1);
+      const monthName = toTitleCase(monthDate.toLocaleDateString('en-US', { month: 'long' }));
+      return { year, month, monthName };
+    })();
+
     return (
       <div className="list-view" ref={listViewRef}>
-        {visibleListMonth && (
-          <div className="list-view-header-sticky">
-            <h2>{visibleListMonth.monthName} {visibleListMonth.year}</h2>
-          </div>
-        )}
+        <div className="list-view-header-sticky">
+          <h2>{displayMonth.monthName} {displayMonth.year}</h2>
+        </div>
         <div className="list-view-content">
           {allDates.map((item) => {
             const isToday = item.date.toDateString() === new Date().toDateString();
