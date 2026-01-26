@@ -207,9 +207,15 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd, labels }:
   };
 
   const saveWorkoutType = async (workoutTypeName: string) => {
-    if (!workoutTypeName.trim() || !user) return;
+    if (!workoutTypeName.trim() || !user) {
+      console.warn('Cannot save workout type: missing workoutTypeName or user');
+      return;
+    }
     
-    if (workoutTypes.includes(workoutTypeName.trim())) return;
+    if (workoutTypes.includes(workoutTypeName.trim())) {
+      console.log('Workout type already exists:', workoutTypeName.trim());
+      return;
+    }
 
     const updatedTypes = [...workoutTypes, workoutTypeName.trim()];
     
@@ -221,7 +227,11 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd, labels }:
       });
 
       if (response.ok) {
+        console.log('Workout type saved successfully:', workoutTypeName.trim(), 'for user:', user.username);
         setWorkoutTypes(updatedTypes);
+      } else {
+        const error = await response.json();
+        console.error('Failed to save workout type:', error);
       }
     } catch (error) {
       console.error('Failed to save workout type:', error);
