@@ -68,6 +68,13 @@ function generateCalendarMonths(startDate: Date, monthCount: number): CalendarMo
   return months;
 }
 
+// Helper function to convert to title case
+function toTitleCase(str: string): string {
+  return str.replace(/\w\S*/g, (txt) => {
+    return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+  });
+}
+
 export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selectedDate, onSheetClose: _onSheetClose, onSheetDateChange, onAddRecord: _onAddRecord, chipLabels }: CalendarViewProps) {
   const [viewMode, setViewMode] = useState<'calendar' | 'list'>('calendar');
   const [showTodayButton, setShowTodayButton] = useState(false);
@@ -673,9 +680,9 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
         const date = new Date(monthData.year, monthData.month, day);
         allDates.push({
           date,
-          dayName: date.toLocaleDateString('en-US', { weekday: 'long' }),
+          dayName: toTitleCase(date.toLocaleDateString('en-US', { weekday: 'long' })),
           dayNumber: day,
-          monthName: monthData.monthName,
+          monthName: toTitleCase(monthData.monthName),
           year: monthData.year,
           month: monthData.month
         });
