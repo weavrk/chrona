@@ -149,13 +149,17 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd, labels }:
     try {
       const response = await fetch(`${import.meta.env.BASE_URL}data/${user.username}/workout-type-wo-${user.username}.json?t=${Date.now()}`);
       if (response.ok) {
-        const data = await response.json();
-        return Array.isArray(data) ? data : [];
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const data = await response.json();
+          return Array.isArray(data) ? data : [];
+        }
       }
+      return [];
     } catch (error) {
-      console.error('Failed to load workout types:', error);
+      // File doesn't exist yet or network error - return empty array silently
+      return [];
     }
-    return [];
   };
 
   // Load workout types when workout is selected
