@@ -755,6 +755,9 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
             syncListViewToMonth(visibleMonth.year, visibleMonth.month);
           }, 150);
         }
+      } else if (distance < 0 && viewMode === 'calendar') {
+        // Swipe right: switch to summary view
+        setViewMode('summary');
       } else if (distance < 0 && viewMode === 'list') {
         // Swipe right: switch to calendar view
         setViewMode('calendar');
@@ -764,10 +767,7 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
             syncCalendarViewToDate(visibleDate.year, visibleDate.month, visibleDate.day);
           }, 150);
         }
-      } else if (distance > 0 && viewMode === 'calendar') {
-        // Swipe right: switch to summary view
-        setViewMode('summary');
-      } else if (distance < 0 && viewMode === 'summary') {
+      } else if (distance > 0 && viewMode === 'summary') {
         // Swipe left: switch to calendar view
         setViewMode('calendar');
       }
