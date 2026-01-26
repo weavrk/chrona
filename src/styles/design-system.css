@@ -766,6 +766,7 @@
   overflow-x: hidden;
   padding: var(--spacing-lg) 24px;
   display: flex;
+  background-color: var(--color-background-body, var(--bg-primary));
   background: var(--color-background-body, var(--bg-primary));
   flex-direction: column;
   gap: var(--spacing-xl);
@@ -1104,10 +1105,7 @@
   z-index: 10;
 }
 
-/* Override padding-top for design system panel */
-.design-system-panel .ds-header {
-  padding-top: 72px;
-}
+/* No padding-top override - header should match AddRecordSheet */
 
 .ds-header h2 {
   margin: 0;
