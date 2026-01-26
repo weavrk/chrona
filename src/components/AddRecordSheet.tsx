@@ -424,7 +424,7 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd, labels }:
                   <button
                     key={level}
                       className={`ds-chip-single-select-md ${intensity === level ? 'active' : ''}`}
-                    onClick={() => setIntensity(level)}
+                    onClick={() => setIntensity(intensity === level ? '' : level)}
                     style={intensity === level ? { backgroundColor: 'var(--brick)', borderColor: 'var(--brick)' } : undefined}
                   >
                     <span>{level}</span>
@@ -631,7 +631,7 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd, labels }:
                         className={`ds-chip-single-select-md ${severity === level ? 'active' : ''}`}
                         onClick={() => {
                           if (hadBreakout) {
-                            setSeverity(level);
+                            setSeverity(severity === level ? '' : level);
                           }
                         }}
                         disabled={!hadBreakout}
@@ -760,7 +760,7 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd, labels }:
                   <button
                     key={moodItem.id}
                     className={`mood-chip ${mood === moodItem.id ? 'active' : ''}`}
-                    onClick={() => setMood(moodItem.id)}
+                    onClick={() => setMood(mood === moodItem.id ? '' : moodItem.id)}
                     title={moodItem.label}
                   >
                     <moodItem.icon size={24} />
