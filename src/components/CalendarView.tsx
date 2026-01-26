@@ -708,9 +708,17 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
       });
     } else if (viewMode === 'list' && prevViewMode.current !== 'list') {
       // Scroll to today in list view (instant)
-      requestAnimationFrame(() => {
-        syncListViewToToday(true);
-      });
+      // First ensure scroll position is calculated if not already
+      if (listScrollRef.current === null) {
+        const scrollPos = calculateListViewScrollToToday();
+        if (scrollPos !== null) {
+          listScrollRef.current = scrollPos;
+        }
+      }
+      // Set scroll position immediately (before view becomes visible)
+      if (listScrollRef.current !== null) {
+        scrollContainer.scrollTop = listScrollRef.current;
+      }
     } else if (viewMode === 'summary' && prevViewMode.current !== 'summary') {
       // Scroll to top in summary view (instant)
       requestAnimationFrame(() => {

@@ -13,7 +13,7 @@ interface ChipBarProps {
 }
 
 // Default record type IDs that should always appear first
-const DEFAULT_RECORD_TYPE_IDS = ['period', 'hormone-replacement-therapy', 'hsv', 'mental-health'];
+const DEFAULT_RECORD_TYPE_IDS = ['period', 'hormone-replacement-therapy', 'hsv', 'mental-health', 'workout'];
 
 export function ChipBar({ labels }: ChipBarProps) {
   const { user } = useAuth();
