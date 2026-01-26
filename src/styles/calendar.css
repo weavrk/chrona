@@ -14,7 +14,7 @@
   z-index: 100;
   background: var(--color-background-body, var(--bg-primary));
   padding: 16px;
-  padding-top: calc(max(16px, env(safe-area-inset-top)) + 16px);
+  padding-top: calc(max(16px, env(safe-area-inset-top)) + 8px);
   border-bottom: 1px solid var(--color-secondary);
   display: flex;
   align-items: center;
@@ -131,7 +131,7 @@
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 4px;
-  margin-bottom: 8px;
+  margin-bottom: -6px;
 }
 
 .calendar-weekday {
