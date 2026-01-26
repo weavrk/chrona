@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { X, CheckCircle2, ChevronDown } from 'lucide-react';
 import { useDesignSystem } from '../contexts/DesignSystemContext';
+import { useAuth } from '../contexts/AuthContext';
 
 interface ChipLabel {
   id: string;
@@ -23,6 +24,7 @@ interface AddLabelModalProps {
 
 export function AddLabelModal({ isOpen, existingLabels, onClose, onSave }: AddLabelModalProps) {
   const { tokens } = useDesignSystem();
+  const { user } = useAuth();
   const [selectedLabelId, setSelectedLabelId] = useState<string>('');
   const [globalLabels, setGlobalLabels] = useState<GlobalLabel[]>([]);
   const [selectedColor, setSelectedColor] = useState<string>('');
@@ -35,17 +37,36 @@ export function AddLabelModal({ isOpen, existingLabels, onClose, onSave }: AddLa
     if (isOpen) {
       loadGlobalLabels();
     }
-  }, [isOpen]);
+  }, [isOpen, user]);
 
   const loadGlobalLabels = async () => {
     try {
-      const response = await fetch(`${import.meta.env.BASE_URL}data/label-list-global.json?t=${Date.now()}`);
-      if (response.ok) {
-        const data = await response.json();
-        setGlobalLabels(Array.isArray(data) ? data : []);
+      // Load both global and user labels
+      const [globalResponse, userResponse] = await Promise.all([
+        fetch(`${import.meta.env.BASE_URL}data/label-list-global.json?t=${Date.now()}`),
+        user ? fetch(`${import.meta.env.BASE_URL}data/${user.username}/label-list-user-${user.username}.json?t=${Date.now()}`) : Promise.resolve(null)
+      ]);
+      
+      const globalData = globalResponse.ok ? await globalResponse.json() : [];
+      const userData = userResponse?.ok ? await userResponse.json() : [];
+      
+      // Combine global and user labels, with user labels taking precedence
+      const allLabels = [...(Array.isArray(globalData) ? globalData : [])];
+      if (Array.isArray(userData)) {
+        userData.forEach((userLabel: any) => {
+          const existingIndex = allLabels.findIndex((l: any) => l.id === userLabel.id);
+          if (existingIndex >= 0) {
+            allLabels[existingIndex] = userLabel;
+          } else {
+            allLabels.push(userLabel);
+          }
+        });
       }
+      
+      setGlobalLabels(allLabels);
     } catch (error) {
-      console.error('Failed to load global labels:', error);
+      console.error('Failed to load labels:', error);
+      setGlobalLabels([]);
     }
   };
 

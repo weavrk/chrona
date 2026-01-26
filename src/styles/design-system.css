@@ -766,6 +766,7 @@
   overflow-x: hidden;
   padding: var(--spacing-lg) 24px;
   display: flex;
+  background: var(--color-background-body, var(--bg-primary));
   flex-direction: column;
   gap: var(--spacing-xl);
   min-height: 0;

@@ -85,7 +85,7 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
   const [showTodayButton, setShowTodayButton] = useState(false);
   const [observersReady, setObserversReady] = useState(false);
   const [_visibleMonth, setVisibleMonth] = useState<{ year: number; month: number } | null>(null);
-  const [visibleDate, setVisibleDate] = useState<{ year: number; month: number; day: number } | null>(null);
+  const [_visibleDate, setVisibleDate] = useState<{ year: number; month: number; day: number } | null>(null);
   const calendarRef = useRef<HTMLDivElement>(null);
   const listViewRef = useRef<HTMLDivElement>(null);
   const firstMonthRef = useRef<HTMLDivElement>(null);
@@ -95,10 +95,10 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
   const hasInitiallyScrolledRef = useRef(false);
   const scrollOriginRef = useRef<number>(0);
   
-  // Separate scroll positions for each view
-  const calendarScrollRef = useRef<number>(0);
+  // Separate scroll positions for each view (pre-calculated on load)
+  const calendarScrollRef = useRef<number | null>(null); // null means not calculated yet
   const listScrollRef = useRef<number | null>(null); // null means not calculated yet
-  const summaryScrollRef = useRef<number>(0);
+  const summaryScrollRef = useRef<number>(0); // Always 0 (top)
   
   // Swipe gesture handling
   const touchStartX = useRef<number>(0);
@@ -316,79 +316,128 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
     }
   }, []);
 
-  // Set scroll origin and scroll to current month on initial load
-  useEffect(() => {
-    // Only run once on initial load
-    if (hasInitiallyScrolledRef.current) return;
+  // Calculate calendar scroll position to current day
+  const calculateCalendarScrollToToday = useCallback((): number | null => {
+    if (!calendarRef.current) return null;
     
-    const scrollToCurrentMonth = () => {
+    const scrollContainer = document.querySelector('.chrona-main') as HTMLElement;
+    if (!scrollContainer) return null;
+    
+    // Find the current month element using today's date
+    const todayDate = new Date();
+    const todayYear = todayDate.getFullYear();
+    const todayMonth = todayDate.getMonth(); // 0-11
+    
+    const currentMonthElement = calendarRef.current.querySelector(
+      `[data-month-key="${todayYear}-${todayMonth}"]`
+    ) as HTMLElement;
+    
+    if (currentMonthElement) {
+      // Get the month header element for more accurate positioning
+      const monthHeader = currentMonthElement.querySelector('.calendar-month-header') as HTMLElement;
+      const targetElement = monthHeader || currentMonthElement;
+      
+      // Get actual header and chip bar heights from DOM
+      const header = document.querySelector('.chrona-header') as HTMLElement;
+      const chipBar = document.querySelector('.chip-bar-container') as HTMLElement;
+      const headerHeight = header ? header.offsetHeight : 68;
+      const chipBarHeight = chipBar ? chipBar.offsetHeight : 62;
+      const targetTop = headerHeight + chipBarHeight;
+      
+      // Get position relative to the scroll container
+      const containerRect = scrollContainer.getBoundingClientRect();
+      const elementRect = targetElement.getBoundingClientRect();
+      const currentScroll = scrollContainer.scrollTop;
+      
+      // Calculate the scroll position needed
+      const elementTopRelativeToContainer = elementRect.top - containerRect.top + currentScroll;
+      return Math.max(0, elementTopRelativeToContainer - targetTop);
+    }
+    return null;
+  }, []);
+
+  // Calculate list view scroll position to today (for pre-positioning)
+  const calculateListViewScrollToToday = useCallback((): number | null => {
+    if (!listViewRef.current) return null;
+    
+    const todayDate = new Date();
+    const todayYear = todayDate.getFullYear();
+    const todayMonth = todayDate.getMonth();
+    const todayDay = todayDate.getDate();
+    
+    // Find today's date in list view
+    const todayKey = `${todayYear}-${todayMonth}-${todayDay}`;
+    const todayElement = listViewRef.current.querySelector(
+      `[data-date-key="${todayKey}"]`
+    ) as HTMLElement;
+    
+    if (todayElement) {
+      // Get header and chip bar heights
+      const header = document.querySelector('.chrona-header') as HTMLElement;
+      const chipBar = document.querySelector('.chip-bar-container') as HTMLElement;
+      const headerHeight = header ? header.offsetHeight : 68;
+      const chipBarHeight = chipBar ? chipBar.offsetHeight : 62;
+      const targetTop = headerHeight + chipBarHeight;
+      
       const scrollContainer = document.querySelector('.chrona-main') as HTMLElement;
-      if (!scrollContainer || !calendarRef.current) {
-        // Retry if not ready
-        setTimeout(scrollToCurrentMonth, 50);
+      if (!scrollContainer) return null;
+      
+      const containerRect = scrollContainer.getBoundingClientRect();
+      const elementRect = todayElement.getBoundingClientRect();
+      const currentScroll = scrollContainer.scrollTop;
+      
+      // Calculate the scroll position needed
+      const elementTopRelativeToContainer = elementRect.top - containerRect.top + currentScroll;
+      return Math.max(0, elementTopRelativeToContainer - targetTop);
+    }
+    return null;
+  }, []);
+
+  // Pre-calculate all scroll positions on initial load and when views are rendered
+  useEffect(() => {
+    const calculateAllScrollPositions = () => {
+      const scrollContainer = document.querySelector('.chrona-main') as HTMLElement;
+      if (!scrollContainer) {
+        setTimeout(calculateAllScrollPositions, 50);
         return;
       }
-      
-      // Find the current month element using today's date
-      const todayDate = new Date();
-      const todayYear = todayDate.getFullYear();
-      const todayMonth = todayDate.getMonth(); // 0-11
-      
-      console.log('Scrolling to:', `${todayYear}-${todayMonth}`, `(${todayDate.toLocaleDateString()})`);
-      console.log('Scroll container:', scrollContainer, 'scrollHeight:', scrollContainer.scrollHeight, 'clientHeight:', scrollContainer.clientHeight);
-      
-      const currentMonthElement = calendarRef.current.querySelector(
-        `[data-month-key="${todayYear}-${todayMonth}"]`
-      ) as HTMLElement;
-      
-      if (currentMonthElement) {
-        // Get the month header element for more accurate positioning
-        const monthHeader = currentMonthElement.querySelector('.calendar-month-header') as HTMLElement;
-        const targetElement = monthHeader || currentMonthElement;
-        
-        // Calculate scroll position to place month header at correct position from viewport top
-        // Get actual header and chip bar heights from DOM
-        const header = document.querySelector('.chrona-header') as HTMLElement;
-        const chipBar = document.querySelector('.chip-bar-container') as HTMLElement;
-        const headerHeight = header ? header.offsetHeight : 68;
-        const chipBarHeight = chipBar ? chipBar.offsetHeight : 62;
-        const targetTop = headerHeight + chipBarHeight;
-        
-        // Get position relative to the scroll container
-        const containerRect = scrollContainer.getBoundingClientRect();
-        const elementRect = targetElement.getBoundingClientRect();
-        const currentScroll = scrollContainer.scrollTop;
-        
-        // Calculate the scroll position needed
-        const elementTopRelativeToContainer = elementRect.top - containerRect.top + currentScroll;
-        const scrollPosition = Math.max(0, elementTopRelativeToContainer - targetTop);
-        
-        console.log('Found element, scrolling to:', scrollPosition, 'elementTopRelativeToContainer:', elementTopRelativeToContainer, 'targetTop:', targetTop);
-        console.log('currentScroll:', currentScroll, 'elementRect.top:', elementRect.top, 'containerRect.top:', containerRect.top);
-        
-        // Set scroll origin (where we consider "home" position)
-        scrollOriginRef.current = scrollPosition;
-        
-        // Scroll directly to calculated position
-        scrollContainer.scrollTop = scrollPosition;
-        
+
+      // Calculate calendar scroll position
+      if (calendarRef.current && calendarScrollRef.current === null) {
+        const calendarPos = calculateCalendarScrollToToday();
+        if (calendarPos !== null) {
+          calendarScrollRef.current = calendarPos;
+          scrollOriginRef.current = calendarPos;
+        }
+      }
+
+      // Calculate list view scroll position
+      if (listViewRef.current && listScrollRef.current === null) {
+        const listPos = calculateListViewScrollToToday();
+        if (listPos !== null) {
+          listScrollRef.current = listPos;
+        }
+      }
+
+      // Summary is always 0
+      summaryScrollRef.current = 0;
+
+      // If calendar view is active on initial load, scroll to calculated position
+      if (viewMode === 'calendar' && calendarScrollRef.current !== null && !hasInitiallyScrolledRef.current) {
+        scrollContainer.scrollTop = calendarScrollRef.current;
         hasInitiallyScrolledRef.current = true;
-        
-        console.log('Initial scroll complete at:', scrollContainer.scrollTop);
         
         // Trigger observers setup after a delay
         setTimeout(() => {
           setObserversReady(true);
         }, 1000);
-      } else {
-        console.error('Could not find current month element:', `${todayYear}-${todayMonth}`);
       }
     };
 
     // Wait for DOM to render
-    const timeoutId = setTimeout(scrollToCurrentMonth, 300);
+    const timeoutId = setTimeout(calculateAllScrollPositions, 300);
     return () => clearTimeout(timeoutId);
-  }, []); // Run only once on mount
+  }, [calculateCalendarScrollToToday, calculateListViewScrollToToday, viewMode]);
 
   // Track visible month header based on scroll position
   useEffect(() => {
@@ -493,46 +542,6 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
 
 
   // Function to sync calendar view to a specific date
-  const syncCalendarViewToDate = useCallback((year: number, month: number, _day: number) => {
-    if (!calendarRef.current) return;
-    
-    const scrollContainer = document.querySelector('.chrona-main') as HTMLElement;
-    if (!scrollContainer) return;
-    
-    // Find the month element
-    const monthElement = calendarRef.current.querySelector(
-      `[data-month-key="${year}-${month}"]`
-    ) as HTMLElement;
-    
-    if (monthElement) {
-      // Get header and chip bar heights
-      const header = document.querySelector('.chrona-header') as HTMLElement;
-      const chipBar = document.querySelector('.chip-bar-container') as HTMLElement;
-      const headerHeight = header ? header.offsetHeight : 68;
-      const chipBarHeight = chipBar ? chipBar.offsetHeight : 62;
-      const targetTop = headerHeight + chipBarHeight;
-      
-      // Get the month header
-      const monthHeader = monthElement.querySelector('.calendar-month-header') as HTMLElement;
-      if (monthHeader) {
-        const containerRect = scrollContainer.getBoundingClientRect();
-        const elementRect = monthHeader.getBoundingClientRect();
-        const currentScroll = scrollContainer.scrollTop;
-        
-        // Calculate the scroll position needed
-        const elementTopRelativeToContainer = elementRect.top - containerRect.top + currentScroll;
-        const scrollPosition = Math.max(0, elementTopRelativeToContainer - targetTop);
-        
-        // Use setTimeout to ensure DOM is ready after view switch
-        setTimeout(() => {
-          scrollContainer.scrollTo({
-            top: scrollPosition,
-            behavior: 'smooth',
-          });
-        }, 100);
-      }
-    }
-  }, []);
 
   // Scroll handler for Today button visibility and scroll position tracking
   useEffect(() => {
@@ -542,14 +551,14 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
     const handleScroll = () => {
       const scrollTop = scrollContainer.scrollTop;
       
-      // Save scroll position for the active view
-      if (viewMode === 'calendar') {
+      // Update scroll position for the active view (but don't override pre-calculated positions)
+      // Only update if user is actively scrolling, not during view switches
+      if (viewMode === 'calendar' && calendarScrollRef.current !== null) {
         calendarScrollRef.current = scrollTop;
-      } else if (viewMode === 'list') {
+      } else if (viewMode === 'list' && listScrollRef.current !== null) {
         listScrollRef.current = scrollTop;
-      } else if (viewMode === 'summary') {
-        summaryScrollRef.current = scrollTop;
       }
+      // Summary always stays at 0
       
       // For list view, always show button if scrolled down
       if (viewMode === 'list') {
@@ -596,145 +605,38 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
     };
   }, [viewMode]);
 
-  // Calculate list view scroll position to today (for pre-positioning)
-  const calculateListViewScrollToToday = useCallback((): number | null => {
-    if (!listViewRef.current) return null;
-    
-    const todayDate = new Date();
-    const todayYear = todayDate.getFullYear();
-    const todayMonth = todayDate.getMonth();
-    const todayDay = todayDate.getDate();
-    
-    // Find today's date in list view
-    const todayKey = `${todayYear}-${todayMonth}-${todayDay}`;
-    const todayElement = listViewRef.current.querySelector(
-      `[data-date-key="${todayKey}"]`
-    ) as HTMLElement;
-    
-    if (todayElement) {
-      // Get header and chip bar heights
-      const header = document.querySelector('.chrona-header') as HTMLElement;
-      const chipBar = document.querySelector('.chip-bar-container') as HTMLElement;
-      const headerHeight = header ? header.offsetHeight : 68;
-      const chipBarHeight = chipBar ? chipBar.offsetHeight : 62;
-      const targetTop = headerHeight + chipBarHeight;
-      
-      const scrollContainer = document.querySelector('.chrona-main') as HTMLElement;
-      if (!scrollContainer) return null;
-      
-      const containerRect = scrollContainer.getBoundingClientRect();
-      const elementRect = todayElement.getBoundingClientRect();
-      const currentScroll = scrollContainer.scrollTop;
-      
-      // Calculate the scroll position needed
-      const elementTopRelativeToContainer = elementRect.top - containerRect.top + currentScroll;
-      return Math.max(0, elementTopRelativeToContainer - targetTop);
-    }
-    return null;
-  }, []);
-
-  // Function to sync list view to today's date (instant, no animation)
-  const syncListViewToToday = useCallback((instant = false) => {
-    if (!listViewRef.current) return;
-    
-    const scrollContainer = document.querySelector('.chrona-main') as HTMLElement;
-    if (!scrollContainer) return;
-    
-    const scrollPosition = listScrollRef.current ?? calculateListViewScrollToToday();
-    if (scrollPosition !== null) {
-      listScrollRef.current = scrollPosition;
-      if (instant) {
-        // Set immediately without animation
-        scrollContainer.scrollTop = scrollPosition;
-      } else {
-        scrollContainer.scrollTo({
-          top: scrollPosition,
-          behavior: 'smooth',
-        });
-      }
-    }
-  }, [calculateListViewScrollToToday]);
-
-  // Function to sync summary view to top (instant, no animation)
-  const syncSummaryViewToTop = useCallback((instant = false) => {
-    const scrollContainer = document.querySelector('.chrona-main') as HTMLElement;
-    if (!scrollContainer) return;
-    
-    summaryScrollRef.current = 0;
-    if (instant) {
-      scrollContainer.scrollTop = 0;
-    } else {
-      scrollContainer.scrollTo({
-        top: 0,
-        behavior: 'smooth',
-      });
-    }
-  }, []);
-
-  // Pre-calculate list view scroll position when list view is rendered
-  useEffect(() => {
-    if (viewMode === 'list' && listViewRef.current && listScrollRef.current === null) {
-      // Calculate and store the scroll position for today
-      // Use requestAnimationFrame to ensure DOM is ready
-      requestAnimationFrame(() => {
-        const scrollPos = calculateListViewScrollToToday();
-        if (scrollPos !== null) {
-          listScrollRef.current = scrollPos;
-        }
-      });
-    }
-  }, [viewMode, calculateListViewScrollToToday]);
-
   // Handle view mode changes with separate scroll management
   const prevViewMode = useRef<'calendar' | 'list' | 'summary'>(viewMode);
   useEffect(() => {
     const scrollContainer = document.querySelector('.chrona-main') as HTMLElement;
     if (!scrollContainer) return;
 
-    // Save current scroll position when leaving a view
-    if (prevViewMode.current === 'calendar' && viewMode !== 'calendar') {
-      calendarScrollRef.current = scrollContainer.scrollTop;
-    } else if (prevViewMode.current === 'list' && viewMode !== 'list') {
-      listScrollRef.current = scrollContainer.scrollTop;
-    } else if (prevViewMode.current === 'summary' && viewMode !== 'summary') {
-      summaryScrollRef.current = scrollContainer.scrollTop;
-    }
-
-    // Restore scroll position when entering a view (instant, before paint)
+    // When entering a view, use pre-calculated scroll position (instant, before paint)
     if (viewMode === 'calendar' && prevViewMode.current !== 'calendar') {
-      // Restore calendar scroll position
-      requestAnimationFrame(() => {
-        scrollContainer.scrollTop = calendarScrollRef.current;
-      });
-    } else if (viewMode === 'list' && prevViewMode.current !== 'list') {
-      // Scroll to today in list view (instant)
-      // First ensure scroll position is calculated if not already
-      if (listScrollRef.current === null) {
-        const scrollPos = calculateListViewScrollToToday();
-        if (scrollPos !== null) {
-          listScrollRef.current = scrollPos;
-        }
+      // Always recalculate to ensure it's to current day (not saved position)
+      const scrollPos = calculateCalendarScrollToToday();
+      if (scrollPos !== null) {
+        calendarScrollRef.current = scrollPos;
+        scrollOriginRef.current = scrollPos;
+        // Set scroll position immediately (before view becomes visible)
+        scrollContainer.scrollTop = scrollPos;
       }
-      // Set scroll position immediately (before view becomes visible)
-      if (listScrollRef.current !== null) {
-        scrollContainer.scrollTop = listScrollRef.current;
+    } else if (viewMode === 'list' && prevViewMode.current !== 'list') {
+      // Always recalculate to ensure it's to today (not saved position)
+      const scrollPos = calculateListViewScrollToToday();
+      if (scrollPos !== null) {
+        listScrollRef.current = scrollPos;
+        // Set scroll position immediately (before view becomes visible)
+        scrollContainer.scrollTop = scrollPos;
       }
     } else if (viewMode === 'summary' && prevViewMode.current !== 'summary') {
-      // Scroll to top in summary view (instant)
-      requestAnimationFrame(() => {
-        syncSummaryViewToTop(true);
-      });
+      // Summary is always at top
+      scrollContainer.scrollTop = 0;
     }
 
     prevViewMode.current = viewMode;
-  }, [viewMode, syncListViewToToday, syncSummaryViewToTop, calculateListViewScrollToToday]);
+  }, [viewMode, calculateCalendarScrollToToday, calculateListViewScrollToToday]);
 
-  // Sync calendar view when switching to calendar mode
-  useEffect(() => {
-    if (viewMode === 'calendar' && visibleDate) {
-      syncCalendarViewToDate(visibleDate.year, visibleDate.month, visibleDate.day);
-    }
-  }, [viewMode, visibleDate, syncCalendarViewToDate]);
 
   // Track visible date and month in list view
   useEffect(() => {
@@ -869,12 +771,7 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
       } else if (distance < 0 && viewMode === 'list') {
         // Swipe right: switch to calendar view
         setViewMode('calendar');
-        // Sync to visible date after a short delay to ensure DOM is ready
-        if (visibleDate) {
-          setTimeout(() => {
-            syncCalendarViewToDate(visibleDate.year, visibleDate.month, visibleDate.day);
-          }, 150);
-        }
+        // Scroll position will be set automatically by view mode change handler
       } else if (distance > 0 && viewMode === 'summary') {
         // Swipe left: switch to calendar view
         setViewMode('calendar');
