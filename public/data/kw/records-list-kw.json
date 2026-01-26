@@ -1,2 +1,221 @@
-{}
-
+{
+  "2026-01-26": [
+    {
+      "id": "1704067200000-1",
+      "type": "period",
+      "data": {
+        "intensity": "Heavy"
+      }
+    },
+    {
+      "id": "1704067200000-2",
+      "type": "hormone-replacement-therapy",
+      "data": {
+        "treatments": [
+          {
+            "drugName": "Estradiol",
+            "dose": 2,
+            "doseUnit": "Mg",
+            "frequency": 1,
+            "frequencyUnit": "daily"
+          }
+        ],
+        "repeatForward": true,
+        "includePlacebo": false
+      }
+    },
+    {
+      "id": "1704067200000-3",
+      "type": "hsv",
+      "data": {
+        "hadBreakout": false,
+        "repeatForward": false
+      }
+    },
+    {
+      "id": "1704067200000-4",
+      "type": "mental-health",
+      "data": {
+        "mood": "light",
+        "notes": "Feeling great today"
+      }
+    },
+    {
+      "id": "1704067200000-5",
+      "type": "workout",
+      "data": {
+        "workoutType": "Running",
+        "duration": 30,
+        "durationUnit": "minutes"
+      }
+    }
+  ],
+  "2026-02-02": [
+    {
+      "id": "1704672000000-1",
+      "type": "period",
+      "data": {
+        "intensity": "Medium"
+      }
+    },
+    {
+      "id": "1704672000000-2",
+      "type": "hormone-replacement-therapy",
+      "data": {
+        "treatments": [
+          {
+            "drugName": "Progesterone",
+            "dose": 100,
+            "doseUnit": "Mg",
+            "frequency": 1,
+            "frequencyUnit": "daily"
+          }
+        ],
+        "repeatForward": false,
+        "includePlacebo": true
+      }
+    },
+    {
+      "id": "1704672000000-3",
+      "type": "hsv",
+      "data": {
+        "hadBreakout": true,
+        "severity": "Bad",
+        "repeatForward": false
+      }
+    },
+    {
+      "id": "1704672000000-4",
+      "type": "mental-health",
+      "data": {
+        "mood": "smile",
+        "notes": "Had a good conversation"
+      }
+    },
+    {
+      "id": "1704672000000-5",
+      "type": "workout",
+      "data": {
+        "workoutType": "Yoga",
+        "duration": 45,
+        "durationUnit": "minutes"
+      }
+    }
+  ],
+  "2026-02-09": [
+    {
+      "id": "1705276800000-1",
+      "type": "period",
+      "data": {
+        "intensity": "Lite"
+      }
+    },
+    {
+      "id": "1705276800000-2",
+      "type": "hormone-replacement-therapy",
+      "data": {
+        "treatments": [
+          {
+            "drugName": "Testosterone",
+            "dose": 5,
+            "doseUnit": "Mg",
+            "frequency": 1,
+            "frequencyUnit": "daily"
+          }
+        ],
+        "repeatForward": false,
+        "includePlacebo": false
+      }
+    },
+    {
+      "id": "1705276800000-3",
+      "type": "hsv",
+      "data": {
+        "hadBreakout": true,
+        "severity": "Mild",
+        "treatments": [
+          {
+            "drugName": "Acyclovir",
+            "dose": 400,
+            "doseUnit": "Mg",
+            "frequency": 2,
+            "frequencyUnit": "daily"
+          }
+        ],
+        "repeatForward": false
+      }
+    },
+    {
+      "id": "1705276800000-4",
+      "type": "mental-health",
+      "data": {
+        "mood": "meh",
+        "notes": "Feeling neutral"
+      }
+    },
+    {
+      "id": "1705276800000-5",
+      "type": "workout",
+      "data": {
+        "workoutType": "Weight Training",
+        "duration": 60,
+        "durationUnit": "minutes"
+      }
+    }
+  ],
+  "2026-02-15": [
+    {
+      "id": "1705804800000-1",
+      "type": "period",
+      "data": {
+        "intensity": "Heavy"
+      }
+    }
+  ],
+  "2026-02-20": [
+    {
+      "id": "1706227200000-1",
+      "type": "workout",
+      "data": {
+        "workoutType": "Swimming",
+        "duration": 40,
+        "durationUnit": "minutes"
+      }
+    },
+    {
+      "id": "1706227200000-2",
+      "type": "mental-health",
+      "data": {
+        "mood": "light",
+        "notes": "Productive day at work"
+      }
+    }
+  ],
+  "2026-02-23": [
+    {
+      "id": "1706486400000-1",
+      "type": "hormone-replacement-therapy",
+      "data": {
+        "treatments": [
+          {
+            "drugName": "Estradiol",
+            "dose": 2,
+            "doseUnit": "Mg",
+            "frequency": 1,
+            "frequencyUnit": "daily"
+          }
+        ],
+        "repeatForward": true,
+        "includePlacebo": false
+      }
+    },
+    {
+      "id": "1706486400000-2",
+      "type": "hsv",
+      "data": {
+        "hadBreakout": false,
+        "repeatForward": false
+      }
+    }
+  ]
+}

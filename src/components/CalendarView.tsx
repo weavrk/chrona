@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { ChipBar } from './ChipBar';
 import { RecordData } from './AddRecordSheet';
+import { useAuth } from '../contexts/AuthContext';
+import { useDesignSystem } from '../contexts/DesignSystemContext';
 
 interface ChipLabel {
   id: string;
@@ -76,7 +78,10 @@ function toTitleCase(str: string): string {
 }
 
 export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selectedDate, onSheetClose: _onSheetClose, onSheetDateChange, onAddRecord: _onAddRecord, chipLabels }: CalendarViewProps) {
+  const { user } = useAuth();
+  const { tokens } = useDesignSystem();
   const [viewMode, setViewMode] = useState<'calendar' | 'list' | 'summary'>('calendar');
+  const [records, setRecords] = useState<Record<string, any[]>>({});
   const [showTodayButton, setShowTodayButton] = useState(false);
   const [observersReady, setObserversReady] = useState(false);
   const [visibleMonth, setVisibleMonth] = useState<{ year: number; month: number } | null>(null);
@@ -843,6 +848,93 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
     );
   };
 
+  // Load records
+  useEffect(() => {
+    if (!user || viewMode !== 'list') return;
+    
+    const loadRecords = async () => {
+      try {
+        const response = await fetch(`${import.meta.env.BASE_URL}data/${user.username}/records-list-${user.username}.json?t=${Date.now()}`);
+        if (response.ok) {
+          const data = await response.json();
+          setRecords(data && typeof data === 'object' ? data : {});
+        }
+      } catch (error) {
+        console.error('Failed to load records:', error);
+      }
+    };
+    
+    loadRecords();
+  }, [user, viewMode]);
+
+  // Helper to get label color
+  const getLabelColor = (labelId: string): string => {
+    const label = chipLabels.find(l => l.id === labelId);
+    if (label) {
+      return (tokens as any)[label.color] || '#B3B3B3';
+    }
+    // Fallback to default colors from global labels
+    const defaultColors: Record<string, string> = {
+      'period': (tokens as any)['brick'] || '#B3B3B3',
+      'hormone-replacement-therapy': (tokens as any)['ocean'] || '#B3B3B3',
+      'hsv': (tokens as any)['sand'] || '#B3B3B3',
+      'mental-health': (tokens as any)['steel'] || '#B3B3B3',
+      'workout': (tokens as any)['marigold'] || '#B3B3B3',
+    };
+    return defaultColors[labelId] || '#B3B3B3';
+  };
+
+  // Helper to format record title
+  const getRecordTitle = (record: any): string => {
+    switch (record.type) {
+      case 'period':
+        return `Period${record.data?.intensity ? ` - ${record.data.intensity}` : ''}`;
+      case 'hormone-replacement-therapy':
+        const treatment = record.data?.treatments?.[0];
+        return treatment ? `${treatment.drugName} ${treatment.dose}${treatment.doseUnit}` : 'Hormone Replacement Therapy';
+      case 'hsv':
+        if (record.data?.hadBreakout) {
+          return `HSV Breakout${record.data?.severity ? ` - ${record.data.severity}` : ''}`;
+        }
+        return 'HSV';
+      case 'mental-health':
+        const moods: Record<string, string> = {
+          'light': 'Energized',
+          'smile': 'Happy',
+          'meh': 'Neutral',
+          'frown': 'Sad',
+          'annoyed': 'Annoyed',
+          'angry': 'Angry',
+        };
+        return `Mental Health${record.data?.mood ? ` - ${moods[record.data.mood] || record.data.mood}` : ''}`;
+      case 'workout':
+        return record.data?.workoutType || 'Workout';
+      default:
+        return record.type || 'Record';
+    }
+  };
+
+  // Helper to format record details
+  const getRecordDetails = (record: any): string | null => {
+    switch (record.type) {
+      case 'workout':
+        if (record.data?.duration) {
+          return `${record.data.duration} ${record.data.durationUnit || 'minutes'}`;
+        }
+        return null;
+      case 'mental-health':
+        return record.data?.notes || null;
+      case 'hsv':
+        if (record.data?.treatments?.[0]) {
+          const t = record.data.treatments[0];
+          return `${t.drugName} ${t.dose}${t.doseUnit}`;
+        }
+        return null;
+      default:
+        return null;
+    }
+  };
+
   // Simple ListView component
   const ListView = () => {
     // Generate list of all dates from loaded months
@@ -892,22 +984,61 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
                 </div>
                 {monthDates.map((item) => {
                   const isToday = item.date.toDateString() === new Date().toDateString();
+                  const dateKey = item.date.toISOString().split('T')[0];
+                  const dayRecords = records[dateKey] || [];
+                  
                   return (
                     <div 
                       key={`${item.year}-${item.month}-${item.dayNumber}`}
                       data-date-key={`${item.year}-${item.month}-${item.dayNumber}`}
                       data-month-key={`${item.year}-${item.month}`}
                       className={`list-view-item ${isToday ? 'list-view-item-today' : ''}`}
-                      onClick={() => onSheetDateChange(item.date)}
                     >
                       <div className="list-view-item-date">
                         <div className="list-view-item-top-row">
-                          <span className="list-view-item-day-name">{item.dayName}</span>
+                          <span className="list-view-item-day-name">{item.dayName.toUpperCase()}</span>
                         </div>
                         <span className="list-view-item-day-number">{item.dayNumber}</span>
                       </div>
                       <div className="list-view-item-content">
-                        {/* Placeholder for records - you can add actual record rendering here */}
+                        {dayRecords.length > 0 ? (
+                          <div className="list-view-records">
+                            {dayRecords.map((record: any) => {
+                              const color = getLabelColor(record.type);
+                              const title = getRecordTitle(record);
+                              const details = getRecordDetails(record);
+                              
+                              return (
+                                <div 
+                                  key={record.id} 
+                                  className="list-view-record"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    onSheetDateChange(item.date);
+                                  }}
+                                >
+                                  <div 
+                                    className="list-view-record-bar" 
+                                    style={{ backgroundColor: color }}
+                                  />
+                                  <div className="list-view-record-content">
+                                    <div className="list-view-record-title">{title}</div>
+                                    {details && (
+                                      <div className="list-view-record-details">{details}</div>
+                                    )}
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        ) : (
+                          <div 
+                            className="list-view-empty"
+                            onClick={() => onSheetDateChange(item.date)}
+                          >
+                            No records
+                          </div>
+                        )}
                       </div>
                     </div>
                   );
