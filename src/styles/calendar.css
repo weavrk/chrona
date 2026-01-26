@@ -315,7 +315,7 @@
 /* Date Range */
 .date-range-container {
   display: flex;
-  gap: var(--spacing-md);
+  justify-content: space-between;
   width: 100%;
   box-sizing: border-box;
 }
