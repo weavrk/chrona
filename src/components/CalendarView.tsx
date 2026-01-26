@@ -780,16 +780,61 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
 
   // SummaryView component
   const SummaryView = () => {
-    const recordTypes = ['PE', 'HR', 'HS', 'ID'];
+    const recordTypes = [
+      { 
+        id: 'PE', 
+        label: 'Period',
+        data: [
+          { label: 'Last Period Date', value: 'January 15, 2026' },
+          { label: 'Duration', value: '5 days' },
+          { label: 'Predicted Next Period Start', value: 'February 12, 2026' }
+        ]
+      },
+      { 
+        id: 'HR', 
+        label: 'Heart Rate',
+        data: [
+          { label: 'Average Resting HR', value: '62 bpm' },
+          { label: 'Average Active HR', value: '145 bpm' },
+          { label: 'Last Recorded', value: 'January 25, 2026' }
+        ]
+      },
+      { 
+        id: 'HS', 
+        label: 'Health Symptoms',
+        data: [
+          { label: 'Most Common Symptom', value: 'Headache' },
+          { label: 'Frequency This Month', value: '8 occurrences' },
+          { label: 'Last Recorded', value: 'January 24, 2026' }
+        ]
+      },
+      { 
+        id: 'ID', 
+        label: 'Identity',
+        data: [
+          { label: 'Total Records', value: '12' },
+          { label: 'Most Recent', value: 'January 20, 2026' },
+          { label: 'Category', value: 'Workout' }
+        ]
+      }
+    ];
     
     return (
       <div className="summary-view">
+        <div className="summary-view-header">
+          <h1>Summary</h1>
+        </div>
         <div className="summary-view-content">
           {recordTypes.map((type) => (
-            <div key={type} className="summary-section">
-              <h2 className="summary-section-header">{type}</h2>
+            <div key={type.id} className="summary-section">
+              <h2 className="summary-section-header">{type.label}</h2>
               <div className="summary-section-content">
-                {/* Summary data will be added here */}
+                {type.data.map((item, index) => (
+                  <div key={index} className="summary-data-item">
+                    <span className="summary-data-label">{item.label}</span>
+                    <span className="summary-data-value">{item.value}</span>
+                  </div>
+                ))}
               </div>
             </div>
           ))}
