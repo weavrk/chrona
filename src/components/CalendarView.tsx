@@ -712,7 +712,10 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
                       onClick={() => onSheetDateChange(item.date)}
                     >
                       <div className="list-view-item-date">
-                        <span className="list-view-item-day-name">{item.dayName}</span>
+                        <div className="list-view-item-top-row">
+                          <span className="list-view-item-day-name">{item.dayName}</span>
+                          <span className="list-view-item-month-year">{item.monthName} {item.year}</span>
+                        </div>
                         <span className="list-view-item-day-number">{item.dayNumber}</span>
                       </div>
                       <div className="list-view-item-content">

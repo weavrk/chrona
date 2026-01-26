@@ -580,7 +580,21 @@
   margin-right: 16px;
 }
 
+.list-view-item-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  width: 100%;
+}
+
 .list-view-item-day-name {
+  font-size: 0.875rem;
+  color: var(--color-secondary, var(--text-secondary));
+  font-weight: 500;
+  font-family: var(--font-family);
+}
+
+.list-view-item-month-year {
   font-size: 0.875rem;
   color: var(--color-secondary, var(--text-secondary));
   font-weight: 500;
