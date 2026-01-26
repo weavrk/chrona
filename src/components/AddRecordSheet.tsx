@@ -364,17 +364,17 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd, labels }:
           </button>
         </div>
 
-        {/* Record Type Chips */}
-        <div className="ds-chip-bar-record-selector">
-          <div className="chip-bar-single-select">
+        {/* Record Type Nav Tabs */}
+        <div className="ds-nav-tab-bar-container">
+          <div className="ds-nav-tab-bar">
             {RECORD_TYPES.map((type) => (
               <button
                 key={type.id}
-                className={`ds-chip-single-select ${selectedType === type.id ? 'active' : ''}`}
+                className={`ds-nav-tab ${selectedType === type.id ? 'active' : ''}`}
                 style={
                   selectedType === type.id
-                    ? { backgroundColor: type.color, borderColor: type.color }
-                    : { color: type.color, borderColor: type.color }
+                    ? { '--active-bg': type.color } as React.CSSProperties
+                    : undefined
                 }
                 onClick={() => {
                   setSelectedType(type.id);
