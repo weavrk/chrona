@@ -537,7 +537,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 4px 8px;
+  padding: 4px 12px;
   border-radius: 20px;
   font-size: 14px;
   font-weight: 500;
@@ -570,7 +570,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 12px;
+  padding: 4px 12px;
   border-radius: 20px;
   font-size: 16px;
   font-weight: 500;
