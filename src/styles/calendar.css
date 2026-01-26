@@ -596,7 +596,7 @@
   width: 100%;
   background: var(--color-background-body, var(--bg-primary));
   padding-top: 72px;
-  min-height: calc(100vh + 1000px);
+  min-height: auto;
 }
 
 .summary-view-header {

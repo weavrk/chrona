@@ -219,7 +219,7 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
 
   // Load more months in the past
   const loadPastMonths = useCallback(() => {
-    if (isLoadingPastRef.current) return;
+    if (isLoadingPastRef.current || viewMode !== 'calendar') return;
     isLoadingPastRef.current = true;
     
     console.log('loadPastMonths called');
@@ -272,11 +272,11 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
         end: prev.end,
       };
     });
-  }, []);
+  }, [viewMode]);
 
   // Load more months in the future
   const loadFutureMonths = useCallback(() => {
-    if (isLoadingFutureRef.current) return;
+    if (isLoadingFutureRef.current || viewMode !== 'calendar') return;
     isLoadingFutureRef.current = true;
     
     setMonths(prev => {
@@ -307,7 +307,7 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
         end: newEndDate,
       };
     });
-  }, []);
+  }, [viewMode]);
 
   // Prevent browser scroll restoration
   useEffect(() => {
@@ -495,8 +495,8 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
 
   // Intersection observers for lazy loading
   useEffect(() => {
-    // Wait for observersReady flag
-    if (!observersReady) {
+    // Wait for observersReady flag and only run for calendar view
+    if (!observersReady || viewMode !== 'calendar') {
       return;
     }
     
@@ -538,7 +538,7 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
       firstObserver.disconnect();
       lastObserver.disconnect();
     };
-  }, [observersReady, months.length, loadPastMonths, loadFutureMonths]);
+  }, [observersReady, months.length, loadPastMonths, loadFutureMonths, viewMode]);
 
 
   // Function to sync calendar view to a specific date
