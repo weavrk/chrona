@@ -185,7 +185,7 @@ export function App() {
     setIsSheetOpen(true);
   };
 
-  const handleAddRecord = async (record: RecordData) => {
+  const handleAddRecord = async (record: RecordData, recordDate: Date) => {
     if (!user) return;
     
     try {
@@ -237,6 +237,15 @@ export function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: user.username, records }),
       });
+
+      // Store the record date in sessionStorage for scrolling after refresh
+      const recordDateStr = recordDate.toISOString().split('T')[0];
+      sessionStorage.setItem('scrollToDate', recordDateStr);
+      sessionStorage.setItem('scrollToViewMode', 'list');
+      
+      // Close the sheet and reload the page to refresh data
+      setIsSheetOpen(false);
+      window.location.reload();
     } catch (error) {
       console.error('Failed to save record:', error);
       alert('Failed to save record. Please try again.');

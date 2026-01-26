@@ -4,6 +4,8 @@ import { useDesignSystem } from '../contexts/DesignSystemContext';
 import { useAuth } from '../contexts/AuthContext';
 import { CustomSelect } from './CustomSelect';
 import { SearchableInput } from './SearchableInput';
+import { IOSDatePicker } from './IOSDatePicker';
+import '../styles/ios-date-picker.css';
 
 interface ChipLabel {
   id: string;
@@ -15,7 +17,7 @@ interface AddRecordSheetProps {
   isOpen: boolean;
   selectedDate: Date | null;
   onClose: () => void;
-  onAdd: (record: RecordData) => void;
+  onAdd: (record: RecordData, recordDate: Date) => void;
   labels: ChipLabel[];
 }
 
@@ -287,11 +289,14 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd, labels }:
       record.details!.durationUnit = 'minutes';
     }
 
-    onAdd(record);
+    // Record date equals start date
+    const recordDate = new Date(startDate);
+    
+    onAdd(record, recordDate);
     setIsAdding(true);
     
     setTimeout(() => {
-    handleClose();
+      handleClose();
       setIsAdding(false);
     }, 500);
   };
@@ -343,7 +348,17 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd, labels }:
   };
 
   const updateHrRecord = (index: number, field: keyof HRRecordItem, value: any) => {
-    setHrRecords(hrRecords.map((r, i) => i === index ? { ...r, [field]: value } : r));
+    setHrRecords(hrRecords.map((r, i) => {
+      if (i === index) {
+        const updated = { ...r, [field]: value };
+        // If startDate is changed, set endDate to equal startDate
+        if (field === 'startDate') {
+          updated.endDate = value;
+        }
+        return updated;
+      }
+      return r;
+    }));
   };
 
   const { tokens } = useDesignSystem();
@@ -412,21 +427,22 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd, labels }:
             <label className="form-section-headers">Date Range</label>
             <div className="date-range-container">
               <div className="date-input-group">
-                <label className="date-label">Start</label>
-                <input
-                  type="date"
+                <IOSDatePicker
                   value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  className="date-input"
+                  onChange={(newStartDate) => {
+                    setStartDate(newStartDate);
+                    setEndDate(newStartDate);
+                  }}
+                  label="Start"
+                  className="date-input-group"
                 />
               </div>
               <div className="date-input-group">
-                <label className="date-label">End</label>
-                <input
-                  type="date"
+                <IOSDatePicker
                   value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  className="date-input"
+                  onChange={setEndDate}
+                  label="End"
+                  className="date-input-group"
                 />
               </div>
             </div>
@@ -458,21 +474,22 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd, labels }:
                     <label className="form-section-headers">Date Range</label>
                     <div className="date-range-container">
                       <div className="date-input-group">
-                        <label className="date-label">Start</label>
-                        <input
-                          type="date"
+                        <IOSDatePicker
                           value={record.startDate}
-                          onChange={(e) => updateHrRecord(index, 'startDate', e.target.value)}
-                          className="date-input"
+                          onChange={(newStartDate) => {
+                            updateHrRecord(index, 'startDate', newStartDate);
+                            updateHrRecord(index, 'endDate', newStartDate);
+                          }}
+                          label="Start"
+                          className="date-input-group"
                         />
                       </div>
                       <div className="date-input-group">
-                        <label className="date-label">End</label>
-                        <input
-                          type="date"
+                        <IOSDatePicker
                           value={record.endDate}
-                          onChange={(e) => updateHrRecord(index, 'endDate', e.target.value)}
-                          className="date-input"
+                          onChange={(newEndDate) => updateHrRecord(index, 'endDate', newEndDate)}
+                          label="End"
+                          className="date-input-group"
                         />
                       </div>
                     </div>
@@ -598,24 +615,25 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd, labels }:
               <div className="form-date-selector">
                 <label className="form-section-headers">Date Range</label>
                 <div className="date-range-container">
-                  <div className="date-input-group">
-                    <label className="date-label">Start</label>
-                    <input
-                      type="date"
-                      value={startDate}
-                      onChange={(e) => setStartDate(e.target.value)}
-                      className="date-input"
-                    />
-                  </div>
-                  <div className="date-input-group">
-                    <label className="date-label">End</label>
-                    <input
-                      type="date"
-                      value={endDate}
-                      onChange={(e) => setEndDate(e.target.value)}
-                      className="date-input"
-                    />
-                  </div>
+              <div className="date-input-group">
+                <IOSDatePicker
+                  value={startDate}
+                  onChange={(newStartDate) => {
+                    setStartDate(newStartDate);
+                    setEndDate(newStartDate);
+                  }}
+                  label="Start"
+                  className="date-input-group"
+                />
+              </div>
+              <div className="date-input-group">
+                <IOSDatePicker
+                  value={endDate}
+                  onChange={setEndDate}
+                  label="End"
+                  className="date-input-group"
+                />
+              </div>
                 </div>
               </div>
 
@@ -746,24 +764,25 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd, labels }:
               <div className="form-date-selector">
                 <label className="form-section-headers">Date Range</label>
                 <div className="date-range-container">
-                  <div className="date-input-group">
-                    <label className="date-label">Start</label>
-                    <input
-                      type="date"
-                      value={startDate}
-                      onChange={(e) => setStartDate(e.target.value)}
-                      className="date-input"
-                    />
-                  </div>
-                  <div className="date-input-group">
-                    <label className="date-label">End</label>
-                    <input
-                      type="date"
-                      value={endDate}
-                      onChange={(e) => setEndDate(e.target.value)}
-                      className="date-input"
-                    />
-                  </div>
+              <div className="date-input-group">
+                <IOSDatePicker
+                  value={startDate}
+                  onChange={(newStartDate) => {
+                    setStartDate(newStartDate);
+                    setEndDate(newStartDate);
+                  }}
+                  label="Start"
+                  className="date-input-group"
+                />
+              </div>
+              <div className="date-input-group">
+                <IOSDatePicker
+                  value={endDate}
+                  onChange={setEndDate}
+                  label="End"
+                  className="date-input-group"
+                />
+              </div>
                 </div>
               </div>
 
@@ -806,24 +825,25 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd, labels }:
               <div className="form-date-selector">
                 <label className="form-section-headers">Date Range</label>
                 <div className="date-range-container">
-                  <div className="date-input-group">
-                    <label className="date-label">Start</label>
-                    <input
-                      type="date"
-                      value={startDate}
-                      onChange={(e) => setStartDate(e.target.value)}
-                      className="date-input"
-                    />
-                  </div>
-                  <div className="date-input-group">
-                    <label className="date-label">End</label>
-                    <input
-                      type="date"
-                      value={endDate}
-                      onChange={(e) => setEndDate(e.target.value)}
-                      className="date-input"
-                    />
-                  </div>
+              <div className="date-input-group">
+                <IOSDatePicker
+                  value={startDate}
+                  onChange={(newStartDate) => {
+                    setStartDate(newStartDate);
+                    setEndDate(newStartDate);
+                  }}
+                  label="Start"
+                  className="date-input-group"
+                />
+              </div>
+              <div className="date-input-group">
+                <IOSDatePicker
+                  value={endDate}
+                  onChange={setEndDate}
+                  label="End"
+                  className="date-input-group"
+                />
+              </div>
                 </div>
               </div>
 
@@ -883,7 +903,7 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd, labels }:
             {isAdding ? (
               <CheckCircle2 size={24} className="checkmark-animation" />
             ) : (
-              'Add'
+              'Save Record'
             )}
           </button>
         </div>

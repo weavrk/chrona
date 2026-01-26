@@ -15,7 +15,7 @@ interface CalendarViewProps {
   selectedDate: Date | null;
   onSheetClose: () => void;
   onSheetDateChange: (date: Date) => void;
-  onAddRecord: (record: RecordData) => void;
+  onAddRecord: (record: RecordData, recordDate: Date) => void;
   chipLabels: ChipLabel[];
 }
 
@@ -1270,6 +1270,43 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
         if (response.ok) {
           const data = await response.json();
           setRecords(data && typeof data === 'object' ? data : {});
+          
+          // Check if we need to scroll to a specific date after save
+          const scrollToDate = sessionStorage.getItem('scrollToDate');
+          const scrollToViewMode = sessionStorage.getItem('scrollToViewMode');
+          
+          if (scrollToDate && scrollToViewMode === 'list') {
+            // Switch to list view if not already
+            if (viewMode !== 'list') {
+              setViewMode('list');
+            }
+            
+            // Clear the session storage
+            sessionStorage.removeItem('scrollToDate');
+            sessionStorage.removeItem('scrollToViewMode');
+            
+            // Wait for DOM to update, then scroll
+            setTimeout(() => {
+              const scrollContainer = listViewRef.current?.closest('.chrona-main') as HTMLElement;
+              if (scrollContainer && listViewRef.current) {
+                // Parse the date to match the format used in list items
+                const date = new Date(scrollToDate);
+                const year = date.getFullYear();
+                const month = date.getMonth();
+                const day = date.getDate();
+                const dateKey = `${year}-${month}-${day}`;
+                
+                const dateElement = listViewRef.current?.querySelector(`[data-date-key="${dateKey}"]`) as HTMLElement;
+                if (dateElement) {
+                  const offsetTop = dateElement.offsetTop;
+                  scrollContainer.scrollTo({
+                    top: offsetTop - 130, // Account for header height
+                    behavior: 'smooth'
+                  });
+                }
+              }
+            }, 500);
+          }
         }
       } catch (error) {
         console.error('Failed to load records:', error);
@@ -1297,54 +1334,88 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
   };
 
   // Helper to format record title
-  const getRecordTitle = (record: any): string => {
+  const getRecordType = (record: any): string => {
     switch (record.type) {
       case 'period':
-        return `Period${record.data?.intensity ? ` - ${record.data.intensity}` : ''}`;
+        return 'Period';
       case 'hormone-replacement-therapy':
-        const treatment = record.data?.treatments?.[0];
-        return treatment ? `${treatment.drugName} ${treatment.dose}${treatment.doseUnit}` : 'Hormone Replacement Therapy';
+        return 'Hormone Replacement Therapy';
       case 'hsv':
-        if (record.data?.hadBreakout) {
-          return `HSV Breakout${record.data?.severity ? ` - ${record.data.severity}` : ''}`;
-        }
         return 'HSV';
       case 'mental-health':
-        const moods: Record<string, string> = {
-          'light': 'Energized',
-          'smile': 'Happy',
-          'meh': 'Neutral',
-          'frown': 'Sad',
-          'annoyed': 'Annoyed',
-          'angry': 'Angry',
-        };
-        return `Mental Health${record.data?.mood ? ` - ${moods[record.data.mood] || record.data.mood}` : ''}`;
+        return 'Mental Health';
       case 'workout':
-        return record.data?.workoutType || 'Workout';
+        return 'Workout';
       default:
         return record.type || 'Record';
     }
   };
 
-  // Helper to format record details
+  // Helper to format record details as a single line separated by |
   const getRecordDetails = (record: any): string | null => {
+    const details: string[] = [];
+    
     switch (record.type) {
-      case 'workout':
-        if (record.data?.duration) {
-          return `${record.data.duration} ${record.data.durationUnit || 'minutes'}`;
+      case 'period':
+        if (record.data?.intensity) {
+          details.push(record.data.intensity);
         }
-        return null;
-      case 'mental-health':
-        return record.data?.notes || null;
+        break;
+      case 'hormone-replacement-therapy':
+        if (record.data?.treatments && record.data.treatments.length > 0) {
+          record.data.treatments.forEach((treatment: any) => {
+            const treatmentParts: string[] = [];
+            if (treatment.drugName) treatmentParts.push(treatment.drugName);
+            if (treatment.dose) treatmentParts.push(`${treatment.dose}${treatment.doseUnit || ''}`);
+            if (treatment.frequency) treatmentParts.push(`${treatment.frequency} ${treatment.frequencyUnit || ''}`);
+            if (treatmentParts.length > 0) {
+              details.push(treatmentParts.join(' '));
+            }
+          });
+        }
+        break;
       case 'hsv':
+        if (record.data?.hadBreakout && record.data?.severity) {
+          details.push(record.data.severity);
+        }
         if (record.data?.treatments?.[0]) {
           const t = record.data.treatments[0];
-          return `${t.drugName} ${t.dose}${t.doseUnit}`;
+          const treatmentParts: string[] = [];
+          if (t.drugName) treatmentParts.push(t.drugName);
+          if (t.dose) treatmentParts.push(`${t.dose}${t.doseUnit || ''}`);
+          if (t.frequency) treatmentParts.push(`${t.frequency} ${t.frequencyUnit || ''}`);
+          if (treatmentParts.length > 0) {
+            details.push(treatmentParts.join(' '));
+          }
         }
-        return null;
-      default:
-        return null;
+        break;
+      case 'mental-health':
+        if (record.data?.mood) {
+          const moods: Record<string, string> = {
+            'light': 'Energized',
+            'smile': 'Happy',
+            'meh': 'Neutral',
+            'frown': 'Sad',
+            'annoyed': 'Annoyed',
+            'angry': 'Angry',
+          };
+          details.push(moods[record.data.mood] || record.data.mood);
+        }
+        if (record.data?.notes) {
+          details.push(record.data.notes);
+        }
+        break;
+      case 'workout':
+        if (record.data?.workoutType) {
+          details.push(record.data.workoutType);
+        }
+        if (record.data?.duration) {
+          details.push(`${record.data.duration} ${record.data.durationUnit || 'minutes'}`);
+        }
+        break;
     }
+    
+    return details.length > 0 ? details.join(' | ') : null;
   };
 
   // Simple ListView component
@@ -1406,42 +1477,70 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
                       data-month-key={`${item.year}-${item.month}`}
                       className={`list-view-item ${isToday ? 'list-view-item-today' : ''}`}
                     >
-                      <div className="list-view-item-date">
-                        <div className="list-view-item-top-row">
-                          <span className="list-view-item-day-name">{item.dayName.toUpperCase()}</span>
-                        </div>
-                        <span className="list-view-item-day-number">{item.dayNumber}</span>
-                      </div>
                       <div className="list-view-item-content">
+                        <div className="list-view-item-date-header">
+                          {item.dayName}, {item.monthName} {item.dayNumber}
+                        </div>
                         {dayRecords.length > 0 ? (
                           <div className="list-view-records">
-                            {dayRecords.map((record: any) => {
-                              const color = getLabelColor(record.type);
-                              const title = getRecordTitle(record);
-                              const details = getRecordDetails(record);
-                              
-                              return (
-                                <div 
-                                  key={record.id} 
-                                  className="list-view-record"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    onSheetDateChange(item.date);
-                                  }}
-                                >
-                                  <div 
-                                    className="list-view-record-bar" 
-                                    style={{ backgroundColor: color }}
-                                  />
-                                  <div className="list-view-record-content">
-                                    <div className="list-view-record-title">{title}</div>
-                                    {details && (
-                                      <div className="list-view-record-details">{details}</div>
-                                    )}
-                                  </div>
-                                </div>
-                              );
-                            })}
+                            {(() => {
+                              // Group records by type
+                              const recordsByType = new Map<string, any[]>();
+                              dayRecords.forEach((record: any) => {
+                                const type = record.type;
+                                if (!recordsByType.has(type)) {
+                                  recordsByType.set(type, []);
+                                }
+                                recordsByType.get(type)!.push(record);
+                              });
+
+                              // Render grouped records
+                              return Array.from(recordsByType.entries())
+                                .map(([type, typeRecords]) => {
+                                  const color = getLabelColor(type);
+                                  const recordType = getRecordType(typeRecords[0]);
+                                  
+                                  // Filter out records with no details
+                                  const recordsWithDetails = typeRecords
+                                    .map((record: any) => ({
+                                      record,
+                                      details: getRecordDetails(record)
+                                    }))
+                                    .filter(({ details }) => details !== null);
+                                  
+                                  // Don't render if no records have details
+                                  if (recordsWithDetails.length === 0) {
+                                    return null;
+                                  }
+                                  
+                                  return (
+                                    <div 
+                                      key={type}
+                                      className="list-view-record-group"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        onSheetDateChange(item.date);
+                                      }}
+                                    >
+                                      <div 
+                                        className="list-view-record-bar" 
+                                        style={{ backgroundColor: color }}
+                                      />
+                                      <div className="list-view-record-content">
+                                        <div className="list-view-record-type">{recordType}</div>
+                                        <div className="list-view-record-details-list">
+                                          {recordsWithDetails.map(({ record, details }) => (
+                                            <div key={record.id} className="list-view-record-details">
+                                              {details}
+                                            </div>
+                                          ))}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  );
+                                })
+                                .filter(Boolean); // Remove null entries
+                            })()}
                           </div>
                         ) : (
                           <div 
@@ -1465,7 +1564,7 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
   
   return (
     <>
-      {viewMode !== 'summary' && <ChipBar labels={chipLabels} />}
+      {viewMode !== 'summary' && viewMode !== 'list' && <ChipBar labels={chipLabels} />}
       <div 
         className={`view-switcher-container view-mode-${viewMode}`}
         ref={swipeContainerRef}

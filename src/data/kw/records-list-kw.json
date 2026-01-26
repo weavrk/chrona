@@ -66,6 +66,15 @@
         "duration": 10,
         "durationUnit": "minutes"
       }
+    },
+    {
+      "id": "1769454057789-n7703plgy",
+      "type": "workout",
+      "data": {
+        "workoutType": "Jump Rope",
+        "duration": 10,
+        "durationUnit": "minutes"
+      }
     }
   ],
   "2026-02-02": [
@@ -233,6 +242,15 @@
       "data": {
         "hadBreakout": false,
         "repeatForward": false
+      }
+    }
+  ],
+  "2026-01-27": [
+    {
+      "id": "1769470209143-r3b6cayh3",
+      "type": "period",
+      "data": {
+        "intensity": "Lite"
       }
     }
   ]
