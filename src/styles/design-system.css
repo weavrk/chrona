@@ -1186,6 +1186,10 @@
 
 .bottom-sheet-content > .form-section:last-child {
   border-bottom: none;
+}
+
+.bottom-sheet-content > .form-section:last-child {
+  border-bottom: none;
   margin-bottom: 0;
 }
 
