@@ -81,7 +81,6 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
   const [observersReady, setObserversReady] = useState(false);
   const [visibleMonth, setVisibleMonth] = useState<{ year: number; month: number } | null>(null);
   const [visibleDate, setVisibleDate] = useState<{ year: number; month: number; day: number } | null>(null);
-  const [visibleListMonth, setVisibleListMonth] = useState<{ year: number; month: number; monthName: string } | null>(null);
   const calendarRef = useRef<HTMLDivElement>(null);
   const listViewRef = useRef<HTMLDivElement>(null);
   const firstMonthRef = useRef<HTMLDivElement>(null);
@@ -614,10 +613,6 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
   useEffect(() => {
     if (viewMode === 'list' && visibleMonth) {
       syncListViewToMonth(visibleMonth.year, visibleMonth.month);
-      // Set initial visible month for header
-      const monthDate = new Date(visibleMonth.year, visibleMonth.month, 1);
-      const monthName = toTitleCase(monthDate.toLocaleDateString('en-US', { month: 'long' }));
-      setVisibleListMonth({ year: visibleMonth.year, month: visibleMonth.month, monthName });
     }
   }, [viewMode, visibleMonth, syncListViewToMonth]);
 
@@ -643,31 +638,7 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
       const chipBarHeight = chipBar ? chipBar.offsetHeight : 62;
       const targetTop = containerRect.top + headerHeight + chipBarHeight;
       
-      // First, check which month header is visible
-      const monthHeaders = listViewRef.current?.querySelectorAll('.list-view-month-header');
-      let topVisibleMonth: { year: number; month: number; monthName: string } | null = null;
-      let minDistance = Infinity;
-      
-      if (monthHeaders) {
-        monthHeaders.forEach((monthHeader) => {
-          const rect = monthHeader.getBoundingClientRect();
-          const distanceFromTop = Math.abs(rect.top - targetTop);
-          
-          // Check if month header is at or above the target position
-          if (rect.top <= targetTop + 50 && distanceFromTop < minDistance) {
-            const monthKey = monthHeader.getAttribute('data-month-key');
-            if (monthKey) {
-              const [year, month] = monthKey.split('-').map(Number);
-              const monthDate = new Date(year, month, 1);
-              const monthName = toTitleCase(monthDate.toLocaleDateString('en-US', { month: 'long' }));
-              topVisibleMonth = { year, month, monthName };
-              minDistance = distanceFromTop;
-            }
-          }
-        });
-      }
-      
-      // Also track the first visible date item
+      // Track the first visible date item
       const listItems = listViewRef.current?.querySelectorAll('.list-view-item');
       let topVisibleDate: { year: number; month: number; day: number } | null = null;
       let minItemDistance = Infinity;
@@ -691,10 +662,6 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
       
       if (topVisibleDate) {
         setVisibleDate(topVisibleDate);
-      }
-      
-      if (topVisibleMonth) {
-        setVisibleListMonth(topVisibleMonth);
       }
     };
     
@@ -842,21 +809,8 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
       datesByMonth.get(key)!.push(item);
     });
 
-    // Get default month (today's month) if visibleListMonth is not set
-    const displayMonth = visibleListMonth || (() => {
-      const today = new Date();
-      const year = today.getFullYear();
-      const month = today.getMonth();
-      const monthDate = new Date(year, month, 1);
-      const monthName = toTitleCase(monthDate.toLocaleDateString('en-US', { month: 'long' }));
-      return { year, month, monthName };
-    })();
-
     return (
       <div className="list-view" ref={listViewRef}>
-        <div className="list-view-header-sticky">
-          <h2>{displayMonth.monthName} {displayMonth.year}</h2>
-        </div>
         <div className="list-view-content">
           {Array.from(datesByMonth.entries()).map(([monthKey, monthDates]) => {
             const firstDate = monthDates[0];
