@@ -612,7 +612,7 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd, labels }:
             <div className="form-section">
                 <label className="form-section-headers">Breakout</label>
                 
-                <div className="checkbox-group">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   <label className="checkbox-label">
                     <input
                       type="checkbox"
@@ -625,33 +625,33 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd, labels }:
                     />
                     <span>Had Breakout</span>
                   </label>
-                </div>
 
-            <div className="form-chips-single">
-              <div className="chip-bar-single-select">
-                {HSV_INTENSITY.map((level) => (
-                  <button
-                    key={level}
-                        className={`ds-chip-single-select-md ${severity === level ? 'active' : ''}`}
-                        onClick={() => {
-                          if (hadBreakout) {
-                            setSeverity(severity === level ? '' : level);
+                  <div className="form-chips-single">
+                    <div className="chip-bar-single-select">
+                      {HSV_INTENSITY.map((level) => (
+                        <button
+                          key={level}
+                          className={`ds-chip-single-select-md ${severity === level ? 'active' : ''}`}
+                          onClick={() => {
+                            if (hadBreakout) {
+                              setSeverity(severity === level ? '' : level);
+                            }
+                          }}
+                          disabled={!hadBreakout}
+                          style={
+                            !hadBreakout
+                              ? { opacity: 0.5, cursor: 'not-allowed' }
+                              : severity === level
+                              ? { backgroundColor: 'var(--sand)', borderColor: 'var(--sand)' }
+                              : undefined
                           }
-                        }}
-                        disabled={!hadBreakout}
-                        style={
-                          !hadBreakout
-                            ? { opacity: 0.5, cursor: 'not-allowed' }
-                            : severity === level
-                            ? { backgroundColor: 'var(--sand)', borderColor: 'var(--sand)' }
-                            : undefined
-                        }
-                  >
-                    <span>{level}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
+                        >
+                          <span>{level}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
               </div>
 
             <div className="form-section">
