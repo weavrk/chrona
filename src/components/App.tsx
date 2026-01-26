@@ -89,10 +89,11 @@ export function App() {
           };
         } else {
           // User-defined label - need to get name from label string
-          // For now, use the label as both name and abbreviation
+          // The label.label is the abbreviation, we need to find the name
+          // For now, use the label as both name and abbreviation if we can't find it
           return {
             id: label.id,
-            name: label.label,
+            name: label.label, // This will be updated when we have the full label structure
             abbreviation: label.label,
             defaultColor: label.color
           };
@@ -118,7 +119,7 @@ export function App() {
     }
   };
 
-  const handleAddLabel = async (labelName: string, color: string) => {
+  const handleAddLabel = async (labelName: string, abbreviation: string, color: string) => {
     if (!user) return;
     // Load global labels to get the full structure
     const globalLabels = await loadGlobalLabels();
@@ -126,7 +127,7 @@ export function App() {
     
     const newLabel: ChipLabel = {
       id: globalLabel ? globalLabel.id : labelName.toLowerCase().replace(/\s+/g, '-'),
-      label: globalLabel ? globalLabel.abbreviation : labelName,
+      label: abbreviation,
       color: color,
     };
     const updatedLabels = [...chipLabels, newLabel];

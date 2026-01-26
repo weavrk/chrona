@@ -19,7 +19,7 @@ interface AddLabelModalProps {
   isOpen: boolean;
   existingLabels: ChipLabel[];
   onClose: () => void;
-  onSave: (label: string, color: string) => void;
+  onSave: (label: string, abbreviation: string, color: string) => void;
 }
 
 export function AddLabelModal({ isOpen, existingLabels, onClose, onSave }: AddLabelModalProps) {
@@ -28,8 +28,11 @@ export function AddLabelModal({ isOpen, existingLabels, onClose, onSave }: AddLa
   const [selectedLabelId, setSelectedLabelId] = useState<string>('');
   const [globalLabels, setGlobalLabels] = useState<GlobalLabel[]>([]);
   const [selectedColor, setSelectedColor] = useState<string>('');
+  const [abbreviation, setAbbreviation] = useState<string>('');
   const [isSaving, setIsSaving] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isCreatingNew, setIsCreatingNew] = useState(false);
+  const [newLabelName, setNewLabelName] = useState<string>('');
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Load global labels
@@ -95,8 +98,11 @@ export function AddLabelModal({ isOpen, existingLabels, onClose, onSave }: AddLa
     if (isOpen) {
       setSelectedLabelId('');
       setSelectedColor('');
+      setAbbreviation('');
       setIsSaving(false);
       setIsDropdownOpen(false);
+      setIsCreatingNew(false);
+      setNewLabelName('');
     }
   }, [isOpen]);
 
@@ -117,17 +123,25 @@ export function AddLabelModal({ isOpen, existingLabels, onClose, onSave }: AddLa
   }, [isDropdownOpen]);
 
   const handleSave = () => {
-    const selectedLabel = globalLabels.find(l => l.id === selectedLabelId);
-    if (!selectedLabel || !selectedColor) return;
-
-    setIsSaving(true);
-    onSave(selectedLabel.name, selectedColor);
+    if (isCreatingNew) {
+      if (!newLabelName.trim() || !abbreviation.trim() || !selectedColor) return;
+      setIsSaving(true);
+      onSave(newLabelName.trim(), abbreviation.trim().toUpperCase(), selectedColor);
+    } else {
+      const selectedLabel = globalLabels.find(l => l.id === selectedLabelId);
+      if (!selectedLabel || !selectedColor) return;
+      setIsSaving(true);
+      onSave(selectedLabel.name, abbreviation.trim() || selectedLabel.abbreviation, selectedColor);
+    }
     
     setTimeout(() => {
       setIsSaving(false);
       onClose();
       setSelectedLabelId('');
       setSelectedColor('');
+      setAbbreviation('');
+      setIsCreatingNew(false);
+      setNewLabelName('');
     }, 500);
   };
 
@@ -154,7 +168,9 @@ export function AddLabelModal({ isOpen, existingLabels, onClose, onSave }: AddLa
                 className="custom-dropdown-trigger"
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               >
-                {selectedLabelId ? (
+                {isCreatingNew ? (
+                  <span>Create New Label</span>
+                ) : selectedLabelId ? (
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginRight: 'var(--spacing-sm)' }}>
                     <span>{globalLabels.find(l => l.id === selectedLabelId)?.name}</span>
                     <span style={{ 
@@ -201,6 +217,8 @@ export function AddLabelModal({ isOpen, existingLabels, onClose, onSave }: AddLa
                         className={`custom-dropdown-item ${selectedLabelId === label.id ? 'selected' : ''}`}
                         onClick={() => {
                           setSelectedLabelId(label.id);
+                          setAbbreviation(label.abbreviation);
+                          setIsCreatingNew(false);
                           setIsDropdownOpen(false);
                         }}
                       >
@@ -209,9 +227,50 @@ export function AddLabelModal({ isOpen, existingLabels, onClose, onSave }: AddLa
                       </button>
                     );
                   })}
+                  <div style={{ borderTop: '1px solid var(--color-secondary)', margin: '8px 0' }}></div>
+                  <button
+                    type="button"
+                    className={`custom-dropdown-item ${isCreatingNew ? 'selected' : ''}`}
+                    onClick={() => {
+                      setIsCreatingNew(true);
+                      setSelectedLabelId('');
+                      setIsDropdownOpen(false);
+                    }}
+                  >
+                    <span>Create New Label</span>
+                  </button>
                 </div>
               )}
             </div>
+          </div>
+
+          {/* Label Name Input (when creating new) */}
+          {isCreatingNew && (
+            <div className="form-text-input">
+              <label className="form-label">Label Name</label>
+              <input
+                type="text"
+                className="form-input"
+                placeholder="Enter label name"
+                value={newLabelName}
+                onChange={(e) => setNewLabelName(e.target.value)}
+                style={{ color: 'var(--gray-800)' }}
+              />
+            </div>
+          )}
+
+          {/* Abbreviation Input */}
+          <div className="form-text-input">
+            <label className="form-label">Abbreviation</label>
+            <input
+              type="text"
+              className="form-input"
+              placeholder="Enter abbreviation"
+              value={abbreviation}
+              onChange={(e) => setAbbreviation(e.target.value.toUpperCase())}
+              style={{ color: 'var(--gray-800)' }}
+              maxLength={4}
+            />
           </div>
 
           {/* form-label-color-picker */}
@@ -263,7 +322,7 @@ export function AddLabelModal({ isOpen, existingLabels, onClose, onSave }: AddLa
           <button
             className="ds-button-primary"
             onClick={handleSave}
-            disabled={!selectedLabelId || !selectedColor || isSaving}
+            disabled={(isCreatingNew ? (!newLabelName.trim() || !abbreviation.trim()) : !selectedLabelId) || !selectedColor || isSaving}
           >
             {isSaving ? (
               <CheckCircle2 size={24} className="checkmark-animation" />
