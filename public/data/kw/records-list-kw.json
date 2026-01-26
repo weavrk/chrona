@@ -48,6 +48,15 @@
         "duration": 30,
         "durationUnit": "minutes"
       }
+    },
+    {
+      "id": "1769452670465-c9ch67kuo",
+      "type": "workout",
+      "data": {
+        "workoutType": "Jump Rope",
+        "duration": 10,
+        "durationUnit": "minutes"
+      }
     }
   ],
   "2026-02-02": [
