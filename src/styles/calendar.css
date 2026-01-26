@@ -482,4 +482,121 @@
   transform: translateX(-50%) translateY(0);
 }
 
+/* View Switcher */
+.view-switcher-container {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  touch-action: pan-y;
+}
+
+.view-container {
+  width: 100%;
+  transition: transform 0.3s ease-out;
+  will-change: transform;
+}
+
+.view-container.calendar-view.active {
+  transform: translateX(0);
+  position: relative;
+}
+
+.view-container.calendar-view:not(.active) {
+  transform: translateX(-100%);
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+.view-container.list-view.active {
+  transform: translateX(0);
+  position: relative;
+  pointer-events: auto;
+}
+
+.view-container.list-view:not(.active) {
+  transform: translateX(100%);
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+/* List View */
+.list-view {
+  width: 100%;
+  background: var(--color-background-body, var(--bg-primary));
+  padding-top: calc(130px + max(16px, env(safe-area-inset-top)) + 0px);
+  min-height: calc(100vh + 1000px);
+}
+
+.list-view-content {
+  padding: 0;
+}
+
+.list-view-month-group {
+  margin-bottom: 24px;
+}
+
+.list-view-header {
+  position: sticky;
+  top: calc(68px + 62px);
+  z-index: 10;
+  background: var(--color-background-body, var(--bg-primary));
+  padding: 16px;
+  border-bottom: 1px solid var(--color-secondary);
+}
+
+.list-view-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--gray-800);
+  font-family: var(--font-family);
+}
+
+.list-view-item {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 1px solid var(--color-secondary);
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.list-view-item:hover {
+  background-color: var(--color-background-components, var(--bg-card));
+}
+
+.list-view-item-today {
+  background-color: var(--color-background-components, var(--bg-card));
+}
+
+.list-view-item-date {
+  display: flex;
+  flex-direction: column;
+  min-width: 100px;
+  margin-right: 16px;
+}
+
+.list-view-item-day-name {
+  font-size: 0.875rem;
+  color: var(--color-secondary, var(--text-secondary));
+  font-weight: 500;
+  font-family: var(--font-family);
+}
+
+.list-view-item-day-number {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--gray-800);
+  font-family: var(--font-family);
+}
+
+.list-view-item-content {
+  flex: 1;
+  min-height: 40px;
+}
+
 

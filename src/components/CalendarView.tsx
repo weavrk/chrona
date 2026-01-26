@@ -69,6 +69,7 @@ function generateCalendarMonths(startDate: Date, monthCount: number): CalendarMo
 }
 
 export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selectedDate, onSheetClose: _onSheetClose, onSheetDateChange, onAddRecord: _onAddRecord, chipLabels }: CalendarViewProps) {
+  const [viewMode, setViewMode] = useState<'calendar' | 'list'>('calendar');
   const [showTodayButton, setShowTodayButton] = useState(false);
   const [observersReady, setObserversReady] = useState(false);
   const calendarRef = useRef<HTMLDivElement>(null);
@@ -78,6 +79,11 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
   const isLoadingFutureRef = useRef(false);
   const hasInitiallyScrolledRef = useRef(false);
   const scrollOriginRef = useRef<number>(0);
+  
+  // Swipe gesture handling
+  const touchStartX = useRef<number>(0);
+  const touchEndX = useRef<number>(0);
+  const swipeContainerRef = useRef<HTMLDivElement>(null);
   
   const today = new Date();
   const currentYear = today.getFullYear();
@@ -471,11 +477,122 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
       window.removeEventListener('orientationchange', handleOrientationChange);
     };
   }, []);
+
+  // Swipe gesture handlers
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    touchEndX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStartX.current || !touchEndX.current) return;
+    
+    const distance = touchStartX.current - touchEndX.current;
+    const minSwipeDistance = 50; // Minimum distance for a swipe
+    
+    if (Math.abs(distance) > minSwipeDistance) {
+      if (distance > 0 && viewMode === 'calendar') {
+        // Swipe left: switch to list view
+        setViewMode('list');
+      } else if (distance < 0 && viewMode === 'list') {
+        // Swipe right: switch to calendar view
+        setViewMode('calendar');
+      }
+    }
+    
+    // Reset
+    touchStartX.current = 0;
+    touchEndX.current = 0;
+  };
+
+  // Simple ListView component
+  const ListView = () => {
+    // Generate list of all dates from loaded months
+    const allDates: Array<{
+      date: Date;
+      dayName: string;
+      dayNumber: number;
+      monthName: string;
+      year: number;
+      month: number;
+    }> = [];
+
+    months.forEach((monthData) => {
+      const daysInMonth = new Date(monthData.year, monthData.month + 1, 0).getDate();
+      for (let day = 1; day <= daysInMonth; day++) {
+        const date = new Date(monthData.year, monthData.month, day);
+        allDates.push({
+          date,
+          dayName: date.toLocaleDateString('en-US', { weekday: 'long' }),
+          dayNumber: day,
+          monthName: monthData.monthName,
+          year: monthData.year,
+          month: monthData.month
+        });
+      }
+    });
+
+    // Group dates by month for headers
+    const datesByMonth = new Map<string, typeof allDates>();
+    allDates.forEach((item) => {
+      const key = `${item.year}-${item.month}`;
+      if (!datesByMonth.has(key)) {
+        datesByMonth.set(key, []);
+      }
+      datesByMonth.get(key)!.push(item);
+    });
+
+    return (
+      <div className="list-view">
+        <div className="list-view-content">
+          {Array.from(datesByMonth.entries()).map(([monthKey, monthDates]) => {
+            const firstDate = monthDates[0];
+            return (
+              <div key={monthKey} className="list-view-month-group">
+                <div className="list-view-header">
+                  <h2>{firstDate.monthName} {firstDate.year}</h2>
+                </div>
+                {monthDates.map((item, index) => {
+                  const isToday = item.date.toDateString() === new Date().toDateString();
+                  return (
+                    <div 
+                      key={`${monthKey}-${index}`} 
+                      className={`list-view-item ${isToday ? 'list-view-item-today' : ''}`}
+                      onClick={() => onSheetDateChange(item.date)}
+                    >
+                      <div className="list-view-item-date">
+                        <span className="list-view-item-day-name">{item.dayName}</span>
+                        <span className="list-view-item-day-number">{item.dayNumber}</span>
+                      </div>
+                      <div className="list-view-item-content">
+                        {/* Placeholder for records - you can add actual record rendering here */}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
   
   return (
     <>
       <ChipBar labels={chipLabels} />
-      <div className="calendar-view-months" ref={calendarRef}>
+      <div 
+        className="view-switcher-container"
+        ref={swipeContainerRef}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
+        <div className={`view-container calendar-view ${viewMode === 'calendar' ? 'active' : ''}`}>
+          <div className="calendar-view-months" ref={calendarRef}>
         {months.map((monthData, index) => {
           const isFirst = index === 0;
           const isLast = index === months.length - 1;
@@ -531,16 +648,22 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
           </div>
           );
         })}
+          </div>
+          
+          <button 
+            className="calendar-today-fab"
+            onClick={handleScrollToToday}
+            aria-label="Scroll to today"
+            style={{ display: showTodayButton ? 'block' : 'none' }}
+          >
+            Go to Today
+          </button>
+        </div>
+        
+        <div className={`view-container list-view ${viewMode === 'list' ? 'active' : ''}`}>
+          <ListView />
+        </div>
       </div>
-      
-      <button 
-        className="calendar-today-fab"
-        onClick={handleScrollToToday}
-        aria-label="Scroll to today"
-        style={{ display: showTodayButton ? 'block' : 'none' }}
-      >
-        Go to Today
-      </button>
     </>
   );
 }
