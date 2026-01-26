@@ -191,12 +191,12 @@
 
 .bottom-sheet {
   position: fixed;
-  top: 60px;
+  top: 0;
   bottom: 0;
   left: 0;
   right: 0;
   background: var(--color-background-shells, var(--bg-secondary));
-  border-radius: 16px 16px 0 0;
+  border-radius: 0;
   z-index: 1001;
   animation: slideUp 0.3s ease-out;
   display: flex;
