@@ -1105,7 +1105,7 @@
 /* Override padding-top for design system panel and add record sheet */
 .design-system-panel .ds-header,
 .bottom-sheet .ds-header {
-  padding-top: 40px;
+  padding-top: 56px;
 }
 
 .ds-header h2 {
