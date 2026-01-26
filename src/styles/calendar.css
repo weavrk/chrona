@@ -633,7 +633,7 @@
 }
 
 .summary-section-header {
-  font-size: 1.25rem;
+  font-size: 18px;
   font-weight: 600;
   color: var(--gray-800);
   font-family: var(--font-family);
