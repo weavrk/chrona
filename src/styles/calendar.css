@@ -538,7 +538,7 @@
 .list-view-header-sticky {
   position: sticky;
   top: calc(68px + 62px);
-  z-index: 10;
+  z-index: 10000;
   background: var(--color-background-body, var(--bg-primary));
   padding: 16px;
   border-bottom: 1px solid var(--color-secondary);
