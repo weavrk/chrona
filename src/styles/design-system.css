@@ -1534,6 +1534,7 @@
   padding: 8px;
   gap: 8px;
   align-items: center;
+  justify-content: space-between;
 }
 
 .ds-nav-tab {
@@ -1550,6 +1551,7 @@
   border-radius: 20px;
   white-space: nowrap;
   z-index: 1;
+  flex: 1;
 }
 
 .ds-nav-tab:hover {
