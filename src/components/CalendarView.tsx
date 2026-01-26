@@ -1191,6 +1191,23 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
 
     const summaryDisplay = buildSummaryDisplay();
     
+    // Helper to get label color
+    const getLabelColorForSummary = (labelId: string): string => {
+      const label = chipLabels.find(l => l.id === labelId);
+      if (label) {
+        return (tokens as any)[label.color] || '#B3B3B3';
+      }
+      // Fallback to default colors
+      const defaultColors: Record<string, string> = {
+        'period': (tokens as any)['brick'] || '#B3B3B3',
+        'hormone-replacement-therapy': (tokens as any)['ocean'] || '#B3B3B3',
+        'hsv': (tokens as any)['sand'] || '#B3B3B3',
+        'mental-health': (tokens as any)['steel'] || '#B3B3B3',
+        'workout': (tokens as any)['marigold'] || '#B3B3B3',
+      };
+      return defaultColors[labelId] || '#B3B3B3';
+    };
+    
     return (
       <div className="summary-view">
         <div className="summary-view-header">
@@ -1198,9 +1215,24 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
         </div>
         <div className="summary-view-content">
           {summaryDisplay.length > 0 ? (
-            summaryDisplay.map((type) => (
+            summaryDisplay.map((type) => {
+              const label = chipLabels.find(l => l.id === type.id);
+              const labelColor = getLabelColorForSummary(type.id);
+              return (
               <div key={type.id} className="summary-section">
-                <h2 className="summary-section-header">{type.label}</h2>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                  <h2 className="summary-section-header">{type.label}</h2>
+                  <button 
+                    className="ds-chip-single-select"
+                    style={{
+                      backgroundColor: 'transparent',
+                      borderColor: labelColor,
+                      color: labelColor
+                    }}
+                  >
+                    <span>{label?.label || type.label}</span>
+                  </button>
+                </div>
                 <div className="summary-section-content">
                   {type.data.length > 0 ? (
                     type.data.map((item, index) => (
@@ -1216,7 +1248,8 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
                   )}
                 </div>
               </div>
-            ))
+            );
+            })
           ) : (
             <div className="summary-section">
               <p>No records found. Start adding records to see your summary.</p>

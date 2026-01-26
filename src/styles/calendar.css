@@ -595,7 +595,7 @@
 .summary-view {
   width: 100%;
   background: var(--color-background-body, var(--bg-primary));
-  padding-top: 84px;
+  padding-top: 64px;
   min-height: auto;
 }
 
