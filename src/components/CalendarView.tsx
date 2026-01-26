@@ -628,7 +628,7 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
     }
   }, [viewMode, visibleDate, syncCalendarViewToDate]);
 
-  // Track visible date in list view
+  // Track visible date and month in list view
   useEffect(() => {
     if (viewMode !== 'list' || !listViewRef.current) return;
     
@@ -636,9 +636,6 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
     if (!scrollContainer) return;
     
     const updateVisibleDate = () => {
-      const listItems = listViewRef.current?.querySelectorAll('.list-view-item');
-      if (!listItems || listItems.length === 0) return;
-      
       const containerRect = scrollContainer.getBoundingClientRect();
       const header = document.querySelector('.chrona-header') as HTMLElement;
       const chipBar = document.querySelector('.chip-bar-container') as HTMLElement;
@@ -646,32 +643,51 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
       const chipBarHeight = chipBar ? chipBar.offsetHeight : 62;
       const targetTop = containerRect.top + headerHeight + chipBarHeight;
       
-      let topVisibleDate: { year: number; month: number; day: number } | null = null;
+      // First, check which month header is visible
+      const monthHeaders = listViewRef.current?.querySelectorAll('.list-view-month-header');
+      let topVisibleMonth: { year: number; month: number; monthName: string } | null = null;
       let minDistance = Infinity;
       
-      let topVisibleMonth: { year: number; month: number; monthName: string } | null = null;
-      
-      listItems.forEach((item) => {
-        const rect = item.getBoundingClientRect();
-        const distanceFromTop = Math.abs(rect.top - targetTop);
-        
-        // Check if item is at or above the target position
-        if (rect.top <= targetTop + 100 && distanceFromTop < minDistance) {
-          const dateKey = item.getAttribute('data-date-key');
-          const monthKey = item.getAttribute('data-month-key');
-          if (dateKey && monthKey) {
-            const [year, month, day] = dateKey.split('-').map(Number);
-            topVisibleDate = { year, month, day };
-            minDistance = distanceFromTop;
-            
-            // Track visible month for header - always update when we find a closer item
-            const [monthYear, monthNum] = monthKey.split('-').map(Number);
-            const monthDate = new Date(monthYear, monthNum, 1);
-            const monthName = toTitleCase(monthDate.toLocaleDateString('en-US', { month: 'long' }));
-            topVisibleMonth = { year: monthYear, month: monthNum, monthName };
+      if (monthHeaders) {
+        monthHeaders.forEach((monthHeader) => {
+          const rect = monthHeader.getBoundingClientRect();
+          const distanceFromTop = Math.abs(rect.top - targetTop);
+          
+          // Check if month header is at or above the target position
+          if (rect.top <= targetTop + 50 && distanceFromTop < minDistance) {
+            const monthKey = monthHeader.getAttribute('data-month-key');
+            if (monthKey) {
+              const [year, month] = monthKey.split('-').map(Number);
+              const monthDate = new Date(year, month, 1);
+              const monthName = toTitleCase(monthDate.toLocaleDateString('en-US', { month: 'long' }));
+              topVisibleMonth = { year, month, monthName };
+              minDistance = distanceFromTop;
+            }
           }
-        }
-      });
+        });
+      }
+      
+      // Also track the first visible date item
+      const listItems = listViewRef.current?.querySelectorAll('.list-view-item');
+      let topVisibleDate: { year: number; month: number; day: number } | null = null;
+      let minItemDistance = Infinity;
+      
+      if (listItems) {
+        listItems.forEach((item) => {
+          const rect = item.getBoundingClientRect();
+          const distanceFromTop = Math.abs(rect.top - targetTop);
+          
+          // Check if item is at or above the target position
+          if (rect.top <= targetTop + 100 && distanceFromTop < minItemDistance) {
+            const dateKey = item.getAttribute('data-date-key');
+            if (dateKey) {
+              const [year, month, day] = dateKey.split('-').map(Number);
+              topVisibleDate = { year, month, day };
+              minItemDistance = distanceFromTop;
+            }
+          }
+        });
+      }
       
       if (topVisibleDate) {
         setVisibleDate(topVisibleDate);
@@ -816,6 +832,16 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
       }
     });
 
+    // Group dates by month for headers
+    const datesByMonth = new Map<string, typeof allDates>();
+    allDates.forEach((item) => {
+      const key = `${item.year}-${item.month}`;
+      if (!datesByMonth.has(key)) {
+        datesByMonth.set(key, []);
+      }
+      datesByMonth.get(key)!.push(item);
+    });
+
     // Get default month (today's month) if visibleListMonth is not set
     const displayMonth = visibleListMonth || (() => {
       const today = new Date();
@@ -832,25 +858,35 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
           <h2>{displayMonth.monthName} {displayMonth.year}</h2>
         </div>
         <div className="list-view-content">
-          {allDates.map((item) => {
-            const isToday = item.date.toDateString() === new Date().toDateString();
+          {Array.from(datesByMonth.entries()).map(([monthKey, monthDates]) => {
+            const firstDate = monthDates[0];
             return (
-              <div 
-                key={`${item.year}-${item.month}-${item.dayNumber}`}
-                data-date-key={`${item.year}-${item.month}-${item.dayNumber}`}
-                data-month-key={`${item.year}-${item.month}`}
-                className={`list-view-item ${isToday ? 'list-view-item-today' : ''}`}
-                onClick={() => onSheetDateChange(item.date)}
-              >
-                <div className="list-view-item-date">
-                  <div className="list-view-item-top-row">
-                    <span className="list-view-item-day-name">{item.dayName}</span>
-                  </div>
-                  <span className="list-view-item-day-number">{item.dayNumber}</span>
+              <div key={monthKey} className="list-view-month-group">
+                <div className="list-view-month-header" data-month-key={monthKey}>
+                  <h2>{firstDate.monthName} {firstDate.year}</h2>
                 </div>
-                <div className="list-view-item-content">
-                  {/* Placeholder for records - you can add actual record rendering here */}
-                </div>
+                {monthDates.map((item) => {
+                  const isToday = item.date.toDateString() === new Date().toDateString();
+                  return (
+                    <div 
+                      key={`${item.year}-${item.month}-${item.dayNumber}`}
+                      data-date-key={`${item.year}-${item.month}-${item.dayNumber}`}
+                      data-month-key={`${item.year}-${item.month}`}
+                      className={`list-view-item ${isToday ? 'list-view-item-today' : ''}`}
+                      onClick={() => onSheetDateChange(item.date)}
+                    >
+                      <div className="list-view-item-date">
+                        <div className="list-view-item-top-row">
+                          <span className="list-view-item-day-name">{item.dayName}</span>
+                        </div>
+                        <span className="list-view-item-day-number">{item.dayNumber}</span>
+                      </div>
+                      <div className="list-view-item-content">
+                        {/* Placeholder for records - you can add actual record rendering here */}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             );
           })}

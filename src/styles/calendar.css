@@ -535,6 +535,24 @@
   padding: 0;
 }
 
+.list-view-month-group {
+  margin-bottom: 0;
+}
+
+.list-view-month-header {
+  padding: 16px;
+  border-bottom: 1px solid var(--color-secondary);
+  background: var(--color-background-body, var(--bg-primary));
+}
+
+.list-view-month-header h2 {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--gray-800);
+  font-family: var(--font-family);
+}
+
 .list-view-header-sticky {
   position: sticky;
   top: 0;
