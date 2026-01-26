@@ -95,6 +95,11 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
   const hasInitiallyScrolledRef = useRef(false);
   const scrollOriginRef = useRef<number>(0);
   
+  // Separate scroll positions for each view
+  const calendarScrollRef = useRef<number>(0);
+  const listScrollRef = useRef<number | null>(null); // null means not calculated yet
+  const summaryScrollRef = useRef<number>(0);
+  
   // Swipe gesture handling
   const touchStartX = useRef<number>(0);
   const touchEndX = useRef<number>(0);
@@ -529,13 +534,22 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
     }
   }, []);
 
-  // Scroll handler for Today button visibility (based on scroll origin)
+  // Scroll handler for Today button visibility and scroll position tracking
   useEffect(() => {
     const scrollContainer = document.querySelector('.chrona-main') as HTMLElement;
     if (!scrollContainer) return;
 
     const handleScroll = () => {
       const scrollTop = scrollContainer.scrollTop;
+      
+      // Save scroll position for the active view
+      if (viewMode === 'calendar') {
+        calendarScrollRef.current = scrollTop;
+      } else if (viewMode === 'list') {
+        listScrollRef.current = scrollTop;
+      } else if (viewMode === 'summary') {
+        summaryScrollRef.current = scrollTop;
+      }
       
       // For list view, always show button if scrolled down
       if (viewMode === 'list') {
@@ -544,6 +558,12 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
         } else {
           setShowTodayButton(false);
         }
+        return;
+      }
+      
+      // For summary view, don't show button
+      if (viewMode === 'summary') {
+        setShowTodayButton(false);
         return;
       }
       
@@ -576,12 +596,9 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
     };
   }, [viewMode]);
 
-  // Function to sync list view to today's date
-  const syncListViewToToday = useCallback(() => {
-    if (!listViewRef.current) return;
-    
-    const scrollContainer = document.querySelector('.chrona-main') as HTMLElement;
-    if (!scrollContainer) return;
+  // Calculate list view scroll position to today (for pre-positioning)
+  const calculateListViewScrollToToday = useCallback((): number | null => {
+    if (!listViewRef.current) return null;
     
     const todayDate = new Date();
     const todayYear = todayDate.getFullYear();
@@ -602,33 +619,107 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
       const chipBarHeight = chipBar ? chipBar.offsetHeight : 62;
       const targetTop = headerHeight + chipBarHeight;
       
+      const scrollContainer = document.querySelector('.chrona-main') as HTMLElement;
+      if (!scrollContainer) return null;
+      
       const containerRect = scrollContainer.getBoundingClientRect();
       const elementRect = todayElement.getBoundingClientRect();
       const currentScroll = scrollContainer.scrollTop;
       
       // Calculate the scroll position needed
       const elementTopRelativeToContainer = elementRect.top - containerRect.top + currentScroll;
-      const scrollPosition = Math.max(0, elementTopRelativeToContainer - targetTop);
-      
-      // Use setTimeout to ensure DOM is ready after view switch
-      setTimeout(() => {
+      return Math.max(0, elementTopRelativeToContainer - targetTop);
+    }
+    return null;
+  }, []);
+
+  // Function to sync list view to today's date (instant, no animation)
+  const syncListViewToToday = useCallback((instant = false) => {
+    if (!listViewRef.current) return;
+    
+    const scrollContainer = document.querySelector('.chrona-main') as HTMLElement;
+    if (!scrollContainer) return;
+    
+    const scrollPosition = listScrollRef.current ?? calculateListViewScrollToToday();
+    if (scrollPosition !== null) {
+      listScrollRef.current = scrollPosition;
+      if (instant) {
+        // Set immediately without animation
+        scrollContainer.scrollTop = scrollPosition;
+      } else {
         scrollContainer.scrollTo({
           top: scrollPosition,
           behavior: 'smooth',
         });
-      }, 100);
+      }
+    }
+  }, [calculateListViewScrollToToday]);
+
+  // Function to sync summary view to top (instant, no animation)
+  const syncSummaryViewToTop = useCallback((instant = false) => {
+    const scrollContainer = document.querySelector('.chrona-main') as HTMLElement;
+    if (!scrollContainer) return;
+    
+    summaryScrollRef.current = 0;
+    if (instant) {
+      scrollContainer.scrollTop = 0;
+    } else {
+      scrollContainer.scrollTo({
+        top: 0,
+        behavior: 'smooth',
+      });
     }
   }, []);
 
-  // Sync list view to today when switching to list mode from calendar
+  // Pre-calculate list view scroll position when list view is rendered
+  useEffect(() => {
+    if (viewMode === 'list' && listViewRef.current && listScrollRef.current === null) {
+      // Calculate and store the scroll position for today
+      // Use requestAnimationFrame to ensure DOM is ready
+      requestAnimationFrame(() => {
+        const scrollPos = calculateListViewScrollToToday();
+        if (scrollPos !== null) {
+          listScrollRef.current = scrollPos;
+        }
+      });
+    }
+  }, [viewMode, calculateListViewScrollToToday]);
+
+  // Handle view mode changes with separate scroll management
   const prevViewMode = useRef<'calendar' | 'list' | 'summary'>(viewMode);
   useEffect(() => {
-    if (viewMode === 'list' && prevViewMode.current === 'calendar') {
-      // Switching from calendar to list - scroll to today
-      syncListViewToToday();
+    const scrollContainer = document.querySelector('.chrona-main') as HTMLElement;
+    if (!scrollContainer) return;
+
+    // Save current scroll position when leaving a view
+    if (prevViewMode.current === 'calendar' && viewMode !== 'calendar') {
+      calendarScrollRef.current = scrollContainer.scrollTop;
+    } else if (prevViewMode.current === 'list' && viewMode !== 'list') {
+      listScrollRef.current = scrollContainer.scrollTop;
+    } else if (prevViewMode.current === 'summary' && viewMode !== 'summary') {
+      summaryScrollRef.current = scrollContainer.scrollTop;
     }
+
+    // Restore scroll position when entering a view (instant, before paint)
+    if (viewMode === 'calendar' && prevViewMode.current !== 'calendar') {
+      // Restore calendar scroll position
+      requestAnimationFrame(() => {
+        scrollContainer.scrollTop = calendarScrollRef.current;
+      });
+    } else if (viewMode === 'list' && prevViewMode.current !== 'list') {
+      // Scroll to today in list view (instant)
+      requestAnimationFrame(() => {
+        syncListViewToToday(true);
+      });
+    } else if (viewMode === 'summary' && prevViewMode.current !== 'summary') {
+      // Scroll to top in summary view (instant)
+      requestAnimationFrame(() => {
+        syncSummaryViewToTop(true);
+      });
+    }
+
     prevViewMode.current = viewMode;
-  }, [viewMode, syncListViewToToday]);
+  }, [viewMode, syncListViewToToday, syncSummaryViewToTop, calculateListViewScrollToToday]);
 
   // Sync calendar view when switching to calendar mode
   useEffect(() => {
