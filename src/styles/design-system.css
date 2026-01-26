@@ -1102,9 +1102,8 @@
   z-index: 10;
 }
 
-/* Override padding-top for design system panel and add record sheet */
-.design-system-panel .ds-header,
-.bottom-sheet .ds-header {
+/* Override padding-top for design system panel */
+.design-system-panel .ds-header {
   padding-top: 72px;
 }
 

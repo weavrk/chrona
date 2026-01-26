@@ -84,7 +84,7 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
   const [records, setRecords] = useState<Record<string, any[]>>({});
   const [showTodayButton, setShowTodayButton] = useState(false);
   const [observersReady, setObserversReady] = useState(false);
-  const [visibleMonth, setVisibleMonth] = useState<{ year: number; month: number } | null>(null);
+  const [_visibleMonth, setVisibleMonth] = useState<{ year: number; month: number } | null>(null);
   const [visibleDate, setVisibleDate] = useState<{ year: number; month: number; day: number } | null>(null);
   const calendarRef = useRef<HTMLDivElement>(null);
   const listViewRef = useRef<HTMLDivElement>(null);
@@ -486,44 +486,6 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
     };
   }, [observersReady, months.length, loadPastMonths, loadFutureMonths]);
 
-  // Function to sync list view to visible month
-  const syncListViewToMonth = useCallback((year: number, month: number) => {
-    if (!listViewRef.current) return;
-    
-    const scrollContainer = document.querySelector('.chrona-main') as HTMLElement;
-    if (!scrollContainer) return;
-    
-    // Find the first day of the month in list view
-    const firstDayKey = `${year}-${month}-1`;
-    const firstDayElement = listViewRef.current.querySelector(
-      `[data-date-key="${firstDayKey}"]`
-    ) as HTMLElement;
-    
-    if (firstDayElement) {
-      // Get header and chip bar heights
-      const header = document.querySelector('.chrona-header') as HTMLElement;
-      const chipBar = document.querySelector('.chip-bar-container') as HTMLElement;
-      const headerHeight = header ? header.offsetHeight : 68;
-      const chipBarHeight = chipBar ? chipBar.offsetHeight : 62;
-      const targetTop = headerHeight + chipBarHeight;
-      
-      const containerRect = scrollContainer.getBoundingClientRect();
-      const elementRect = firstDayElement.getBoundingClientRect();
-      const currentScroll = scrollContainer.scrollTop;
-      
-      // Calculate the scroll position needed
-      const elementTopRelativeToContainer = elementRect.top - containerRect.top + currentScroll;
-      const scrollPosition = Math.max(0, elementTopRelativeToContainer - targetTop);
-      
-      // Use setTimeout to ensure DOM is ready after view switch
-      setTimeout(() => {
-        scrollContainer.scrollTo({
-          top: scrollPosition,
-          behavior: 'smooth',
-        });
-      }, 100);
-    }
-  }, []);
 
   // Function to sync calendar view to a specific date
   const syncCalendarViewToDate = useCallback((year: number, month: number, _day: number) => {
@@ -614,12 +576,59 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
     };
   }, [viewMode]);
 
-  // Sync list view when switching to list mode
-  useEffect(() => {
-    if (viewMode === 'list' && visibleMonth) {
-      syncListViewToMonth(visibleMonth.year, visibleMonth.month);
+  // Function to sync list view to today's date
+  const syncListViewToToday = useCallback(() => {
+    if (!listViewRef.current) return;
+    
+    const scrollContainer = document.querySelector('.chrona-main') as HTMLElement;
+    if (!scrollContainer) return;
+    
+    const todayDate = new Date();
+    const todayYear = todayDate.getFullYear();
+    const todayMonth = todayDate.getMonth();
+    const todayDay = todayDate.getDate();
+    
+    // Find today's date in list view
+    const todayKey = `${todayYear}-${todayMonth}-${todayDay}`;
+    const todayElement = listViewRef.current.querySelector(
+      `[data-date-key="${todayKey}"]`
+    ) as HTMLElement;
+    
+    if (todayElement) {
+      // Get header and chip bar heights
+      const header = document.querySelector('.chrona-header') as HTMLElement;
+      const chipBar = document.querySelector('.chip-bar-container') as HTMLElement;
+      const headerHeight = header ? header.offsetHeight : 68;
+      const chipBarHeight = chipBar ? chipBar.offsetHeight : 62;
+      const targetTop = headerHeight + chipBarHeight;
+      
+      const containerRect = scrollContainer.getBoundingClientRect();
+      const elementRect = todayElement.getBoundingClientRect();
+      const currentScroll = scrollContainer.scrollTop;
+      
+      // Calculate the scroll position needed
+      const elementTopRelativeToContainer = elementRect.top - containerRect.top + currentScroll;
+      const scrollPosition = Math.max(0, elementTopRelativeToContainer - targetTop);
+      
+      // Use setTimeout to ensure DOM is ready after view switch
+      setTimeout(() => {
+        scrollContainer.scrollTo({
+          top: scrollPosition,
+          behavior: 'smooth',
+        });
+      }, 100);
     }
-  }, [viewMode, visibleMonth, syncListViewToMonth]);
+  }, []);
+
+  // Sync list view to today when switching to list mode from calendar
+  const prevViewMode = useRef<'calendar' | 'list' | 'summary'>(viewMode);
+  useEffect(() => {
+    if (viewMode === 'list' && prevViewMode.current === 'calendar') {
+      // Switching from calendar to list - scroll to today
+      syncListViewToToday();
+    }
+    prevViewMode.current = viewMode;
+  }, [viewMode, syncListViewToToday]);
 
   // Sync calendar view when switching to calendar mode
   useEffect(() => {
@@ -754,12 +763,7 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
       if (distance > 0 && viewMode === 'calendar') {
         // Swipe left: switch to list view
         setViewMode('list');
-        // Sync to visible month after a short delay to ensure DOM is ready
-        if (visibleMonth) {
-          setTimeout(() => {
-            syncListViewToMonth(visibleMonth.year, visibleMonth.month);
-          }, 150);
-        }
+        // Will auto-scroll to today via useEffect
       } else if (distance < 0 && viewMode === 'calendar') {
         // Swipe right: switch to summary view
         setViewMode('summary');
@@ -785,64 +789,443 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
 
   // SummaryView component
   const SummaryView = () => {
-    const recordTypes = [
-      { 
-        id: 'PE', 
-        label: 'Period',
-        data: [
-          { label: 'Last Period Date', value: 'January 15, 2026' },
-          { label: 'Duration', value: '5 days' },
-          { label: 'Predicted Next Period Start', value: 'February 12, 2026' }
-        ]
-      },
-      { 
-        id: 'HR', 
-        label: 'Heart Rate',
-        data: [
-          { label: 'Average Resting HR', value: '62 bpm' },
-          { label: 'Average Active HR', value: '145 bpm' },
-          { label: 'Last Recorded', value: 'January 25, 2026' }
-        ]
-      },
-      { 
-        id: 'HS', 
-        label: 'Health Symptoms',
-        data: [
-          { label: 'Most Common Symptom', value: 'Headache' },
-          { label: 'Frequency This Month', value: '8 occurrences' },
-          { label: 'Last Recorded', value: 'January 24, 2026' }
-        ]
-      },
-      { 
-        id: 'ID', 
-        label: 'Identity',
-        data: [
-          { label: 'Total Records', value: '12' },
-          { label: 'Most Recent', value: 'January 20, 2026' },
-          { label: 'Category', value: 'Workout' }
-        ]
+    const [summaryRecords, setSummaryRecords] = useState<Record<string, any[]>>({});
+    const [summaryData, setSummaryData] = useState<any>(null);
+
+    // Load records for summary calculation
+    useEffect(() => {
+      if (!user) return;
+      
+      const loadRecords = async () => {
+        try {
+          const response = await fetch(`${import.meta.env.BASE_URL}data/${user.username}/records-list-${user.username}.json?t=${Date.now()}`);
+          if (response.ok) {
+            const data = await response.json();
+            setSummaryRecords(data && typeof data === 'object' ? data : {});
+          } else {
+            // If file doesn't exist, set empty records
+            setSummaryRecords({});
+          }
+        } catch (error) {
+          console.error('Failed to load records for summary:', error);
+          setSummaryRecords({});
+        }
+      };
+      
+      loadRecords();
+    }, [user]);
+
+    // Calculate summary data from records
+    useEffect(() => {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      if (!summaryRecords || Object.keys(summaryRecords).length === 0) {
+        // Set empty summary data structure
+        setSummaryData({
+          period: {
+            lastPeriodEndDate: null,
+            lastPeriodStartDate: null,
+            cycleDuration: null,
+            nextPredictedPeriodStart: null,
+            averageCycleLength: null,
+            totalPeriods: 0
+          },
+          'hormone-replacement-therapy': {
+            currentTreatments: [],
+            lastTreatmentDate: null,
+            totalTreatments: 0
+          },
+          hsv: {
+            lastBreakoutDate: null,
+            totalBreakouts: 0,
+            lastTreatmentDate: null
+          },
+          'mental-health': {
+            totalRecords: 0,
+            lastRecordDate: null,
+            mostCommonMood: null
+          },
+          workout: {
+            totalWorkouts: 0,
+            lastWorkoutDate: null,
+            totalDuration: 0,
+            mostCommonType: null
+          }
+        });
+        return;
       }
-    ];
+
+      // Calculate period summary
+      const periodDates: Date[] = [];
+      Object.keys(summaryRecords).forEach(dateKey => {
+        const dayRecords = summaryRecords[dateKey] || [];
+        dayRecords.forEach((record: any) => {
+          if (record.type === 'period') {
+            const date = new Date(dateKey);
+            periodDates.push(date);
+          }
+        });
+      });
+      periodDates.sort((a, b) => b.getTime() - a.getTime());
+
+      let periodSummary: any = {
+        lastPeriodEndDate: null,
+        lastPeriodStartDate: null,
+        cycleDuration: null,
+        nextPredictedPeriodStart: null,
+        averageCycleLength: null,
+        totalPeriods: periodDates.length
+      };
+
+      if (periodDates.length > 0) {
+        // Sort dates ascending for period detection
+        const sortedDates = [...periodDates].sort((a, b) => a.getTime() - b.getTime());
+        
+        // Find periods (consecutive dates)
+        const periods: Array<{ start: Date; end: Date }> = [];
+        let currentPeriod: { start: Date; end: Date } | null = null;
+
+        sortedDates.forEach((date, index) => {
+          if (!currentPeriod) {
+            currentPeriod = { start: date, end: date };
+          } else {
+            const prevDate = sortedDates[index - 1];
+            const daysDiff = Math.floor((date.getTime() - prevDate.getTime()) / (1000 * 60 * 60 * 24));
+            if (daysDiff === 1) {
+              // Consecutive day, extend period
+              currentPeriod.end = date;
+            } else {
+              // New period
+              periods.push(currentPeriod);
+              currentPeriod = { start: date, end: date };
+            }
+          }
+        });
+        if (currentPeriod) {
+          periods.push(currentPeriod);
+        }
+        
+        // Sort periods by date descending (most recent first)
+        periods.sort((a, b) => b.start.getTime() - a.start.getTime());
+
+        if (periods.length > 0) {
+          const lastPeriod = periods[0];
+          periodSummary.lastPeriodStartDate = lastPeriod.start;
+          periodSummary.lastPeriodEndDate = lastPeriod.end;
+          const duration = Math.floor((lastPeriod.end.getTime() - lastPeriod.start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+          periodSummary.cycleDuration = duration;
+
+          // Calculate average cycle length
+          if (periods.length > 1) {
+            const cycleLengths: number[] = [];
+            for (let i = 1; i < periods.length; i++) {
+              const cycleLength = Math.floor((periods[i - 1].start.getTime() - periods[i].start.getTime()) / (1000 * 60 * 60 * 24));
+              cycleLengths.push(cycleLength);
+            }
+            if (cycleLengths.length > 0) {
+              const avgCycle = Math.round(cycleLengths.reduce((a, b) => a + b, 0) / cycleLengths.length);
+              periodSummary.averageCycleLength = avgCycle;
+              // Predict next period (average cycle length from last period start)
+              const nextPredicted = new Date(lastPeriod.start);
+              nextPredicted.setDate(nextPredicted.getDate() + avgCycle);
+              periodSummary.nextPredictedPeriodStart = nextPredicted;
+            }
+          }
+        }
+      }
+
+      // Calculate other summaries
+      const workoutRecords: Array<{ date: Date; type: string; duration: number }> = [];
+      const mentalHealthRecords: Array<{ date: Date; mood: string }> = [];
+      const hsvBreakouts: Date[] = [];
+      const hrTreatments: Date[] = [];
+
+      Object.keys(summaryRecords).forEach(dateKey => {
+        const date = new Date(dateKey);
+        const dayRecords = summaryRecords[dateKey] || [];
+        dayRecords.forEach((record: any) => {
+          if (record.type === 'workout' && record.data?.workoutType) {
+            workoutRecords.push({
+              date,
+              type: record.data.workoutType,
+              duration: record.data.duration || 0
+            });
+          } else if (record.type === 'mental-health' && record.data?.mood) {
+            mentalHealthRecords.push({
+              date,
+              mood: record.data.mood
+            });
+          } else if (record.type === 'hsv' && record.data?.hadBreakout) {
+            hsvBreakouts.push(date);
+          } else if (record.type === 'hormone-replacement-therapy') {
+            hrTreatments.push(date);
+          }
+        });
+      });
+
+      workoutRecords.sort((a, b) => b.date.getTime() - a.date.getTime());
+      mentalHealthRecords.sort((a, b) => b.date.getTime() - a.date.getTime());
+      hsvBreakouts.sort((a, b) => b.getTime() - a.getTime());
+      hrTreatments.sort((a, b) => b.getTime() - a.getTime());
+
+      const workoutSummary = {
+        totalWorkouts: workoutRecords.length,
+        lastWorkoutDate: workoutRecords.length > 0 ? workoutRecords[0].date : null,
+        totalDuration: workoutRecords.reduce((sum, w) => sum + (w.duration || 0), 0),
+        mostCommonType: workoutRecords.length > 0
+          ? workoutRecords.reduce((acc, w) => {
+              acc[w.type] = (acc[w.type] || 0) + 1;
+              return acc;
+            }, {} as Record<string, number>)
+          : null
+      };
+
+      const mentalHealthSummary = {
+        totalRecords: mentalHealthRecords.length,
+        lastRecordDate: mentalHealthRecords.length > 0 ? mentalHealthRecords[0].date : null,
+        mostCommonMood: mentalHealthRecords.length > 0
+          ? Object.entries(
+              mentalHealthRecords.reduce((acc, m) => {
+                acc[m.mood] = (acc[m.mood] || 0) + 1;
+                return acc;
+              }, {} as Record<string, number>)
+            ).sort((a, b) => b[1] - a[1])[0]?.[0] || null
+          : null
+      };
+
+      const hsvSummary = {
+        lastBreakoutDate: hsvBreakouts.length > 0 ? hsvBreakouts[0] : null,
+        totalBreakouts: hsvBreakouts.length,
+        lastTreatmentDate: null // Would need to check treatment records
+      };
+
+      const hrSummary = {
+        currentTreatments: [],
+        lastTreatmentDate: hrTreatments.length > 0 ? hrTreatments[0] : null,
+        totalTreatments: hrTreatments.length
+      };
+
+      setSummaryData({
+        period: periodSummary,
+        'hormone-replacement-therapy': hrSummary,
+        hsv: hsvSummary,
+        'mental-health': mentalHealthSummary,
+        workout: workoutSummary
+      });
+    }, [summaryRecords]);
+
+    // Build summary display data
+    const buildSummaryDisplay = () => {
+      if (!summaryData) {
+        // Return empty structure for each label type
+        return chipLabels.map(label => ({
+          id: label.id,
+          label: label.label,
+          data: [{ label: 'No records yet', value: 'Start adding records to see your summary' }]
+        }));
+      }
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const formatDate = (date: Date | null): string => {
+        if (!date) return 'N/A';
+        return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+      };
+
+      const daysAgo = (date: Date | null): number => {
+        if (!date) return -1;
+        const diff = today.getTime() - date.getTime();
+        return Math.floor(diff / (1000 * 60 * 60 * 24));
+      };
+
+      const formatDaysAgo = (days: number): string => {
+        if (days < 0) return '';
+        if (days === 0) return ' (today)';
+        if (days === 1) return ' (1 day ago)';
+        return ` (${days} days ago)`;
+      };
+
+      const formatDaysInFuture = (days: number): string => {
+        if (days < 0) return '';
+        if (days === 0) return ' (today)';
+        if (days === 1) return ' (in 1 day)';
+        return ` (in ${days} days)`;
+      };
+
+      const summaries: Array<{ id: string; label: string; data: Array<{ label: string; value: string }> }> = [];
+
+      // Period summary
+      if (chipLabels.find(l => l.id === 'period')) {
+        const period = summaryData.period;
+        const periodData: Array<{ label: string; value: string }> = [];
+        
+        if (period && period.lastPeriodEndDate) {
+          const endDate = new Date(period.lastPeriodEndDate);
+          const days = daysAgo(endDate);
+          periodData.push({
+            label: 'Last Period End Date',
+            value: `${formatDate(endDate)}${formatDaysAgo(days)}`
+          });
+        } else {
+          periodData.push({ label: 'Last Period End Date', value: 'No records' });
+        }
+
+        if (period && period.cycleDuration !== null && period.cycleDuration !== undefined) {
+          periodData.push({
+            label: 'Cycle Duration',
+            value: `${period.cycleDuration} days`
+          });
+        }
+
+        if (period && period.nextPredictedPeriodStart) {
+          const predDate = new Date(period.nextPredictedPeriodStart);
+          const days = daysAgo(predDate);
+          periodData.push({
+            label: 'Next Predicted Period Start',
+            value: `${formatDate(predDate)}${formatDaysInFuture(-days)}`
+          });
+        }
+
+        summaries.push({ id: 'period', label: 'Period', data: periodData.length > 0 ? periodData : [{ label: 'No records yet', value: 'Start adding period records' }] });
+      }
+
+      // Hormone Replacement Therapy
+      if (chipLabels.find(l => l.id === 'hormone-replacement-therapy')) {
+        const hr = summaryData['hormone-replacement-therapy'];
+        const hrData: Array<{ label: string; value: string }> = [];
+        
+        if (hr && hr.lastTreatmentDate) {
+          const date = new Date(hr.lastTreatmentDate);
+          const days = daysAgo(date);
+          hrData.push({
+            label: 'Last Treatment Date',
+            value: `${formatDate(date)}${formatDaysAgo(days)}`
+          });
+        }
+        hrData.push({ label: 'Total Treatments', value: (hr && hr.totalTreatments) ? hr.totalTreatments.toString() : '0' });
+        
+        summaries.push({ id: 'hormone-replacement-therapy', label: 'Hormone Replacement Therapy', data: hrData.length > 0 ? hrData : [{ label: 'No records yet', value: 'Start adding HRT records' }] });
+      }
+
+      // HSV
+      if (chipLabels.find(l => l.id === 'hsv')) {
+        const hsv = summaryData.hsv;
+        const hsvData: Array<{ label: string; value: string }> = [];
+        
+        if (hsv && hsv.lastBreakoutDate) {
+          const date = new Date(hsv.lastBreakoutDate);
+          const days = daysAgo(date);
+          hsvData.push({
+            label: 'Last Breakout Date',
+            value: `${formatDate(date)}${formatDaysAgo(days)}`
+          });
+        }
+        hsvData.push({ label: 'Total Breakouts', value: (hsv && hsv.totalBreakouts) ? hsv.totalBreakouts.toString() : '0' });
+        
+        summaries.push({ id: 'hsv', label: 'HSV', data: hsvData.length > 0 ? hsvData : [{ label: 'No records yet', value: 'Start adding HSV records' }] });
+      }
+
+      // Mental Health
+      if (chipLabels.find(l => l.id === 'mental-health')) {
+        const mh = summaryData['mental-health'];
+        const mhData: Array<{ label: string; value: string }> = [];
+        
+        mhData.push({ label: 'Total Records', value: (mh && mh.totalRecords) ? mh.totalRecords.toString() : '0' });
+        
+        if (mh && mh.lastRecordDate) {
+          const date = new Date(mh.lastRecordDate);
+          const days = daysAgo(date);
+          mhData.push({
+            label: 'Last Record Date',
+            value: `${formatDate(date)}${formatDaysAgo(days)}`
+          });
+        }
+        
+        if (mh && mh.mostCommonMood) {
+          const moodLabels: Record<string, string> = {
+            'light': 'Energized',
+            'smile': 'Happy',
+            'meh': 'Neutral',
+            'frown': 'Sad',
+            'annoyed': 'Annoyed',
+            'angry': 'Angry'
+          };
+          mhData.push({
+            label: 'Most Common Mood',
+            value: moodLabels[mh.mostCommonMood] || mh.mostCommonMood
+          });
+        }
+        
+        summaries.push({ id: 'mental-health', label: 'Mental Health', data: mhData.length > 0 ? mhData : [{ label: 'No records yet', value: 'Start adding mental health records' }] });
+      }
+
+      // Workout
+      if (chipLabels.find(l => l.id === 'workout')) {
+        const wo = summaryData.workout;
+        const woData: Array<{ label: string; value: string }> = [];
+        
+        woData.push({ label: 'Total Workouts', value: (wo && wo.totalWorkouts) ? wo.totalWorkouts.toString() : '0' });
+        
+        if (wo && wo.lastWorkoutDate) {
+          const date = new Date(wo.lastWorkoutDate);
+          const days = daysAgo(date);
+          woData.push({
+            label: 'Last Workout Date',
+            value: `${formatDate(date)}${formatDaysAgo(days)}`
+          });
+        }
+        
+        if (wo && wo.mostCommonType && typeof wo.mostCommonType === 'object') {
+          const mostCommon = Object.entries(wo.mostCommonType as Record<string, number>).sort((a, b) => b[1] - a[1])[0];
+          if (mostCommon) {
+            woData.push({
+              label: 'Most Common Type',
+              value: mostCommon[0]
+            });
+          }
+        }
+        
+        summaries.push({ id: 'workout', label: 'Workout', data: woData.length > 0 ? woData : [{ label: 'No records yet', value: 'Start adding workout records' }] });
+      }
+
+      return summaries;
+    };
+
+    const summaryDisplay = buildSummaryDisplay();
     
     return (
       <div className="summary-view">
         <div className="summary-view-header">
-          <h1>Summary</h1>
+          <h1>Record Summary</h1>
         </div>
         <div className="summary-view-content">
-          {recordTypes.map((type) => (
-            <div key={type.id} className="summary-section">
-              <h2 className="summary-section-header">{type.label}</h2>
-              <div className="summary-section-content">
-                {type.data.map((item, index) => (
-                  <div key={index} className="summary-data-item">
-                    <span className="summary-data-label">{item.label}</span>
-                    <span className="summary-data-value">{item.value}</span>
-                  </div>
-                ))}
+          {summaryDisplay.length > 0 ? (
+            summaryDisplay.map((type) => (
+              <div key={type.id} className="summary-section">
+                <h2 className="summary-section-header">{type.label}</h2>
+                <div className="summary-section-content">
+                  {type.data.length > 0 ? (
+                    type.data.map((item, index) => (
+                      <div key={index} className="summary-data-item">
+                        <span className="summary-data-label">{item.label}</span>
+                        <span className="summary-data-value">{item.value}</span>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="summary-data-item">
+                      <span className="summary-data-label">No data available</span>
+                    </div>
+                  )}
+                </div>
               </div>
+            ))
+          ) : (
+            <div className="summary-section">
+              <p>No records found. Start adding records to see your summary.</p>
             </div>
-          ))}
+          )}
         </div>
       </div>
     );
@@ -1055,7 +1438,7 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
     <>
       <ChipBar labels={chipLabels} />
       <div 
-        className="view-switcher-container"
+        className={`view-switcher-container view-mode-${viewMode}`}
         ref={swipeContainerRef}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}

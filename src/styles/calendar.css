@@ -191,7 +191,7 @@
 
 .bottom-sheet {
   position: fixed;
-  top: 0;
+  top: 60px;
   bottom: 0;
   left: 0;
   right: 0;
@@ -546,11 +546,20 @@
 }
 
 .view-container.calendar-view:not(.active) {
-  transform: translateX(-100%);
   position: absolute;
   top: 0;
   left: 0;
   pointer-events: none;
+}
+
+/* Calendar slides right when summary is active */
+.view-mode-summary .view-container.calendar-view:not(.active) {
+  transform: translateX(100%);
+}
+
+/* Calendar slides left when list is active */
+.view-mode-list .view-container.calendar-view:not(.active) {
+  transform: translateX(-100%);
 }
 
 .view-container.list-view.active {

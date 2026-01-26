@@ -1,0 +1,32 @@
+{
+  "period": {
+    "lastPeriodEndDate": null,
+    "lastPeriodStartDate": null,
+    "cycleDuration": null,
+    "nextPredictedPeriodStart": null,
+    "averageCycleLength": null,
+    "totalPeriods": 0
+  },
+  "hormone-replacement-therapy": {
+    "currentTreatments": [],
+    "lastTreatmentDate": null,
+    "totalTreatments": 0
+  },
+  "hsv": {
+    "lastBreakoutDate": null,
+    "totalBreakouts": 0,
+    "lastTreatmentDate": null
+  },
+  "mental-health": {
+    "totalRecords": 0,
+    "lastRecordDate": null,
+    "mostCommonMood": null
+  },
+  "workout": {
+    "totalWorkouts": 0,
+    "lastWorkoutDate": null,
+    "totalDuration": 0,
+    "mostCommonType": null
+  }
+}
+

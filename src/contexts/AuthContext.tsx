@@ -146,6 +146,61 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Don't fail account creation if records file creation fails
     }
     
+    // Create initial records summary file (load from global template)
+    try {
+      let initialSummary = {
+        period: {
+          lastPeriodEndDate: null,
+          lastPeriodStartDate: null,
+          cycleDuration: null,
+          nextPredictedPeriodStart: null,
+          averageCycleLength: null,
+          totalPeriods: 0
+        },
+        'hormone-replacement-therapy': {
+          currentTreatments: [],
+          lastTreatmentDate: null,
+          totalTreatments: 0
+        },
+        hsv: {
+          lastBreakoutDate: null,
+          totalBreakouts: 0,
+          lastTreatmentDate: null
+        },
+        'mental-health': {
+          totalRecords: 0,
+          lastRecordDate: null,
+          mostCommonMood: null
+        },
+        workout: {
+          totalWorkouts: 0,
+          lastWorkoutDate: null,
+          totalDuration: 0,
+          mostCommonType: null
+        }
+      };
+      
+      // Try to load from global template
+      try {
+        const globalSummaryResponse = await fetch(`${import.meta.env.BASE_URL}data/record-list-global.json?t=${Date.now()}`);
+        if (globalSummaryResponse.ok) {
+          const globalSummary = await globalSummaryResponse.json();
+          initialSummary = globalSummary;
+        }
+      } catch (error) {
+        console.error('Failed to load global summary template, using defaults:', error);
+      }
+      
+      await fetch('/api/save_records_summary.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: usernameLower, summary: initialSummary }),
+      });
+    } catch (error) {
+      console.error('Failed to create initial records summary file for new user:', error);
+      // Don't fail account creation if summary file creation fails
+    }
+    
     return true;
   };
 
