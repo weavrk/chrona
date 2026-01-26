@@ -535,11 +535,7 @@
   padding: 0;
 }
 
-.list-view-month-group {
-  margin-bottom: 24px;
-}
-
-.list-view-header {
+.list-view-header-sticky {
   position: sticky;
   top: calc(68px + 62px);
   z-index: 10;
@@ -548,7 +544,7 @@
   border-bottom: 1px solid var(--color-secondary);
 }
 
-.list-view-header h2 {
+.list-view-header-sticky h2 {
   margin: 0;
   font-size: 1.125rem;
   font-weight: 600;
