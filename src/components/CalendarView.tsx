@@ -1465,7 +1465,7 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
   
   return (
     <>
-      <ChipBar labels={chipLabels} />
+      {viewMode !== 'summary' && <ChipBar labels={chipLabels} />}
       <div 
         className={`view-switcher-container view-mode-${viewMode}`}
         ref={swipeContainerRef}
