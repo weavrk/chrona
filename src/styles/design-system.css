@@ -1542,7 +1542,7 @@
 }
 
 .ds-nav-tab.active {
-  color: var(--color-background-white);
+  color: var(--color-primary);
   z-index: 2;
 }
 
