@@ -52,6 +52,7 @@
   animation: slideUp 0.3s ease-out;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
   min-height: 0;
   height: 100vh;
 }
