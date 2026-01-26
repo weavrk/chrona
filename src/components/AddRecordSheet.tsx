@@ -367,28 +367,28 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd, labels }:
         {/* Record Type Nav Tabs */}
         <div className="ds-nav-tab-bar-container">
           <div className="ds-nav-tab-bar">
-            {RECORD_TYPES.map((type) => (
-              <button
-                key={type.id}
+              {RECORD_TYPES.map((type) => (
+                <button
+                  key={type.id}
                 className={`ds-nav-tab ${selectedType === type.id ? 'active' : ''}`}
-                style={
-                  selectedType === type.id
+                  style={
+                    selectedType === type.id
                     ? { '--active-bg': type.color } as React.CSSProperties
                     : undefined
-                }
-                onClick={() => {
-                  setSelectedType(type.id);
-                  setIntensity('');
-                  setMood('');
+                  }
+                  onClick={() => {
+                    setSelectedType(type.id);
+                    setIntensity('');
+                    setMood('');
                   setSeverity('');
                   setHadBreakout(false);
-                }}
-              >
-                <span>{type.label}</span>
-              </button>
-            ))}
+                  }}
+                >
+                  <span>{type.label}</span>
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
 
         <div className="bottom-sheet-content">
           {/* Period */}
@@ -605,7 +605,7 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd, labels }:
                 </div>
               </div>
 
-              <div className="form-section">
+            <div className="form-section">
                 <label className="form-section-headers">Breakout</label>
                 
                 <div className="checkbox-group">
@@ -647,10 +647,10 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd, labels }:
                   </button>
                 ))}
               </div>
-                </div>
+            </div>
               </div>
 
-              <div className="form-section">
+            <div className="form-section">
                 <label className="form-section-headers">Treatment</label>
                 
                 <div className="form-text-input">

@@ -76,7 +76,7 @@ function toTitleCase(str: string): string {
 }
 
 export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selectedDate, onSheetClose: _onSheetClose, onSheetDateChange, onAddRecord: _onAddRecord, chipLabels }: CalendarViewProps) {
-  const [viewMode, setViewMode] = useState<'calendar' | 'list'>('calendar');
+  const [viewMode, setViewMode] = useState<'calendar' | 'list' | 'summary'>('calendar');
   const [showTodayButton, setShowTodayButton] = useState(false);
   const [observersReady, setObserversReady] = useState(false);
   const [visibleMonth, setVisibleMonth] = useState<{ year: number; month: number } | null>(null);
@@ -764,12 +764,38 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
             syncCalendarViewToDate(visibleDate.year, visibleDate.month, visibleDate.day);
           }, 150);
         }
+      } else if (distance > 0 && viewMode === 'calendar') {
+        // Swipe right: switch to summary view
+        setViewMode('summary');
+      } else if (distance < 0 && viewMode === 'summary') {
+        // Swipe left: switch to calendar view
+        setViewMode('calendar');
       }
     }
     
     // Reset
     touchStartX.current = 0;
     touchEndX.current = 0;
+  };
+
+  // SummaryView component
+  const SummaryView = () => {
+    const recordTypes = ['PE', 'HR', 'HS', 'ID'];
+    
+    return (
+      <div className="summary-view">
+        <div className="summary-view-content">
+          {recordTypes.map((type) => (
+            <div key={type} className="summary-section">
+              <h2 className="summary-section-header">{type}</h2>
+              <div className="summary-section-content">
+                {/* Summary data will be added here */}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   };
 
   // Simple ListView component
@@ -922,9 +948,13 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
         <div className={`view-container list-view ${viewMode === 'list' ? 'active' : ''}`}>
           <ListView />
         </div>
+        
+        <div className={`view-container summary-view ${viewMode === 'summary' ? 'active' : ''}`}>
+          <SummaryView />
+        </div>
       </div>
       
-      <div className="fab-container" style={{ display: showTodayButton ? 'flex' : 'none' }}>
+      <div className="fab-container" style={{ display: (showTodayButton && (viewMode === 'calendar' || viewMode === 'list')) ? 'flex' : 'none' }}>
         {viewMode === 'list' && (
           <button 
             className="calendar-view-switcher-fab"
@@ -933,6 +963,28 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="m15 18-6-6 6-6"/>
+            </svg>
+          </button>
+        )}
+        {viewMode === 'calendar' && (
+          <button 
+            className="calendar-view-switcher-fab"
+            onClick={() => setViewMode('summary')}
+            aria-label="Switch to summary view"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="m15 18-6-6 6-6"/>
+            </svg>
+          </button>
+        )}
+        {viewMode === 'summary' && (
+          <button 
+            className="calendar-view-switcher-fab"
+            onClick={() => setViewMode('calendar')}
+            aria-label="Switch to calendar view"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="m9 18 6-6-6-6"/>
             </svg>
           </button>
         )}
