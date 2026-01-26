@@ -1530,10 +1530,7 @@
 /* Nav Tab Bar Container */
 .ds-nav-tab-bar-container {
   display: flex;
-  justify-content: center;
-  padding: 8px 24px;
-  border-bottom: 1px solid var(--color-secondary);
-  flex-shrink: 0;
+  padding: 16px 24px 0px;
   position: sticky;
   top: 60px;
   background-color: var(--color-background-body, var(--bg-primary));
@@ -1542,7 +1539,8 @@
 
 /* Nav Tab Bar - Pill container with tabs */
 .ds-nav-tab-bar {
-  display: inline-flex;
+  display: flex;
+  width: 100%;
   background: var(--color-background-shells, var(--bg-secondary));
   border-radius: 24px;
   padding: 8px;
