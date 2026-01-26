@@ -541,7 +541,7 @@
 
 .list-view-month-header {
   position: sticky;
-  top: calc(60px + max(16px, env(safe-area-inset-top)) + 62px);
+  top: calc(68px + 62px);
   z-index: 10000;
   padding: 16px;
   border-bottom: 1px solid var(--color-secondary);
