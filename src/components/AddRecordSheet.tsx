@@ -831,12 +831,17 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd, labels }:
                 <div className="form-text-input">
                   <label className="form-label">Type</label>
                   <SearchableInput
+                    id="workout-type-input"
                     value={workoutType}
                     options={workoutTypes}
                     onChange={setWorkoutType}
                     onBlur={() => {
-                      if (workoutType.trim() && !workoutTypes.includes(workoutType.trim())) {
-                        saveWorkoutType(workoutType.trim());
+                      // Use the input element's current value to avoid stale closure
+                      const inputElement = document.getElementById('workout-type-input') as HTMLInputElement;
+                      const currentValue = inputElement?.value?.trim() || workoutType.trim();
+                      if (currentValue && !workoutTypes.includes(currentValue)) {
+                        console.log('Saving workout type on blur:', currentValue, 'for user:', user?.username);
+                        saveWorkoutType(currentValue);
                       }
                     }}
                     placeholder="Enter workout type"

@@ -8,9 +8,10 @@ interface SearchableInputProps {
   onBlur?: () => void;
   placeholder?: string;
   color?: string;
+  id?: string;
 }
 
-export function SearchableInput({ value, options, onChange, onBlur, placeholder, color }: SearchableInputProps) {
+export function SearchableInput({ value, options, onChange, onBlur, placeholder, color, id }: SearchableInputProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState(value);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -67,13 +68,20 @@ export function SearchableInput({ value, options, onChange, onBlur, placeholder,
     <div className="custom-dropdown-wrapper" ref={wrapperRef}>
       <input
         ref={inputRef}
+        id={id}
         type="text"
         value={searchTerm}
         onChange={handleInputChange}
         onFocus={handleInputFocus}
         onBlur={() => {
           // Delay closing to allow option click
-          setTimeout(() => setIsOpen(false), 200);
+          setTimeout(() => {
+            setIsOpen(false);
+            // Call onBlur callback after dropdown closes
+            if (onBlur) {
+              onBlur();
+            }
+          }, 200);
         }}
         className="form-input"
         placeholder={placeholder}
