@@ -72,6 +72,7 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
   const [viewMode, setViewMode] = useState<'calendar' | 'list'>('calendar');
   const [showTodayButton, setShowTodayButton] = useState(false);
   const [observersReady, setObserversReady] = useState(false);
+  const [visibleMonth, setVisibleMonth] = useState<{ year: number; month: number } | null>(null);
   const calendarRef = useRef<HTMLDivElement>(null);
   const listViewRef = useRef<HTMLDivElement>(null);
   const firstMonthRef = useRef<HTMLDivElement>(null);
@@ -371,6 +372,60 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
     return () => clearTimeout(timeoutId);
   }, []); // Run only once on mount
 
+  // Track visible month header based on scroll position
+  useEffect(() => {
+    if (viewMode !== 'calendar' || !calendarRef.current) return;
+    
+    const scrollContainer = document.querySelector('.chrona-main') as HTMLElement;
+    if (!scrollContainer) return;
+    
+    const updateVisibleMonth = () => {
+      const monthHeaders = calendarRef.current?.querySelectorAll('.calendar-month-header');
+      if (!monthHeaders || monthHeaders.length === 0) return;
+      
+      const containerRect = scrollContainer.getBoundingClientRect();
+      const header = document.querySelector('.chrona-header') as HTMLElement;
+      const chipBar = document.querySelector('.chip-bar-container') as HTMLElement;
+      const headerHeight = header ? header.offsetHeight : 68;
+      const chipBarHeight = chipBar ? chipBar.offsetHeight : 62;
+      const targetTop = containerRect.top + headerHeight + chipBarHeight;
+      
+      let topVisibleMonth: { year: number; month: number } | null = null;
+      let minDistance = Infinity;
+      
+      monthHeaders.forEach((header) => {
+        const rect = header.getBoundingClientRect();
+        const distanceFromTop = Math.abs(rect.top - targetTop);
+        
+        // Check if header is at or above the target position
+        if (rect.top <= targetTop + 50 && distanceFromTop < minDistance) {
+          const monthElement = header.closest('.calendar-month') as HTMLElement;
+          if (monthElement) {
+            const monthKey = monthElement.getAttribute('data-month-key');
+            if (monthKey) {
+              const [year, month] = monthKey.split('-').map(Number);
+              topVisibleMonth = { year, month };
+              minDistance = distanceFromTop;
+            }
+          }
+        }
+      });
+      
+      if (topVisibleMonth) {
+        setVisibleMonth(topVisibleMonth);
+      }
+    };
+    
+    // Update on scroll
+    scrollContainer.addEventListener('scroll', updateVisibleMonth);
+    // Initial update
+    updateVisibleMonth();
+    
+    return () => {
+      scrollContainer.removeEventListener('scroll', updateVisibleMonth);
+    };
+  }, [viewMode, months.length, observersReady]);
+
   // Intersection observers for lazy loading
   useEffect(() => {
     // Wait for observersReady flag
@@ -418,6 +473,45 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
     };
   }, [observersReady, months.length, loadPastMonths, loadFutureMonths]);
 
+  // Function to sync list view to visible month
+  const syncListViewToMonth = useCallback((year: number, month: number) => {
+    if (!listViewRef.current) return;
+    
+    const scrollContainer = document.querySelector('.chrona-main') as HTMLElement;
+    if (!scrollContainer) return;
+    
+    // Find the first day of the month in list view
+    const firstDayKey = `${year}-${month}-1`;
+    const firstDayElement = listViewRef.current.querySelector(
+      `[data-date-key="${firstDayKey}"]`
+    ) as HTMLElement;
+    
+    if (firstDayElement) {
+      // Get header and chip bar heights
+      const header = document.querySelector('.chrona-header') as HTMLElement;
+      const chipBar = document.querySelector('.chip-bar-container') as HTMLElement;
+      const headerHeight = header ? header.offsetHeight : 68;
+      const chipBarHeight = chipBar ? chipBar.offsetHeight : 62;
+      const targetTop = headerHeight + chipBarHeight;
+      
+      const containerRect = scrollContainer.getBoundingClientRect();
+      const elementRect = firstDayElement.getBoundingClientRect();
+      const currentScroll = scrollContainer.scrollTop;
+      
+      // Calculate the scroll position needed
+      const elementTopRelativeToContainer = elementRect.top - containerRect.top + currentScroll;
+      const scrollPosition = Math.max(0, elementTopRelativeToContainer - targetTop);
+      
+      // Use setTimeout to ensure DOM is ready after view switch
+      setTimeout(() => {
+        scrollContainer.scrollTo({
+          top: scrollPosition,
+          behavior: 'smooth',
+        });
+      }, 100);
+    }
+  }, []);
+
   // Scroll handler for Today button visibility (based on scroll origin)
   useEffect(() => {
     const scrollContainer = document.querySelector('.chrona-main') as HTMLElement;
@@ -464,6 +558,13 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
       scrollContainer.removeEventListener('scroll', handleScroll);
     };
   }, [viewMode]);
+
+  // Sync list view when switching to list mode
+  useEffect(() => {
+    if (viewMode === 'list' && visibleMonth) {
+      syncListViewToMonth(visibleMonth.year, visibleMonth.month);
+    }
+  }, [viewMode, visibleMonth, syncListViewToMonth]);
 
   // Handle orientation change and window resize to force grid recalculation
   useEffect(() => {
@@ -537,6 +638,12 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
       if (distance > 0 && viewMode === 'calendar') {
         // Swipe left: switch to list view
         setViewMode('list');
+        // Sync to visible month after a short delay to ensure DOM is ready
+        if (visibleMonth) {
+          setTimeout(() => {
+            syncListViewToMonth(visibleMonth.year, visibleMonth.month);
+          }, 150);
+        }
       } else if (distance < 0 && viewMode === 'list') {
         // Swipe right: switch to calendar view
         setViewMode('calendar');
