@@ -550,7 +550,7 @@
 
 .list-view-header h2 {
   margin: 0;
-  font-size: 1.5rem;
+  font-size: 1.125rem;
   font-weight: 600;
   color: var(--gray-800);
   font-family: var(--font-family);
@@ -576,7 +576,7 @@
 .list-view-item-date {
   display: flex;
   flex-direction: column;
-  min-width: 100px;
+  /* min-width: 100px; */
   margin-right: 16px;
 }
 
@@ -589,14 +589,14 @@
 
 .list-view-item-day-name {
   font-size: 0.875rem;
-  color: var(--color-secondary, var(--text-secondary));
+  color: var(--gray-800);
   font-weight: 500;
   font-family: var(--font-family);
 }
 
 .list-view-item-month-year {
   font-size: 0.875rem;
-  color: var(--color-secondary, var(--text-secondary));
+  color: var(--gray-800);
   font-weight: 500;
   font-family: var(--font-family);
 }
