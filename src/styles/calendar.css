@@ -589,7 +589,7 @@
 
 .list-view-item-day-name {
   font-size: 0.875rem;
-  color: var(--gray-800);
+  color: var(--gray-600);
   font-weight: 500;
   font-family: var(--font-family);
 }
