@@ -282,6 +282,63 @@ function apiPlugin() {
         });
       });
 
+      // API endpoint to save records (date-indexed structure)
+      server.middlewares.use('/api/save_records.php', async (req, res, next) => {
+        if (req.method !== 'POST') {
+          res.statusCode = 405;
+          res.end(JSON.stringify({ error: 'Method not allowed' }));
+          return;
+        }
+
+        let body = '';
+        req.on('data', chunk => { body += chunk.toString(); });
+        req.on('end', async () => {
+          try {
+            const { username, records } = JSON.parse(body);
+            if (!username) {
+              res.statusCode = 400;
+              res.end(JSON.stringify({ error: 'username is required' }));
+              return;
+            }
+            
+            const srcUserDir = path.join(__dirname, 'src', 'data', username);
+            const publicUserDir = path.join(__dirname, 'public', 'data', username);
+            
+            // Ensure user directories exist
+            if (!fs.existsSync(srcUserDir)) {
+              fs.mkdirSync(srcUserDir, { recursive: true });
+            }
+            if (!fs.existsSync(publicUserDir)) {
+              fs.mkdirSync(publicUserDir, { recursive: true });
+            }
+            
+            const srcRecordsPath = path.join(srcUserDir, `records-list-${username}.json`);
+            const publicRecordsPath = path.join(publicUserDir, `records-list-${username}.json`);
+            
+            const recordsJson = JSON.stringify(records, null, 2) + '\n';
+            
+            fs.writeFileSync(srcRecordsPath, recordsJson, 'utf-8');
+            fs.writeFileSync(publicRecordsPath, recordsJson, 'utf-8');
+            
+            res.setHeader('Content-Type', 'application/json');
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            res.statusCode = 200;
+            res.end(JSON.stringify({ 
+              success: true, 
+              message: 'Records saved successfully' 
+            }));
+          } catch (error) {
+            res.statusCode = 500;
+            res.setHeader('Content-Type', 'application/json');
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+            res.end(JSON.stringify({ 
+              success: false, 
+              error: errorMessage 
+            }));
+          }
+        });
+      });
+
       // API endpoint to save events
       server.middlewares.use('/api/save_events.php', async (req, res, next) => {
         if (req.method !== 'POST') {

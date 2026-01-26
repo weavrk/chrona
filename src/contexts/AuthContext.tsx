@@ -134,6 +134,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Don't fail account creation if workout types file creation fails
     }
     
+    // Create initial records file (empty object for date-indexed structure)
+    try {
+      await fetch('/api/save_records.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: usernameLower, records: {} }),
+      });
+    } catch (error) {
+      console.error('Failed to create initial records file for new user:', error);
+      // Don't fail account creation if records file creation fails
+    }
+    
     return true;
   };
 

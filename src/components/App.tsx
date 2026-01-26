@@ -188,32 +188,57 @@ export function App() {
     if (!user) return;
     
     try {
-      // Load existing events
-      const response = await fetch(`${import.meta.env.BASE_URL}data/events-${user.username}.json?t=${Date.now()}`);
-      let events = [];
+      // Load existing records (date-indexed structure)
+      const response = await fetch(`${import.meta.env.BASE_URL}data/${user.username}/records-list-${user.username}.json?t=${Date.now()}`);
+      let records: Record<string, any[]> = {};
       if (response.ok) {
         const data = await response.json();
-        events = Array.isArray(data) ? data : [];
+        records = data && typeof data === 'object' ? data : {};
       }
 
-      // Add new event
-      const newEvent = {
-        ...record,
-        startDate: record.startDate.toISOString(),
-        endDate: record.endDate.toISOString(),
-        id: Date.now().toString(),
+      // Generate unique ID for the new record
+      const recordId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      
+      // Convert dates to YYYY-MM-DD format
+      const startDateStr = record.startDate.toISOString().split('T')[0];
+      const endDateStr = record.endDate.toISOString().split('T')[0];
+      
+      // Create record object (without dates since they're in the key)
+      const recordToAdd = {
+        id: recordId,
+        type: record.type,
+        data: record.details || {},
       };
-      events.push(newEvent);
 
-      // Save events
-      await fetch('/api/save_events.php', {
+      // Add record to all dates in the range (inclusive)
+      const start = new Date(startDateStr);
+      const end = new Date(endDateStr);
+      const currentDate = new Date(start);
+      
+      while (currentDate <= end) {
+        const dateKey = currentDate.toISOString().split('T')[0];
+        
+        // Initialize array for this date if it doesn't exist
+        if (!records[dateKey]) {
+          records[dateKey] = [];
+        }
+        
+        // Add the record to this date's array
+        records[dateKey].push(recordToAdd);
+        
+        // Move to next day
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+
+      // Save records
+      await fetch('/api/save_records.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: user.username, events }),
+        body: JSON.stringify({ username: user.username, records }),
       });
     } catch (error) {
-      console.error('Failed to save event:', error);
-      alert('Failed to save event. Please try again.');
+      console.error('Failed to save record:', error);
+      alert('Failed to save record. Please try again.');
     }
   };
 

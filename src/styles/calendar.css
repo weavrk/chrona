@@ -316,7 +316,7 @@
 .date-range-container {
   display: flex;
   justify-content: space-between;
-  width: 100%;
+  width: calc(100% - 48px);
   box-sizing: border-box;
 }
 
