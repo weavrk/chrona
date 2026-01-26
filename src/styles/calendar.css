@@ -463,11 +463,12 @@
 }
 
 .calendar-today-fab {
-  padding: 12px 24px;
+  height: 40px;
+  padding: 0 24px;
   background: var(--color-brand-primary);
   color: var(--gray-100);
   border: none;
-  border-radius: 24px;
+  border-radius: 20px;
   font-size: 0.875rem;
   font-weight: 600;
   font-family: var(--font-family);
@@ -476,6 +477,9 @@
   transition: all 0.2s;
   animation: fadeIn 0.3s ease-out;
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .calendar-today-fab:hover {
@@ -489,8 +493,8 @@
 }
 
 .calendar-view-switcher-fab {
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
   padding: 0;
   background: var(--color-brand-primary);
   color: var(--gray-100);
