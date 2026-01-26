@@ -436,22 +436,23 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
         return;
       }
       
-      // For calendar view, use the original logic
-      if (!hasInitiallyScrolledRef.current || scrollOriginRef.current === 0) {
-        return;
-      }
-      
-      const scrollOrigin = scrollOriginRef.current;
-      
-      // Show button if scrolled away from origin (either direction)
-      const distanceFromOrigin = Math.abs(scrollTop - scrollOrigin);
-      
-      console.log('Scroll:', scrollTop, 'Origin:', scrollOrigin, 'Distance:', distanceFromOrigin);
-      
-      if (distanceFromOrigin > 100) {
-        setShowTodayButton(true);
+      // For calendar view, show button if scrolled away from today
+      if (hasInitiallyScrolledRef.current && scrollOriginRef.current > 0) {
+        const scrollOrigin = scrollOriginRef.current;
+        const distanceFromOrigin = Math.abs(scrollTop - scrollOrigin);
+        
+        if (distanceFromOrigin > 100) {
+          setShowTodayButton(true);
+        } else {
+          setShowTodayButton(false);
+        }
       } else {
-        setShowTodayButton(false);
+        // If not yet initialized, show button if scrolled significantly
+        if (scrollTop > 200) {
+          setShowTodayButton(true);
+        } else {
+          setShowTodayButton(false);
+        }
       }
     };
 
