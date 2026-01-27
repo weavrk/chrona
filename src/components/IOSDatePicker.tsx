@@ -16,6 +16,7 @@ export function IOSDatePicker({ value, onChange, className = '', label }: IOSDat
   const [displayMonth, setDisplayMonth] = useState<Date>(() => {
     return value ? new Date(value + 'T00:00:00') : new Date();
   });
+  const [isYearDropdownOpen, setIsYearDropdownOpen] = useState(false);
   const pickerRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
 
@@ -39,6 +40,7 @@ export function IOSDatePicker({ value, onChange, className = '', label }: IOSDat
         !overlayRef.current.contains(event.target as Node)
       ) {
         setIsOpen(false);
+        setIsYearDropdownOpen(false);
       }
     };
 
@@ -47,6 +49,7 @@ export function IOSDatePicker({ value, onChange, className = '', label }: IOSDat
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = '';
+      setIsYearDropdownOpen(false);
     }
 
     return () => {
@@ -107,6 +110,16 @@ export function IOSDatePicker({ value, onChange, className = '', label }: IOSDat
     newMonth.setMonth(displayMonth.getMonth() + 1);
     setDisplayMonth(newMonth);
   };
+
+  const handleYearChange = (newYear: number) => {
+    const newDate = new Date(displayMonth);
+    newDate.setFullYear(newYear);
+    setDisplayMonth(newDate);
+    setIsYearDropdownOpen(false);
+  };
+
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 100 }, (_, i) => currentYear - 50 + i);
 
   // Generate calendar grid
   const year = displayMonth.getFullYear();
@@ -187,27 +200,57 @@ export function IOSDatePicker({ value, onChange, className = '', label }: IOSDat
             className="ios-date-picker-overlay"
             onClick={handleCancel}
           />
-          <div ref={pickerRef} className="ios-date-picker-container">
+          <div ref={pickerRef} className="ios-date-picker-modal">
             <div className="ios-date-picker-calendar">
               {/* Month Navigation */}
               <div className="ios-date-picker-month-header">
-                <button 
-                  className="ios-date-picker-nav-button"
-                  onClick={goToPreviousMonth}
-                  type="button"
-                >
-                  <ChevronLeft size={20} />
-                </button>
-                <div className="ios-date-picker-month-year">
-                  {monthNames[month]} {year}
+                <div className="ios-date-picker-month-year-container">
+                  <div className="ios-date-picker-month-year">
+                    {monthNames[month]}
+                  </div>
+                  <div className="ios-date-picker-year-dropdown-wrapper">
+                    <button
+                      className="ios-date-picker-year-button"
+                      onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)}
+                      type="button"
+                    >
+                      {year}
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="m6 9 6 6 6-6"/>
+                      </svg>
+                    </button>
+                    {isYearDropdownOpen && (
+                      <div className="ios-date-picker-year-dropdown">
+                        {years.map((y) => (
+                          <button
+                            key={y}
+                            className={`ios-date-picker-year-option ${y === year ? 'selected' : ''}`}
+                            onClick={() => handleYearChange(y)}
+                            type="button"
+                          >
+                            {y}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <button 
-                  className="ios-date-picker-nav-button"
-                  onClick={goToNextMonth}
-                  type="button"
-                >
-                  <ChevronRight size={20} />
-                </button>
+                <div className="ios-date-picker-nav-buttons">
+                  <button 
+                    className="ios-date-picker-nav-button"
+                    onClick={goToPreviousMonth}
+                    type="button"
+                  >
+                    <ChevronLeft size={20} />
+                  </button>
+                  <button 
+                    className="ios-date-picker-nav-button"
+                    onClick={goToNextMonth}
+                    type="button"
+                  >
+                    <ChevronRight size={20} />
+                  </button>
+                </div>
               </div>
 
               {/* Day Names */}

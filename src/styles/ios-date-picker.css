@@ -52,24 +52,25 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.5);
   z-index: 10000;
   animation: fadeIn 0.2s;
 }
 
-.ios-date-picker-container {
+.ios-date-picker-modal {
   position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   background: var(--color-background-shells, var(--bg-secondary));
-  border-radius: 16px 16px 0 0;
+  border-radius: 16px;
   z-index: 10001;
-  animation: slideUp 0.3s ease-out;
-  max-height: 80vh;
+  animation: modalFadeIn 0.3s ease-out;
+  width: 340px;
+  max-width: calc(100vw - 32px);
   display: flex;
   flex-direction: column;
-  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
   overflow: hidden;
 }
 
@@ -77,7 +78,7 @@
   display: flex;
   flex-direction: column;
   padding: 20px;
-  gap: 16px;
+  gap: 8px;
 }
 
 /* Month Navigation */
@@ -85,24 +86,14 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 8px;
+  padding: 0 4px;
+  margin-bottom: 4px;
 }
 
-.ios-date-picker-nav-button {
-  background: transparent;
-  border: none;
-  color: var(--gray-800);
-  cursor: pointer;
-  padding: 8px;
+.ios-date-picker-month-year-container {
   display: flex;
   align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-  transition: background-color 0.2s;
-}
-
-.ios-date-picker-nav-button:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  gap: 8px;
 }
 
 .ios-date-picker-month-year {
@@ -112,12 +103,119 @@
   font-family: var(--font-family);
 }
 
+.ios-date-picker-year-dropdown-wrapper {
+  position: relative;
+}
+
+.ios-date-picker-year-button {
+  background: transparent;
+  border: none;
+  color: var(--gray-800);
+  font-size: 1.125rem;
+  font-weight: 600;
+  font-family: var(--font-family);
+  cursor: pointer;
+  padding: 4px 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 6px;
+  transition: background-color 0.2s;
+}
+
+.ios-date-picker-year-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.ios-date-picker-year-button svg {
+  transition: transform 0.2s;
+}
+
+.ios-date-picker-year-dropdown-wrapper:has(.ios-date-picker-year-dropdown) .ios-date-picker-year-button svg {
+  transform: rotate(180deg);
+}
+
+.ios-date-picker-year-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 4px;
+  background: var(--color-background-components, var(--bg-card));
+  border: 1px solid var(--color-secondary);
+  border-radius: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 10002;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  min-width: 80px;
+}
+
+.ios-date-picker-year-dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+
+.ios-date-picker-year-dropdown::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.ios-date-picker-year-dropdown::-webkit-scrollbar-thumb {
+  background: var(--color-secondary);
+  border-radius: 3px;
+}
+
+.ios-date-picker-year-option {
+  width: 100%;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  color: var(--gray-800);
+  font-size: 0.875rem;
+  font-family: var(--font-family);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.ios-date-picker-year-option:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.ios-date-picker-year-option.selected {
+  background-color: var(--color-accent, var(--accent));
+  color: var(--color-background-white, #ffffff);
+  font-weight: 600;
+}
+
+.ios-date-picker-nav-buttons {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ios-date-picker-nav-button {
+  background: transparent;
+  border: none;
+  color: var(--gray-800);
+  cursor: pointer;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: background-color 0.2s;
+}
+
+.ios-date-picker-nav-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
 /* Day Names */
 .ios-date-picker-day-names {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
-  margin-bottom: 8px;
+  gap: 2px;
+  margin-bottom: 2px;
+  margin-top: 4px;
 }
 
 .ios-date-picker-day-name {
@@ -126,7 +224,7 @@
   font-weight: 500;
   color: var(--gray-600);
   font-family: var(--font-family);
-  padding: 8px 4px;
+  padding: 4px 2px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -135,7 +233,7 @@
 .ios-date-picker-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
+  gap: 2px;
 }
 
 .ios-date-picker-day {
@@ -143,16 +241,16 @@
   border: none;
   background: transparent;
   color: var(--gray-800);
-  font-size: 1rem;
+  font-size: 0.875rem;
   font-weight: 500;
   font-family: var(--font-family);
   cursor: pointer;
-  border-radius: 8px;
+  border-radius: 6px;
   transition: all 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 44px;
+  min-height: 36px;
 }
 
 .ios-date-picker-day:hover:not(.empty):not(.selected) {
@@ -232,6 +330,17 @@
   }
   to {
     transform: translateY(0);
+  }
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -48%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
   }
 }
 
