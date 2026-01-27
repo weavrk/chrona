@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { X, Laugh, Smile, Meh, Frown, Annoyed, Angry, CheckCircle2, Plus, Trash2 } from 'lucide-react';
 import { useDesignSystem } from '../contexts/DesignSystemContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -136,21 +136,58 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
   const [workoutTypes, setWorkoutTypes] = useState<string[]>([]);
   const [confirmingDeleteId, setConfirmingDeleteId] = useState<string | null>(null);
 
+  // Helper function to format date as YYYY-MM-DD in local timezone
+  const formatLocalDate = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  // Initialize dates when sheet opens - use a previous ref to track the last selectedDate we initialized with
+  const lastInitializedDate = useRef<string | null>(null);
+
   useEffect(() => {
-    if (selectedDate) {
-      const dateStr = selectedDate.toISOString().split('T')[0];
-      setStartDate(dateStr);
-      setEndDate(dateStr);
-      // Set HR records initial date
-      if (hrRecords.length > 0 && !hrRecords[0].startDate) {
+    if (isOpen && selectedDate && !editingRecords) {
+      const dateToUse = new Date(selectedDate);
+      dateToUse.setHours(0, 0, 0, 0);
+      const dateStr = formatLocalDate(dateToUse);
+      
+      // Only initialize if this is a different date than last time, or if we haven't initialized yet
+      if (lastInitializedDate.current !== dateStr) {
+        
+        setStartDate(dateStr);
+        setEndDate(dateStr);
+        
+        // Set HR records initial date
         setHrRecords([{
-          ...hrRecords[0],
           startDate: dateStr,
           endDate: dateStr,
+          drugName: '',
+          dose: '',
+          doseUnit: 'Mg',
+          frequency: '',
+          frequencyUnit: 'daily',
+          includePlacebo: false,
+          repeatForward: false,
+          headache: false,
         }]);
+        
+        // Set workout records initial date
+        setWorkoutRecords([{
+          startDate: dateStr,
+          endDate: dateStr,
+          workoutType: '',
+          duration: '',
+        }]);
+        
+        lastInitializedDate.current = dateStr;
       }
+    } else if (!isOpen) {
+      // Reset when sheet closes
+      lastInitializedDate.current = null;
     }
-  }, [selectedDate]);
+  }, [isOpen, selectedDate, editingRecords]);
 
   // Check if a record exists for the selected date and type
   useEffect(() => {
@@ -164,7 +201,7 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
         const response = await fetch(`${import.meta.env.BASE_URL}data/${user.username}/records-list-${user.username}.json?t=${Date.now()}`);
         if (response.ok) {
           const records: Record<string, any[]> = await response.json();
-          const dateStr = selectedDate.toISOString().split('T')[0];
+          const dateStr = formatLocalDate(selectedDate);
           const dateRecords = records[dateStr] || [];
           
           // Check if any record matches the selected type
@@ -188,7 +225,7 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
       // Set the selected type to match the editing record type
       setSelectedType(editingRecordType);
       
-      const dateStr = selectedDate.toISOString().split('T')[0];
+      const dateStr = formatLocalDate(selectedDate);
       
       if (editingRecordType === 'period') {
         // For period, use the first record's data
@@ -271,7 +308,7 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
       }
     } else if (!editingRecords && isOpen) {
       // Reset form when not editing
-      const dateStr = selectedDate ? selectedDate.toISOString().split('T')[0] : '';
+      const dateStr = selectedDate ? formatLocalDate(selectedDate) : '';
       setStartDate(dateStr);
       setEndDate(dateStr);
       setIntensity('');
@@ -413,7 +450,7 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
   };
 
   const handleAdd = () => {
-    if (!selectedDate || isAdding) return;
+    if (isAdding) return;
 
     // For HR and workout, we need to save multiple records
     // For other types, save a single record
@@ -422,10 +459,14 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
       const recordsToSave: RecordData[] = hrRecords
         .filter(r => r.startDate && r.endDate && r.drugName)
         .map((hrRecord) => {
+          // Parse dates correctly in local timezone (not UTC)
+          const [startYear, startMonth, startDay] = hrRecord.startDate.split('-').map(Number);
+          const [endYear, endMonth, endDay] = hrRecord.endDate.split('-').map(Number);
+          
           const record: RecordData = {
             type: selectedType,
-            startDate: new Date(hrRecord.startDate),
-            endDate: new Date(hrRecord.endDate),
+            startDate: new Date(startYear, startMonth - 1, startDay),
+            endDate: new Date(endYear, endMonth - 1, endDay),
             details: {
               treatments: [{
                 drugName: hrRecord.drugName,
@@ -461,10 +502,14 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
       const recordsToSave: RecordData[] = workoutRecords
         .filter(r => r.startDate && r.endDate && r.workoutType)
         .map((woRecord) => {
+          // Parse dates correctly in local timezone (not UTC)
+          const [startYear, startMonth, startDay] = woRecord.startDate.split('-').map(Number);
+          const [endYear, endMonth, endDay] = woRecord.endDate.split('-').map(Number);
+          
           const record: RecordData = {
             type: selectedType,
-            startDate: new Date(woRecord.startDate),
-            endDate: new Date(woRecord.endDate),
+            startDate: new Date(startYear, startMonth - 1, startDay),
+            endDate: new Date(endYear, endMonth - 1, endDay),
             details: {
               workoutType: woRecord.workoutType,
               duration: woRecord.duration ? parseFloat(woRecord.duration) : undefined,
@@ -490,10 +535,14 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
       }
     } else {
       // Single record types
+      // Parse dates correctly in local timezone (not UTC)
+      const [startYear, startMonth, startDay] = startDate.split('-').map(Number);
+      const [endYear, endMonth, endDay] = endDate.split('-').map(Number);
+      
       const record: RecordData = {
         type: selectedType,
-        startDate: new Date(startDate),
-        endDate: new Date(endDate),
+        startDate: new Date(startYear, startMonth - 1, startDay),
+        endDate: new Date(endYear, endMonth - 1, endDay),
         details: {},
       };
 
@@ -524,16 +573,13 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
         (record as any).id = editingRecords[0].id;
       }
 
-      const recordDate = new Date(startDate);
+      const [recordYear, recordMonth, recordDay] = startDate.split('-').map(Number);
+      const recordDate = new Date(recordYear, recordMonth - 1, recordDay);
       onAdd(record, recordDate);
     }
 
     setIsAdding(true);
-    
-    setTimeout(() => {
-      handleClose();
-      setIsAdding(false);
-    }, 500);
+    // Don't call handleClose here - onAdd/onAddMultiple will handle closing and reloading
   };
 
   const handleDelete = () => {
@@ -582,7 +628,7 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
   };
 
   const addHrRecord = () => {
-    const dateStr = selectedDate ? selectedDate.toISOString().split('T')[0] : '';
+    const dateStr = selectedDate ? formatLocalDate(selectedDate) : '';
     setHrRecords([...hrRecords, {
       startDate: dateStr,
       endDate: dateStr,
@@ -598,7 +644,7 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
   };
 
   const addWorkoutRecord = () => {
-    const dateStr = selectedDate ? selectedDate.toISOString().split('T')[0] : '';
+    const dateStr = selectedDate ? formatLocalDate(selectedDate) : '';
     setWorkoutRecords([...workoutRecords, {
       startDate: dateStr,
       endDate: dateStr,
@@ -692,33 +738,33 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
           </div>
 
         <div className="bottom-sheet-content">
-          {/* Period */}
-          {selectedType === 'period' && (
-            <>
-          <div className="form-date-selector">
-            <label className="form-section-headers">Date Range</label>
-            <div className="date-range-container">
-              <div className="date-input-group">
-                <IOSDatePicker
-                  value={startDate}
-                  onChange={(newStartDate) => {
-                    setStartDate(newStartDate);
-                    setEndDate(newStartDate);
-                  }}
-                  label="Start"
-                  className="date-input-group"
-                />
-              </div>
-              <div className="date-input-group">
-                <IOSDatePicker
-                  value={endDate}
-                  onChange={setEndDate}
-                  label="End"
-                  className="date-input-group"
-                />
-              </div>
-            </div>
-          </div>
+                      {/* Period */}
+                      {selectedType === 'period' && (
+                        <>
+                          <div className="form-date-selector">
+                            <label className="form-section-headers">Date Range</label>
+                            <div className="date-range-container">
+                          <div className="date-input-group">
+                            <IOSDatePicker
+                              value={startDate}
+                              onChange={(newStartDate) => {
+                                setStartDate(newStartDate);
+                                setEndDate(newStartDate);
+                              }}
+                              label="Start"
+                              className="date-input-group"
+                            />
+                          </div>
+                          <div className="date-input-group">
+                            <IOSDatePicker
+                              value={endDate}
+                              onChange={setEndDate}
+                              label="End"
+                              className="date-input-group"
+                            />
+                          </div>
+                            </div>
+                          </div>
             <div className="form-chips-single">
               <label className="form-section-headers">Intensity</label>
               <div className="chip-bar-single-select">

@@ -1,53 +1,56 @@
 {
-  "2026-02-02": [
+  "2026-02-23": [
     {
-      "id": "1704672000000-1",
-      "type": "period",
-      "data": {
-        "intensity": "Medium"
-      }
-    },
-    {
-      "id": "1704672000000-2",
+      "id": "1706486400000-1",
       "type": "hormone-replacement-therapy",
       "data": {
         "treatments": [
           {
-            "drugName": "Progesterone",
-            "dose": 100,
+            "drugName": "Estradiol",
+            "dose": 2,
             "doseUnit": "Mg",
             "frequency": 1,
             "frequencyUnit": "daily"
           }
         ],
-        "repeatForward": false,
-        "includePlacebo": true
+        "repeatForward": true,
+        "includePlacebo": false
       }
     },
     {
-      "id": "1704672000000-3",
+      "id": "1706486400000-2",
       "type": "hsv",
       "data": {
-        "hadBreakout": true,
-        "severity": "Bad",
+        "hadBreakout": false,
         "repeatForward": false
       }
-    },
+    }
+  ],
+  "2026-02-20": [
     {
-      "id": "1704672000000-4",
-      "type": "mental-health",
+      "id": "1706227200000-1",
+      "type": "workout",
       "data": {
-        "mood": "smile",
-        "notes": "Had a good conversation"
+        "workoutType": "Swimming",
+        "duration": 40,
+        "durationUnit": "minutes"
       }
     },
     {
-      "id": "1704672000000-5",
-      "type": "workout",
+      "id": "1706227200000-2",
+      "type": "mental-health",
       "data": {
-        "workoutType": "Yoga",
-        "duration": 45,
-        "durationUnit": "minutes"
+        "mood": "light",
+        "notes": "Productive day at work"
+      }
+    }
+  ],
+  "2026-02-15": [
+    {
+      "id": "1705804800000-1",
+      "type": "period",
+      "data": {
+        "intensity": "Heavy"
       }
     }
   ],
@@ -112,58 +115,89 @@
       }
     }
   ],
-  "2026-02-15": [
+  "2026-02-02": [
     {
-      "id": "1705804800000-1",
+      "id": "1704672000000-1",
       "type": "period",
       "data": {
-        "intensity": "Heavy"
-      }
-    }
-  ],
-  "2026-02-20": [
-    {
-      "id": "1706227200000-1",
-      "type": "workout",
-      "data": {
-        "workoutType": "Swimming",
-        "duration": 40,
-        "durationUnit": "minutes"
+        "intensity": "Medium"
       }
     },
     {
-      "id": "1706227200000-2",
-      "type": "mental-health",
-      "data": {
-        "mood": "light",
-        "notes": "Productive day at work"
-      }
-    }
-  ],
-  "2026-02-23": [
-    {
-      "id": "1706486400000-1",
+      "id": "1704672000000-2",
       "type": "hormone-replacement-therapy",
       "data": {
         "treatments": [
           {
-            "drugName": "Estradiol",
-            "dose": 2,
+            "drugName": "Progesterone",
+            "dose": 100,
             "doseUnit": "Mg",
             "frequency": 1,
             "frequencyUnit": "daily"
           }
         ],
-        "repeatForward": true,
-        "includePlacebo": false
+        "repeatForward": false,
+        "includePlacebo": true
       }
     },
     {
-      "id": "1706486400000-2",
+      "id": "1704672000000-3",
       "type": "hsv",
       "data": {
-        "hadBreakout": false,
+        "hadBreakout": true,
+        "severity": "Bad",
         "repeatForward": false
+      }
+    },
+    {
+      "id": "1704672000000-4",
+      "type": "mental-health",
+      "data": {
+        "mood": "smile",
+        "notes": "Had a good conversation"
+      }
+    },
+    {
+      "id": "1704672000000-5",
+      "type": "workout",
+      "data": {
+        "workoutType": "Yoga",
+        "duration": 45,
+        "durationUnit": "minutes"
+      }
+    }
+  ],
+  "2026-01-30": [
+    {
+      "id": "1769477423607-6uaovb4tq",
+      "type": "period",
+      "data": {
+        "intensity": "Medium"
+      }
+    }
+  ],
+  "2026-01-29": [
+    {
+      "id": "1769480350171-junxucxta",
+      "type": "period",
+      "data": {
+        "intensity": "Spotting"
+      }
+    }
+  ],
+  "2026-01-28": [
+    {
+      "id": "1769518103850-ff4poh87j",
+      "type": "period",
+      "data": {
+        "intensity": "Medium"
+      }
+    },
+    {
+      "id": "1769518119438-fha68knby",
+      "type": "period",
+      "data": {
+        "intensity": "Spotting"
       }
     }
   ],
@@ -174,14 +208,156 @@
       "data": {
         "intensity": "Lite"
       }
-    }
-  ],
-  "2026-01-30": [
+    },
     {
-      "id": "1769477423607-6uaovb4tq",
+      "id": "1769480783801-qnqz3pglr",
+      "type": "period",
+      "data": {
+        "intensity": "Spotting"
+      }
+    },
+    {
+      "id": "1769484553757-3tgbvz4aj",
       "type": "period",
       "data": {
         "intensity": "Medium"
+      }
+    },
+    {
+      "id": "1769484669893-pwv3ndjkw",
+      "type": "period",
+      "data": {
+        "intensity": "Medium"
+      }
+    }
+  ],
+  "2026-01-26": [
+    {
+      "id": "1769481016302-jd9rgvwar",
+      "type": "period",
+      "data": {
+        "intensity": "Spotting"
+      }
+    },
+    {
+      "id": "1769481198050-u10obaj06",
+      "type": "period",
+      "data": {
+        "intensity": "Spotting"
+      }
+    },
+    {
+      "id": "1769481387766-prnb9tmov",
+      "type": "period",
+      "data": {
+        "intensity": "Spotting"
+      }
+    },
+    {
+      "id": "1769481766716-6ftksxnel",
+      "type": "period",
+      "data": {
+        "intensity": "Spotting"
+      }
+    },
+    {
+      "id": "1769482127320-kvx4xofzo",
+      "type": "period",
+      "data": {
+        "intensity": "Spotting"
+      }
+    },
+    {
+      "id": "1769482359873-x0fxn564y",
+      "type": "period",
+      "data": {
+        "intensity": "Spotting"
+      }
+    },
+    {
+      "id": "1769482516142-tn0i38mgf",
+      "type": "period",
+      "data": {
+        "intensity": "Lite"
+      }
+    },
+    {
+      "id": "1769482672060-l2bji99rk",
+      "type": "period",
+      "data": {
+        "intensity": "Medium"
+      }
+    },
+    {
+      "id": "1769482931055-1dfi569j9",
+      "type": "period",
+      "data": {
+        "intensity": "Heavy"
+      }
+    },
+    {
+      "id": "1769483070779-4jsx33ubm",
+      "type": "period",
+      "data": {
+        "intensity": "Heavy"
+      }
+    },
+    {
+      "id": "1769483366797-vp8uja7ge",
+      "type": "period",
+      "data": {
+        "intensity": "Spotting"
+      }
+    },
+    {
+      "id": "1769483397697-8jlzkmb2g",
+      "type": "period",
+      "data": {
+        "intensity": "Medium"
+      }
+    },
+    {
+      "id": "1769483542247-hfblbyt1r",
+      "type": "period",
+      "data": {
+        "intensity": "Spotting"
+      }
+    },
+    {
+      "id": "1769483784199-7557yma7v",
+      "type": "period",
+      "data": {
+        "intensity": "Heavy"
+      }
+    },
+    {
+      "id": "1769483901522-c3x893sbe",
+      "type": "period",
+      "data": {
+        "intensity": "Medium"
+      }
+    },
+    {
+      "id": "1769484178176-tr3zpbpgo",
+      "type": "period",
+      "data": {
+        "intensity": "Lite"
+      }
+    }
+  ],
+  "2026-01-25": [
+    {
+      "id": "1769480334840-769m2u0un",
+      "type": "period",
+      "data": {
+        "intensity": "Medium"
+      }
+    },
+    {
+      "id": "1769479762676-hewpghr7l",
+      "type": "period",
+      "data": {
+        "intensity": "Heavy"
       }
     }
   ]

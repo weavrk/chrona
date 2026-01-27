@@ -15,6 +15,14 @@ interface ChipLabel {
   color: string;
 }
 
+// Helper function to format date as YYYY-MM-DD in local timezone
+const formatLocalDate = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 export function App() {
   const { user, isLoading, logout } = useAuth();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -24,6 +32,8 @@ export function App() {
   const [isAddLabelOpen, setIsAddLabelOpen] = useState(false);
   const [isEditLabelsOpen, setIsEditLabelsOpen] = useState(false);
   const [chipLabels, setChipLabels] = useState<ChipLabel[]>([]);
+  const [editingRecords, setEditingRecords] = useState<any[] | null>(null);
+  const [editingRecordType, setEditingRecordType] = useState<string | null>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const userMenuButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -174,14 +184,15 @@ export function App() {
     );
   }
 
-  const handleAddRecordClick = () => {
-    const today = new Date();
-    setSelectedDate(today);
-    setIsSheetOpen(true);
-  };
-
-  const [editingRecords, setEditingRecords] = useState<any[] | null>(null);
-  const [editingRecordType, setEditingRecordType] = useState<string | null>(null);
+    const handleAddRecordClick = () => {
+      // Always use today's date
+      const date = new Date();
+      date.setHours(0, 0, 0, 0);
+      setSelectedDate(date);
+      setEditingRecords(null);
+      setEditingRecordType(null);
+      setIsSheetOpen(true);
+    };
 
   const handleSheetDateChange = (date: Date, recordType?: string, recordData?: any[]) => {
     setSelectedDate(date);
@@ -190,7 +201,7 @@ export function App() {
     setIsSheetOpen(true);
   };
 
-  const handleAddRecord = async (record: RecordData, recordDate: Date) => {
+  const handleAddRecord = async (record: RecordData, _recordDate: Date) => {
     if (!user) return;
     
     try {
@@ -202,9 +213,9 @@ export function App() {
         records = data && typeof data === 'object' ? data : {};
       }
 
-      // Convert dates to YYYY-MM-DD format
-      const startDateStr = record.startDate.toISOString().split('T')[0];
-      const endDateStr = record.endDate.toISOString().split('T')[0];
+      // Convert dates to YYYY-MM-DD format (local timezone)
+      const startDateStr = formatLocalDate(record.startDate);
+      const endDateStr = formatLocalDate(record.endDate);
       
       // Check if this is an edit (has ID) or new record
       const recordId = (record as any).id || `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
@@ -231,12 +242,15 @@ export function App() {
       }
 
       // Add/update record to all dates in the range (inclusive)
-      const start = new Date(startDateStr);
-      const end = new Date(endDateStr);
+      // Parse dates correctly in local timezone (not UTC)
+      const [startYear, startMonth, startDay] = startDateStr.split('-').map(Number);
+      const [endYear, endMonth, endDay] = endDateStr.split('-').map(Number);
+      const start = new Date(startYear, startMonth - 1, startDay);
+      const end = new Date(endYear, endMonth - 1, endDay);
       const currentDate = new Date(start);
       
       while (currentDate <= end) {
-        const dateKey = currentDate.toISOString().split('T')[0];
+        const dateKey = formatLocalDate(currentDate);
         
         // Initialize array for this date if it doesn't exist
         if (!records[dateKey]) {
@@ -264,16 +278,13 @@ export function App() {
 
       if (!saveResponse.ok) {
         const errorData = await saveResponse.json().catch(() => ({ error: 'Unknown error' }));
+        console.error('Save failed:', errorData);
         throw new Error(errorData.error || 'Failed to save records');
       }
 
-      // Store the record date and current view mode in sessionStorage for scrolling after refresh
-      const recordDateStr = recordDate.toISOString().split('T')[0];
-      sessionStorage.setItem('scrollToDate', recordDateStr);
       // Store current view mode so we stay on the same view after reload
       const currentViewMode = sessionStorage.getItem('currentViewMode') || 'list';
-      sessionStorage.setItem('scrollToViewMode', currentViewMode);
-      sessionStorage.setItem('restoreViewMode', currentViewMode); // Store to restore after reload
+      sessionStorage.setItem('restoreViewMode', currentViewMode);
       
       // Close the sheet and reload the page to refresh data
       setIsSheetOpen(false);
@@ -299,7 +310,7 @@ export function App() {
       // If editing (any record has an ID), first delete all existing records of this type for the selected date
       const isEdit = records.some(r => (r as any).id);
       if (isEdit && editingRecordType && selectedDate) {
-        const dateStr = selectedDate.toISOString().split('T')[0];
+        const dateStr = formatLocalDate(selectedDate);
         if (allRecords[dateStr]) {
           // Remove all records of this type (we'll add the updated ones back)
           allRecords[dateStr] = allRecords[dateStr].filter((r: any) => r.type !== editingRecordType);
@@ -312,8 +323,8 @@ export function App() {
       // Process each record
       for (const record of records) {
         const recordId = (record as any).id || `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-        const startDateStr = record.startDate.toISOString().split('T')[0];
-        const endDateStr = record.endDate.toISOString().split('T')[0];
+        const startDateStr = formatLocalDate(record.startDate);
+        const endDateStr = formatLocalDate(record.endDate);
         
         const recordToAdd = {
           id: recordId,
@@ -322,12 +333,15 @@ export function App() {
         };
 
         // Add record to all dates in the range
-        const start = new Date(startDateStr);
-        const end = new Date(endDateStr);
+        // Parse dates correctly in local timezone (not UTC)
+        const [startYear, startMonth, startDay] = startDateStr.split('-').map(Number);
+        const [endYear, endMonth, endDay] = endDateStr.split('-').map(Number);
+        const start = new Date(startYear, startMonth - 1, startDay);
+        const end = new Date(endYear, endMonth - 1, endDay);
         const currentDate = new Date(start);
         
         while (currentDate <= end) {
-          const dateKey = currentDate.toISOString().split('T')[0];
+          const dateKey = formatLocalDate(currentDate);
           if (!allRecords[dateKey]) {
             allRecords[dateKey] = [];
           }
@@ -376,16 +390,19 @@ export function App() {
       }
 
       // Convert dates to YYYY-MM-DD format
-      const startDateStr = startDate.toISOString().split('T')[0];
-      const endDateStr = endDate.toISOString().split('T')[0];
+      const startDateStr = formatLocalDate(startDate);
+      const endDateStr = formatLocalDate(endDate);
       
       // Remove records - if recordId is provided, delete that specific record, otherwise delete all of that type
-      const start = new Date(startDateStr);
-      const end = new Date(endDateStr);
+      // Parse dates correctly in local timezone (not UTC)
+      const [delStartYear, delStartMonth, delStartDay] = startDateStr.split('-').map(Number);
+      const [delEndYear, delEndMonth, delEndDay] = endDateStr.split('-').map(Number);
+      const start = new Date(delStartYear, delStartMonth - 1, delStartDay);
+      const end = new Date(delEndYear, delEndMonth - 1, delEndDay);
       const currentDate = new Date(start);
       
       while (currentDate <= end) {
-        const dateKey = currentDate.toISOString().split('T')[0];
+        const dateKey = formatLocalDate(currentDate);
         
         if (records[dateKey]) {
           if (recordId) {
@@ -418,13 +435,9 @@ export function App() {
         throw new Error(errorData.error || 'Failed to delete records');
       }
 
-      // Store the record date and current view mode in sessionStorage for scrolling after refresh
-      const recordDateStr = startDate.toISOString().split('T')[0];
-      sessionStorage.setItem('scrollToDate', recordDateStr);
       // Store current view mode so we stay on the same view after reload
       const currentViewMode = sessionStorage.getItem('currentViewMode') || 'list';
-      sessionStorage.setItem('scrollToViewMode', currentViewMode);
-      sessionStorage.setItem('restoreViewMode', currentViewMode); // Store to restore after reload
+      sessionStorage.setItem('restoreViewMode', currentViewMode);
       
       // Close the sheet and reload the page to refresh data
       setIsSheetOpen(false);

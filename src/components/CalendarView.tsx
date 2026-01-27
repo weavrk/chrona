@@ -148,7 +148,31 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
   
   const handleDayClick = (year: number, month: number, day: number) => {
     const date = new Date(year, month, day);
-    onSheetDateChange(date);
+    date.setHours(0, 0, 0, 0);
+    
+    // Check if there are records for this date
+    const dateKey = `${year}-${month}-${day}`;
+    const dayRecords = records[dateKey] || [];
+    
+    if (dayRecords.length > 0) {
+      // If there are records, group by type and pass the first type's records
+      const recordsByType = new Map<string, any[]>();
+      dayRecords.forEach((record: any) => {
+        const type = record.type;
+        if (!recordsByType.has(type)) {
+          recordsByType.set(type, []);
+        }
+        recordsByType.get(type)!.push(record);
+      });
+      
+      // Pass the first record type and its records
+      const firstType = Array.from(recordsByType.keys())[0];
+      const firstTypeRecords = recordsByType.get(firstType) || [];
+      onSheetDateChange(date, firstType, firstTypeRecords);
+    } else {
+      // No records, just pass the date
+      onSheetDateChange(date);
+    }
   };
 
   const handleScrollToToday = () => {
@@ -372,23 +396,25 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
     ) as HTMLElement;
     
     if (todayElement) {
-      // Get header and chip bar heights
+      // Get header height only (no chip bar in list view)
       const header = document.querySelector('.chrona-header') as HTMLElement;
-      const chipBar = document.querySelector('.chip-bar-container') as HTMLElement;
       const headerHeight = header ? header.offsetHeight : 68;
-      const chipBarHeight = chipBar ? chipBar.offsetHeight : 62;
-      const targetTop = headerHeight + chipBarHeight;
       
-      const scrollContainer = document.querySelector('.chrona-main') as HTMLElement;
-      if (!scrollContainer) return null;
+      // Get the today element's position relative to the list container
+      let elementTop = 0;
+      let currentElement: HTMLElement | null = todayElement;
       
-      const containerRect = scrollContainer.getBoundingClientRect();
-      const elementRect = todayElement.getBoundingClientRect();
-      const currentScroll = scrollContainer.scrollTop;
+      // Walk up the DOM tree to calculate position relative to listViewRef.current
+      while (currentElement && currentElement !== listViewRef.current) {
+        elementTop += currentElement.offsetTop;
+        currentElement = currentElement.offsetParent as HTMLElement;
+      }
       
-      // Calculate the scroll position needed
-      const elementTopRelativeToContainer = elementRect.top - containerRect.top + currentScroll;
-      return Math.max(0, elementTopRelativeToContainer - targetTop);
+      // Add listViewRef.current's offsetTop to get position relative to scrollContainer
+      elementTop += listViewRef.current.offsetTop;
+      
+      // Position today at the very top (just below header) - add small padding
+      return Math.max(0, elementTop - headerHeight - 8);
     }
     return null;
   }, []);
@@ -611,26 +637,25 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
     const scrollContainer = document.querySelector('.chrona-main') as HTMLElement;
     if (!scrollContainer) return;
 
-    // When entering a view, use pre-calculated scroll position (instant, before paint)
+    // When entering a view, scroll to today
     if (viewMode === 'calendar' && prevViewMode.current !== 'calendar') {
-      // Always recalculate to ensure it's to current day (not saved position)
       const scrollPos = calculateCalendarScrollToToday();
       if (scrollPos !== null) {
         calendarScrollRef.current = scrollPos;
         scrollOriginRef.current = scrollPos;
-        // Set scroll position immediately (before view becomes visible)
         scrollContainer.scrollTop = scrollPos;
       }
     } else if (viewMode === 'list' && prevViewMode.current !== 'list') {
-      // Always recalculate to ensure it's to today (not saved position)
-      const scrollPos = calculateListViewScrollToToday();
-      if (scrollPos !== null) {
-        listScrollRef.current = scrollPos;
-        // Set scroll position immediately (before view becomes visible)
-        scrollContainer.scrollTop = scrollPos;
-      }
+      // Wait a bit for list to render, then scroll
+      setTimeout(() => {
+        const scrollPos = calculateListViewScrollToToday();
+        if (scrollPos !== null) {
+          listScrollRef.current = scrollPos;
+          scrollContainer.scrollTop = scrollPos;
+          console.log('List view scroll to today:', scrollPos);
+        }
+      }, 100);
     } else if (viewMode === 'summary' && prevViewMode.current !== 'summary') {
-      // Summary is always at top
       scrollContainer.scrollTop = 0;
     }
 
@@ -1265,7 +1290,9 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
   useEffect(() => {
     const restoreViewMode = sessionStorage.getItem('restoreViewMode');
     if (restoreViewMode && (restoreViewMode === 'calendar' || restoreViewMode === 'list' || restoreViewMode === 'summary')) {
-      setViewMode(restoreViewMode);
+      if (restoreViewMode !== viewMode) {
+        setViewMode(restoreViewMode);
+      }
       sessionStorage.removeItem('restoreViewMode');
     }
   }, []);
@@ -1275,9 +1302,9 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
     sessionStorage.setItem('currentViewMode', viewMode);
   }, [viewMode]);
 
-  // Load records
+  // Load records (load regardless of viewMode)
   useEffect(() => {
-    if (!user || viewMode !== 'list') return;
+    if (!user) return;
     
     const loadRecords = async () => {
       try {
@@ -1285,38 +1312,6 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
         if (response.ok) {
           const data = await response.json();
           setRecords(data && typeof data === 'object' ? data : {});
-          
-          // Check if we need to scroll to a specific date after save
-          const scrollToDate = sessionStorage.getItem('scrollToDate');
-          const scrollToViewMode = sessionStorage.getItem('scrollToViewMode');
-          
-          if (scrollToDate && scrollToViewMode === 'list' && viewMode === 'list') {
-            // Clear the session storage
-            sessionStorage.removeItem('scrollToDate');
-            sessionStorage.removeItem('scrollToViewMode');
-            
-            // Wait for DOM to update, then scroll
-            setTimeout(() => {
-              const scrollContainer = listViewRef.current?.closest('.chrona-main') as HTMLElement;
-              if (scrollContainer && listViewRef.current) {
-                // Parse the date to match the format used in list items
-                const date = new Date(scrollToDate);
-                const year = date.getFullYear();
-                const month = date.getMonth();
-                const day = date.getDate();
-                const dateKey = `${year}-${month}-${day}`;
-                
-                const dateElement = listViewRef.current?.querySelector(`[data-date-key="${dateKey}"]`) as HTMLElement;
-                if (dateElement) {
-                  const offsetTop = dateElement.offsetTop;
-                  scrollContainer.scrollTo({
-                    top: offsetTop - 130, // Account for header height
-                    behavior: 'smooth'
-                  });
-                }
-              }
-            }, 500);
-          }
         }
       } catch (error) {
         console.error('Failed to load records:', error);
@@ -1324,7 +1319,9 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
     };
     
     loadRecords();
-  }, [user, viewMode]);
+  }, [user]);
+
+  // No custom scroll after save - just let the natural scroll-to-today happen
 
   // Helper to get label color
   const getLabelColor = (labelId: string): string => {

@@ -34,6 +34,27 @@ if (!$data || !isset($data['username']) || !isset($data['records'])) {
 $username = $data['username'];
 $records = $data['records'];
 
+// Sort records by date (most recent first)
+$sortedRecords = [];
+$dateKeys = array_keys($records);
+
+usort($dateKeys, function($a, $b) {
+    // Parse date keys (format: "YYYY-M-D" where M is 0-indexed)
+    list($yearA, $monthA, $dayA) = explode('-', $a);
+    list($yearB, $monthB, $dayB) = explode('-', $b);
+    
+    $dateA = mktime(0, 0, 0, $monthA + 1, $dayA, $yearA); // +1 because PHP months are 1-indexed
+    $dateB = mktime(0, 0, 0, $monthB + 1, $dayB, $yearB);
+    
+    // Sort descending (most recent first)
+    return $dateB - $dateA;
+});
+
+// Build sorted object
+foreach ($dateKeys as $key) {
+    $sortedRecords[$key] = $records[$key];
+}
+
 // Get the absolute path to the project root
 $projectRoot = dirname(dirname(__FILE__));
 
@@ -45,7 +66,7 @@ if (!is_dir($publicUserDir)) {
 
 // Save to public/data/{username}/records-list-{username}.json (for production access)
 $publicFilePath = $publicUserDir . '/records-list-' . $username . '.json';
-$jsonString = json_encode($records, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+$jsonString = json_encode($sortedRecords, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 $result = file_put_contents($publicFilePath, $jsonString);
 
 if ($result === false) {

@@ -312,10 +312,29 @@ function apiPlugin() {
               fs.mkdirSync(publicUserDir, { recursive: true });
             }
             
+            // Sort records by date (most recent first)
+            const sortedRecords = {};
+            const dateKeys = Object.keys(records).sort((a, b) => {
+              // Parse date keys (format: "YYYY-M-D" where M is 0-indexed)
+              const [yearA, monthA, dayA] = a.split('-').map(Number);
+              const [yearB, monthB, dayB] = b.split('-').map(Number);
+              
+              const dateA = new Date(yearA, monthA, dayA);
+              const dateB = new Date(yearB, monthB, dayB);
+              
+              // Sort descending (most recent first)
+              return dateB.getTime() - dateA.getTime();
+            });
+            
+            // Build sorted object
+            dateKeys.forEach(key => {
+              sortedRecords[key] = records[key];
+            });
+            
             const srcRecordsPath = path.join(srcUserDir, `records-list-${username}.json`);
             const publicRecordsPath = path.join(publicUserDir, `records-list-${username}.json`);
             
-            const recordsJson = JSON.stringify(records, null, 2) + '\n';
+            const recordsJson = JSON.stringify(sortedRecords, null, 2) + '\n';
             
             fs.writeFileSync(srcRecordsPath, recordsJson, 'utf-8');
             fs.writeFileSync(publicRecordsPath, recordsJson, 'utf-8');
