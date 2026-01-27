@@ -1366,7 +1366,7 @@
 .form-chips-single {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: 16px;
   width: 100%;
 }
 
