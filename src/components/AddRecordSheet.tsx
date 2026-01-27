@@ -127,9 +127,14 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
   const [_hsNewDrugName, setHsNewDrugName] = useState<string>('');
 
   // Workout specific state
-  const [workoutType, setWorkoutType] = useState<string>('');
+  const [workoutRecords, setWorkoutRecords] = useState<WorkoutRecordItem[]>([{
+    startDate: '',
+    endDate: '',
+    workoutType: '',
+    duration: '',
+  }]);
   const [workoutTypes, setWorkoutTypes] = useState<string[]>([]);
-  const [duration, setDuration] = useState<string>('');
+  const [confirmingDeleteId, setConfirmingDeleteId] = useState<string | null>(null);
 
   useEffect(() => {
     if (selectedDate) {
@@ -570,8 +575,6 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
     setHsDrugName('');
     setHsDose('');
     setHsFrequency('');
-    setWorkoutType('');
-    setDuration('');
     setIsAdding(false);
     setHasExistingRecord(false);
     setIsDeleting(false);

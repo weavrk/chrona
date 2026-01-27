@@ -510,7 +510,13 @@ export function App() {
       <AddRecordSheet
         isOpen={isSheetOpen}
         selectedDate={selectedDate}
-        onClose={() => setIsSheetOpen(false)}
+        editingRecords={editingRecords}
+        editingRecordType={editingRecordType}
+        onClose={() => {
+          setIsSheetOpen(false);
+          setEditingRecords(null);
+          setEditingRecordType(null);
+        }}
         onAdd={handleAddRecord}
         onAddMultiple={handleAddMultipleRecords}
         onDelete={handleDeleteRecord}
