@@ -218,7 +218,14 @@ export function App() {
       const endDateStr = formatLocalDate(record.endDate);
       
       // Check if this is an edit (has ID) or new record
-      const recordId = (record as any).id || `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      // Generate ID in format: YYYYMMDD-randomstring (e.g., 20260128-abc123)
+      const generateId = () => {
+        const now = new Date();
+        const dateStr = formatLocalDate(now).replace(/-/g, ''); // YYYYMMDD
+        const random = Math.random().toString(36).substr(2, 6); // 6 char random
+        return `${dateStr}-${random}`;
+      };
+      const recordId = (record as any).id || generateId();
       const isEdit = !!(record as any).id;
       
       // Create record object (without dates since they're in the key)
@@ -322,7 +329,14 @@ export function App() {
 
       // Process each record
       for (const record of records) {
-        const recordId = (record as any).id || `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        // Generate ID in format: YYYYMMDD-randomstring (e.g., 20260128-abc123)
+        const generateId = () => {
+          const now = new Date();
+          const dateStr = formatLocalDate(now).replace(/-/g, ''); // YYYYMMDD
+          const random = Math.random().toString(36).substr(2, 6); // 6 char random
+          return `${dateStr}-${random}`;
+        };
+        const recordId = (record as any).id || generateId();
         const startDateStr = formatLocalDate(record.startDate);
         const endDateStr = formatLocalDate(record.endDate);
         

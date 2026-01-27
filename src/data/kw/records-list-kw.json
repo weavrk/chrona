@@ -1,7 +1,7 @@
 {
   "2026-02-23": [
     {
-      "id": "1706486400000-1",
+      "id": "20260223-1",
       "type": "hormone-replacement-therapy",
       "data": {
         "treatments": [
@@ -18,7 +18,7 @@
       }
     },
     {
-      "id": "1706486400000-2",
+      "id": "20260223-2",
       "type": "hsv",
       "data": {
         "hadBreakout": false,
@@ -28,7 +28,7 @@
   ],
   "2026-02-20": [
     {
-      "id": "1706227200000-1",
+      "id": "20260220-1",
       "type": "workout",
       "data": {
         "workoutType": "Swimming",
@@ -37,7 +37,7 @@
       }
     },
     {
-      "id": "1706227200000-2",
+      "id": "20260220-2",
       "type": "mental-health",
       "data": {
         "mood": "light",
@@ -47,7 +47,7 @@
   ],
   "2026-02-15": [
     {
-      "id": "1705804800000-1",
+      "id": "20260215-1",
       "type": "period",
       "data": {
         "intensity": "Heavy"
@@ -56,14 +56,14 @@
   ],
   "2026-02-09": [
     {
-      "id": "1705276800000-1",
+      "id": "20260209-1",
       "type": "period",
       "data": {
         "intensity": "Lite"
       }
     },
     {
-      "id": "1705276800000-2",
+      "id": "20260209-2",
       "type": "hormone-replacement-therapy",
       "data": {
         "treatments": [
@@ -80,7 +80,7 @@
       }
     },
     {
-      "id": "1705276800000-3",
+      "id": "20260209-3",
       "type": "hsv",
       "data": {
         "hadBreakout": true,
@@ -98,7 +98,7 @@
       }
     },
     {
-      "id": "1705276800000-4",
+      "id": "20260209-4",
       "type": "mental-health",
       "data": {
         "mood": "meh",
@@ -106,7 +106,7 @@
       }
     },
     {
-      "id": "1705276800000-5",
+      "id": "20260209-5",
       "type": "workout",
       "data": {
         "workoutType": "Weight Training",
@@ -117,14 +117,14 @@
   ],
   "2026-02-02": [
     {
-      "id": "1704672000000-1",
+      "id": "20260202-1",
       "type": "period",
       "data": {
         "intensity": "Medium"
       }
     },
     {
-      "id": "1704672000000-2",
+      "id": "20260202-2",
       "type": "hormone-replacement-therapy",
       "data": {
         "treatments": [
@@ -141,7 +141,7 @@
       }
     },
     {
-      "id": "1704672000000-3",
+      "id": "20260202-3",
       "type": "hsv",
       "data": {
         "hadBreakout": true,
@@ -150,7 +150,7 @@
       }
     },
     {
-      "id": "1704672000000-4",
+      "id": "20260202-4",
       "type": "mental-health",
       "data": {
         "mood": "smile",
@@ -158,7 +158,7 @@
       }
     },
     {
-      "id": "1704672000000-5",
+      "id": "20260202-5",
       "type": "workout",
       "data": {
         "workoutType": "Yoga",
@@ -169,7 +169,7 @@
   ],
   "2026-01-30": [
     {
-      "id": "1769477423607-6uaovb4tq",
+      "id": "20260130-1",
       "type": "period",
       "data": {
         "intensity": "Medium"
@@ -178,7 +178,7 @@
   ],
   "2026-01-29": [
     {
-      "id": "1769480350171-junxucxta",
+      "id": "20260129-1",
       "type": "period",
       "data": {
         "intensity": "Spotting"
@@ -187,7 +187,7 @@
   ],
   "2026-01-28": [
     {
-      "id": "1769518119438-fha68knby",
+      "id": "20260128-1",
       "type": "period",
       "data": {
         "intensity": "Spotting"
@@ -196,7 +196,7 @@
   ],
   "2026-01-27": [
     {
-      "id": "1769484669893-pwv3ndjkw",
+      "id": "20260127-1",
       "type": "period",
       "data": {
         "intensity": "Medium"
@@ -205,7 +205,7 @@
   ],
   "2026-01-26": [
     {
-      "id": "1769484178176-tr3zpbpgo",
+      "id": "20260126-1",
       "type": "period",
       "data": {
         "intensity": "Lite"
@@ -214,7 +214,7 @@
   ],
   "2026-01-25": [
     {
-      "id": "1769480334840-769m2u0un",
+      "id": "20260125-1",
       "type": "period",
       "data": {
         "intensity": "Medium"
