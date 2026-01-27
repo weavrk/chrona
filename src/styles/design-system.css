@@ -54,7 +54,7 @@
   flex-direction: column;
   overflow: hidden;
   min-height: 0;
-  height: 100vh;
+  height: calc(100vh - 68px);
 }
 
 @keyframes fadeIn {
