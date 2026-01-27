@@ -184,15 +184,15 @@ export function App() {
     );
   }
 
-    const handleAddRecordClick = () => {
+  const handleAddRecordClick = () => {
       // Always use today's date
       const date = new Date();
       date.setHours(0, 0, 0, 0);
       setSelectedDate(date);
       setEditingRecords(null);
       setEditingRecordType(null);
-      setIsSheetOpen(true);
-    };
+    setIsSheetOpen(true);
+  };
 
   const handleSheetDateChange = (date: Date, recordType?: string, recordData?: any[]) => {
     setSelectedDate(date);

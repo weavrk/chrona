@@ -426,8 +426,8 @@ export function DesignSystemPanel() {
                       <div key={grayName} className="color-swatch-card">
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
                           <span className="color-name">
-                            {getDisplayName(grayName)}
-                          </span>
+                                {getDisplayName(grayName)}
+                              </span>
                           <button
                             onClick={() => handleCopyToClipboard(grayName)}
                             style={{
@@ -479,34 +479,34 @@ export function DesignSystemPanel() {
                         <div key={paletteName} className="color-swatch-card">
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
                           <span className="color-name">
-                            {getDisplayName(paletteName)}
-                          </span>
-                          <button
-                            onClick={() => handleCopyToClipboard(paletteName)}
-                            style={{
-                              background: 'none',
-                              border: 'none',
-                              color: copiedName === paletteName ? 'var(--color-accent)' : 'var(--gray-700)',
-                              cursor: 'pointer',
-                              padding: '2px',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              transition: 'color 0.2s'
-                            }}
-                            title="Copy to clipboard"
-                          >
-                            {copiedName === paletteName ? (
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <path d="M20 6L9 17l-5-5"/>
-                              </svg>
-                            ) : (
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
-                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-                              </svg>
-                            )}
-                          </button>
+                                {getDisplayName(paletteName)}
+                              </span>
+                              <button
+                                onClick={() => handleCopyToClipboard(paletteName)}
+                                style={{
+                                  background: 'none',
+                                  border: 'none',
+                                  color: copiedName === paletteName ? 'var(--color-accent)' : 'var(--gray-700)',
+                                  cursor: 'pointer',
+                                  padding: '2px',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  transition: 'color 0.2s'
+                                }}
+                                title="Copy to clipboard"
+                              >
+                                {copiedName === paletteName ? (
+                                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <path d="M20 6L9 17l-5-5"/>
+                                  </svg>
+                                ) : (
+                                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                                  </svg>
+                                )}
+                              </button>
                         </div>
                         <input
                           type="color"
@@ -545,8 +545,8 @@ export function DesignSystemPanel() {
                       <div key={cmykName} className="color-swatch-card">
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
                           <span className="color-name">
-                            {getDisplayName(cmykName)}
-                          </span>
+                                {getDisplayName(cmykName)}
+                              </span>
                           <button
                             onClick={() => handleCopyToClipboard(cmykName)}
                             style={{

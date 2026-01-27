@@ -33,6 +33,7 @@ export interface RecordData {
     intensity?: string;
     hadBreakout?: boolean;
     severity?: string;
+    locations?: string[];
     repeatForward?: boolean;
     includePlacebo?: boolean;
     headache?: boolean;
@@ -75,6 +76,7 @@ interface WorkoutRecordItem {
 
 const PERIOD_INTENSITY = ['Heavy', 'Medium', 'Lite', 'Spotting'];
 const HSV_INTENSITY = ['Bad', 'Medium', 'Mild'];
+const HSV_LOCATIONS = ['Upper Lip', 'Lower Lip', 'Cheek', 'Nose'];
 const DOSE_UNITS = ['g', 'Mg', 'ml'];
 const FREQUENCY_UNITS = ['daily', 'weekly'];
 const MOODS = [
@@ -123,6 +125,7 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
   const [hsDoseUnit, setHsDoseUnit] = useState<string>('Mg');
   const [hsFrequency, setHsFrequency] = useState<string>('');
   const [hsFrequencyUnit, setHsFrequencyUnit] = useState<string>('daily');
+  const [hsLocations, setHsLocations] = useState<string[]>([]);
   const [hsDrugNames, setHsDrugNames] = useState<string[]>([]);
   const [_hsNewDrugName, setHsNewDrugName] = useState<string>('');
 
@@ -281,6 +284,7 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
         const firstRecord = hsvRecords[0];
         setHadBreakout(firstRecord?.data?.hadBreakout || false);
         setSeverity(firstRecord?.data?.severity || '');
+        setHsLocations(firstRecord?.data?.locations || []);
         setHsDrugName(firstRecord?.data?.treatments?.[0]?.drugName || '');
         setHsDose(firstRecord?.data?.treatments?.[0]?.dose?.toString() || '');
         setHsDoseUnit(firstRecord?.data?.treatments?.[0]?.doseUnit || 'Mg');
@@ -290,6 +294,7 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
       } else {
         setHadBreakout(false);
         setSeverity('');
+        setHsLocations([]);
         setHsDrugName('');
         setHsDose('');
         setHsFrequency('');
@@ -578,6 +583,7 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
         record.details!.hadBreakout = hadBreakout;
         if (hadBreakout) {
           record.details!.severity = severity;
+          record.details!.locations = hsLocations;
         }
         if (hsDrugName) {
           record.details!.treatments = [{
@@ -1055,7 +1061,10 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
                       checked={hadBreakout}
                       onChange={(e) => {
                         setHadBreakout(e.target.checked);
-                        if (!e.target.checked) setSeverity('');
+                        if (!e.target.checked) {
+                          setSeverity('');
+                          setHsLocations([]);
+                        }
                       }}
                       className="checkbox-input"
                     />
@@ -1063,6 +1072,7 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
                   </label>
 
                   <div className="form-chips-single">
+                    <label className="form-section-headers">Severity</label>
                     <div className="chip-bar-single-select">
                       {HSV_INTENSITY.map((level) => (
                         <button
@@ -1083,6 +1093,37 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
                           }
                         >
                           <span>{level}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="form-chips-single">
+                    <label className="form-section-headers">Location</label>
+                    <div className="chip-bar-single-select">
+                      {HSV_LOCATIONS.map((location) => (
+                        <button
+                          key={location}
+                          className={`ds-chip-md ${hsLocations.includes(location) ? 'active' : ''}`}
+                          onClick={() => {
+                            if (hadBreakout) {
+                              setHsLocations(prev => 
+                                prev.includes(location)
+                                  ? prev.filter(l => l !== location)
+                                  : [...prev, location]
+                              );
+                            }
+                          }}
+                          disabled={!hadBreakout}
+                          style={
+                            !hadBreakout
+                              ? { opacity: 0.5, cursor: 'not-allowed' }
+                              : hsLocations.includes(location)
+                              ? { backgroundColor: 'var(--sand)', borderColor: 'var(--sand)' }
+                              : undefined
+                          }
+                        >
+                          <span>{location}</span>
                         </button>
                       ))}
                     </div>

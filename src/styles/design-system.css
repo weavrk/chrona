@@ -600,6 +600,39 @@
   color: var(--gray-100);
 }
 
+/* Chip - Multi Select Medium (same sizing as single-select-md) */
+.ds-chip-md {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 16px;
+  font-weight: 500;
+  font-family: var(--font-family);
+  color: var(--gray-600);
+  border: 2px solid var(--gray-600);
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.ds-chip-md:hover {
+  transform: translateY(-1px);
+  opacity: 0.8;
+}
+
+.ds-chip-md:active {
+  transform: translateY(0);
+}
+
+/* Active state for multi-select */
+.ds-chip-md.active,
+.ds-chip-md.active span {
+  color: var(--gray-100);
+}
+
 /* Chip Bar Container */
 .chip-bar-container {
   position: fixed;

@@ -193,10 +193,10 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
         scrollOriginRef.current = scrollPosition;
       } else {
         // Fallback to stored origin if element not found
-        scrollContainer.scrollTo({
-          top: scrollOriginRef.current,
-          behavior: 'smooth',
-        });
+      scrollContainer.scrollTo({
+        top: scrollOriginRef.current,
+        behavior: 'smooth',
+      });
       }
     } else if (viewMode === 'list' && listViewRef.current) {
       // List view: find today's date item
@@ -327,19 +327,19 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
   const calculateCalendarScrollToToday = useCallback((): number | null => {
     if (!calendarRef.current) return null;
     
-    const scrollContainer = document.querySelector('.chrona-main') as HTMLElement;
+      const scrollContainer = document.querySelector('.chrona-main') as HTMLElement;
     if (!scrollContainer) return null;
-    
-    // Find the current month element using today's date
-    const todayDate = new Date();
-    const todayYear = todayDate.getFullYear();
-    const todayMonth = todayDate.getMonth(); // 0-11
-    
-    const currentMonthElement = calendarRef.current.querySelector(
-      `[data-month-key="${todayYear}-${todayMonth}"]`
-    ) as HTMLElement;
-    
-    if (currentMonthElement) {
+      
+      // Find the current month element using today's date
+      const todayDate = new Date();
+      const todayYear = todayDate.getFullYear();
+      const todayMonth = todayDate.getMonth(); // 0-11
+      
+      const currentMonthElement = calendarRef.current.querySelector(
+        `[data-month-key="${todayYear}-${todayMonth}"]`
+      ) as HTMLElement;
+      
+      if (currentMonthElement) {
       // Get the month header element for more accurate positioning
       const monthHeader = currentMonthElement.querySelector('.calendar-month-header') as HTMLElement;
       const targetElement = monthHeader || currentMonthElement;
@@ -362,7 +362,7 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
     }
     return null;
   }, []);
-
+        
   // Calculate list view scroll position to today (for pre-positioning)
   const calculateListViewScrollToToday = useCallback((): number | null => {
     if (!listViewRef.current) return null;
@@ -435,11 +435,11 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
       if (viewMode === 'calendar' && calendarScrollRef.current !== null && !hasInitiallyScrolledRef.current) {
         scrollContainer.scrollTop = calendarScrollRef.current;
         hasInitiallyScrolledRef.current = true;
-        
-        // Trigger observers setup after a delay
-        setTimeout(() => {
-          setObserversReady(true);
-        }, 1000);
+          
+          // Trigger observers setup after a delay
+          setTimeout(() => {
+            setObserversReady(true);
+          }, 1000);
       }
     };
 
@@ -587,13 +587,13 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
       
       // For calendar view, show button if scrolled away from today
       if (hasInitiallyScrolledRef.current && scrollOriginRef.current > 0) {
-        const scrollOrigin = scrollOriginRef.current;
-        const distanceFromOrigin = Math.abs(scrollTop - scrollOrigin);
-        
-        if (distanceFromOrigin > 100) {
-          setShowTodayButton(true);
-        } else {
-          setShowTodayButton(false);
+      const scrollOrigin = scrollOriginRef.current;
+      const distanceFromOrigin = Math.abs(scrollTop - scrollOrigin);
+      
+      if (distanceFromOrigin > 100) {
+        setShowTodayButton(true);
+      } else {
+        setShowTodayButton(false);
         }
       } else {
         // If not yet initialized, show button if scrolled significantly
@@ -1563,7 +1563,7 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
         onTouchEnd={handleTouchEnd}
       >
         <div className={`view-container calendar-view ${viewMode === 'calendar' ? 'active' : ''}`}>
-          <div className="calendar-view-months" ref={calendarRef}>
+      <div className="calendar-view-months" ref={calendarRef}>
         {months.map((monthData, index) => {
           const isFirst = index === 0;
           const isLast = index === months.length - 1;
@@ -1620,8 +1620,8 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
           );
         })}
           </div>
-        </div>
-        
+      </div>
+      
         <div className={`view-container list-view ${viewMode === 'list' ? 'active' : ''}`}>
           <ListView />
         </div>
@@ -1643,14 +1643,14 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
                 <path d="m15 18-6-6 6-6"/>
               </svg>
             </button>
-            <button 
-              className="calendar-today-fab"
-              onClick={handleScrollToToday}
-              aria-label="Scroll to today"
+      <button 
+        className="calendar-today-fab"
+        onClick={handleScrollToToday}
+        aria-label="Scroll to today"
               style={{ display: showTodayButton ? 'flex' : 'none' }}
-            >
-              Go to Today
-            </button>
+      >
+        Go to Today
+      </button>
           </>
         )}
         {viewMode === 'calendar' && (
