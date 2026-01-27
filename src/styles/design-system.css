@@ -1420,6 +1420,14 @@
   display: block;
 }
 
+.form-section-subheader {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--gray-800);
+  margin-bottom: 0px;
+  display: block;
+}
+
 .form-chips-single .chip-bar-single-select {
   display: flex;
   flex-wrap: wrap;

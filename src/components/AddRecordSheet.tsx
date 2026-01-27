@@ -1072,7 +1072,7 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
                   </label>
 
                   <div className="form-chips-single">
-                    <label className="form-section-headers">Severity</label>
+                    <label className="form-section-subheader">Severity</label>
                     <div className="chip-bar-single-select">
                       {HSV_INTENSITY.map((level) => (
                         <button
@@ -1099,7 +1099,7 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
                   </div>
 
                   <div className="form-chips-single">
-                    <label className="form-section-headers">Location</label>
+                    <label className="form-section-subheader">Location</label>
                     <div className="chip-bar-single-select">
                       {HSV_LOCATIONS.map((location) => (
                         <button
