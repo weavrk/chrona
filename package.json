@@ -9,7 +9,10 @@
     "preview": "vite preview",
     "deploy": "node scripts/deploy.js",
     "set-permissions": "node scripts/set-permissions.js",
-    "test-prod": "node scripts/test-production.js"
+    "test-prod": "node scripts/test-production.js",
+    "test-full": "node scripts/test-full.js",
+    "test-local": "node scripts/test-full.js local",
+    "test-both": "node scripts/test-full.js both"
   },
   "dependencies": {
     "lucide-react": "^0.563.0",

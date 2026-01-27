@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Laugh, Smile, Meh, Frown, Annoyed, Angry, CheckCircle2, Plus } from 'lucide-react';
+import { X, Laugh, Smile, Meh, Frown, Annoyed, Angry, CheckCircle2, Plus, Trash2 } from 'lucide-react';
 import { useDesignSystem } from '../contexts/DesignSystemContext';
 import { useAuth } from '../contexts/AuthContext';
 import { CustomSelect } from './CustomSelect';
@@ -16,8 +16,12 @@ interface ChipLabel {
 interface AddRecordSheetProps {
   isOpen: boolean;
   selectedDate: Date | null;
+  editingRecords?: any[] | null;
+  editingRecordType?: string | null;
   onClose: () => void;
   onAdd: (record: RecordData, recordDate: Date) => void;
+  onAddMultiple?: (records: RecordData[], recordDate: Date) => void;
+  onDelete?: (recordType: string, startDate: Date, endDate: Date, recordId?: string) => void;
   labels: ChipLabel[];
 }
 
@@ -48,6 +52,7 @@ export interface RecordData {
 }
 
 interface HRRecordItem {
+  id?: string;
   startDate: string;
   endDate: string;
   drugName: string;
@@ -58,6 +63,14 @@ interface HRRecordItem {
   includePlacebo: boolean;
   repeatForward: boolean;
   headache: boolean;
+}
+
+interface WorkoutRecordItem {
+  id?: string;
+  startDate: string;
+  endDate: string;
+  workoutType: string;
+  duration: string;
 }
 
 const PERIOD_INTENSITY = ['Heavy', 'Medium', 'Lite', 'Spotting'];
@@ -73,7 +86,7 @@ const MOODS = [
   { id: 'angry', icon: Angry, label: 'Angry' },
 ];
 
-export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd, labels }: AddRecordSheetProps) {
+export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRecordType, onClose, onAdd, onAddMultiple, onDelete, labels }: AddRecordSheetProps) {
   const { user } = useAuth();
   const [selectedType, setSelectedType] = useState<string>('period');
   const [startDate, setStartDate] = useState<string>('');
@@ -85,6 +98,8 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd, labels }:
   const [mood, setMood] = useState<string>('');
   const [notes, setNotes] = useState<string>('');
   const [isAdding, setIsAdding] = useState(false);
+  const [hasExistingRecord, setHasExistingRecord] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // HR specific state
   const [hrRecords, setHrRecords] = useState<HRRecordItem[]>([{
@@ -131,6 +146,158 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd, labels }:
       }
     }
   }, [selectedDate]);
+
+  // Check if a record exists for the selected date and type
+  useEffect(() => {
+    const checkExistingRecord = async () => {
+      if (!user || !selectedDate || !isOpen) {
+        setHasExistingRecord(false);
+        return;
+      }
+
+      try {
+        const response = await fetch(`${import.meta.env.BASE_URL}data/${user.username}/records-list-${user.username}.json?t=${Date.now()}`);
+        if (response.ok) {
+          const records: Record<string, any[]> = await response.json();
+          const dateStr = selectedDate.toISOString().split('T')[0];
+          const dateRecords = records[dateStr] || [];
+          
+          // Check if any record matches the selected type
+          const hasRecord = dateRecords.some((record: any) => record.type === selectedType);
+          setHasExistingRecord(hasRecord);
+        } else {
+          setHasExistingRecord(false);
+        }
+      } catch (error) {
+        console.error('Failed to check existing record:', error);
+        setHasExistingRecord(false);
+      }
+    };
+
+    checkExistingRecord();
+  }, [user, selectedDate, selectedType, isOpen]);
+
+  // Prepopulate form when editingRecords is provided
+  useEffect(() => {
+    if (editingRecords && editingRecordType && isOpen && selectedDate) {
+      // Set the selected type to match the editing record type
+      setSelectedType(editingRecordType);
+      
+      const dateStr = selectedDate.toISOString().split('T')[0];
+      
+      if (editingRecordType === 'period') {
+        // For period, use the first record's data
+        const firstRecord = editingRecords[0];
+        if (firstRecord?.data?.intensity) {
+          setIntensity(firstRecord.data.intensity);
+        }
+        // Get date range from the record (we'll need to find it in the records)
+        // For now, use selectedDate
+        setStartDate(dateStr);
+        setEndDate(dateStr);
+      } else if (editingRecordType === 'hormone-replacement-therapy') {
+        // Convert records to HRRecordItem format
+        const hrItems: HRRecordItem[] = editingRecords.map((record: any) => {
+          const treatment = record.data?.treatments?.[0] || {};
+          return {
+            id: record.id,
+            startDate: dateStr,
+            endDate: dateStr,
+            drugName: treatment.drugName || '',
+            dose: treatment.dose?.toString() || '',
+            doseUnit: treatment.doseUnit || 'Mg',
+            frequency: treatment.frequency?.toString() || '',
+            frequencyUnit: treatment.frequencyUnit || 'daily',
+            includePlacebo: record.data?.includePlacebo || false,
+            repeatForward: record.data?.repeatForward || false,
+            headache: record.data?.headache || false,
+          };
+        });
+        setHrRecords(hrItems.length > 0 ? hrItems : [{
+          startDate: dateStr,
+          endDate: dateStr,
+          drugName: '',
+          dose: '',
+          doseUnit: 'Mg',
+          frequency: '',
+          frequencyUnit: 'daily',
+          includePlacebo: false,
+          repeatForward: false,
+          headache: false,
+        }]);
+        setStartDate(dateStr);
+        setEndDate(dateStr);
+      } else if (editingRecordType === 'hsv') {
+        const firstRecord = editingRecords[0];
+        setHadBreakout(firstRecord?.data?.hadBreakout || false);
+        setSeverity(firstRecord?.data?.severity || '');
+        const treatment = firstRecord?.data?.treatments?.[0] || {};
+        setHsDrugName(treatment.drugName || '');
+        setHsDose(treatment.dose?.toString() || '');
+        setHsDoseUnit(treatment.doseUnit || 'Mg');
+        setHsFrequency(treatment.frequency?.toString() || '');
+        setHsFrequencyUnit(treatment.frequencyUnit || 'daily');
+        setRepeatForward(firstRecord?.data?.repeatForward || false);
+        setStartDate(dateStr);
+        setEndDate(dateStr);
+      } else if (editingRecordType === 'mental-health') {
+        const firstRecord = editingRecords[0];
+        setMood(firstRecord?.data?.mood || '');
+        setNotes(firstRecord?.data?.notes || '');
+        setStartDate(dateStr);
+        setEndDate(dateStr);
+      } else if (editingRecordType === 'workout') {
+        // Convert records to WorkoutRecordItem format
+        const workoutItems: WorkoutRecordItem[] = editingRecords.map((record: any) => ({
+          id: record.id,
+          startDate: dateStr,
+          endDate: dateStr,
+          workoutType: record.data?.workoutType || '',
+          duration: record.data?.duration?.toString() || '',
+        }));
+        setWorkoutRecords(workoutItems.length > 0 ? workoutItems : [{
+          startDate: dateStr,
+          endDate: dateStr,
+          workoutType: '',
+          duration: '',
+        }]);
+        setStartDate(dateStr);
+        setEndDate(dateStr);
+      }
+    } else if (!editingRecords && isOpen) {
+      // Reset form when not editing
+      const dateStr = selectedDate ? selectedDate.toISOString().split('T')[0] : '';
+      setStartDate(dateStr);
+      setEndDate(dateStr);
+      setIntensity('');
+      setHadBreakout(false);
+      setSeverity('');
+      setRepeatForward(false);
+      setMood('');
+      setNotes('');
+      setHrRecords([{
+        startDate: dateStr,
+        endDate: dateStr,
+        drugName: '',
+        dose: '',
+        doseUnit: 'Mg',
+        frequency: '',
+        frequencyUnit: 'daily',
+        includePlacebo: false,
+        repeatForward: false,
+        headache: false,
+      }]);
+      setHsDrugName('');
+      setHsDose('');
+      setHsFrequency('');
+      setWorkoutRecords([{
+        startDate: dateStr,
+        endDate: dateStr,
+        workoutType: '',
+        duration: '',
+      }]);
+    }
+  }, [editingRecords, editingRecordType, isOpen, selectedDate]);
 
   const loadDrugNames = async (type: 'hr' | 'hs'): Promise<string[]> => {
     if (!user) return [];
@@ -243,61 +410,139 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd, labels }:
   const handleAdd = () => {
     if (!selectedDate || isAdding) return;
 
-    const record: RecordData = {
-      type: selectedType,
-      startDate: new Date(startDate),
-      endDate: new Date(endDate),
-      details: {},
-    };
-
-    if (selectedType === 'period') {
-      record.details!.intensity = intensity;
-    } else if (selectedType === 'hormone-replacement-therapy') {
-      record.details!.treatments = hrRecords
+    // For HR and workout, we need to save multiple records
+    // For other types, save a single record
+    if (selectedType === 'hormone-replacement-therapy') {
+      // Collect all HR records to save
+      const recordsToSave: RecordData[] = hrRecords
         .filter(r => r.startDate && r.endDate && r.drugName)
-        .map(r => ({
-          drugName: r.drugName,
-          dose: r.dose ? parseFloat(r.dose) : undefined,
-          doseUnit: r.doseUnit,
-          frequency: r.frequency ? parseFloat(r.frequency) : undefined,
-          frequencyUnit: r.frequencyUnit,
-        }));
-      record.details!.repeatForward = hrRecords.some(r => r.repeatForward);
-      record.details!.includePlacebo = hrRecords.some(r => r.includePlacebo);
-      record.details!.headache = hrRecords.some(r => r.headache);
-    } else if (selectedType === 'hsv') {
-      record.details!.hadBreakout = hadBreakout;
-      if (hadBreakout) {
-        record.details!.severity = severity;
+        .map((hrRecord) => {
+          const record: RecordData = {
+            type: selectedType,
+            startDate: new Date(hrRecord.startDate),
+            endDate: new Date(hrRecord.endDate),
+            details: {
+              treatments: [{
+                drugName: hrRecord.drugName,
+                dose: hrRecord.dose ? parseFloat(hrRecord.dose) : undefined,
+                doseUnit: hrRecord.doseUnit,
+                frequency: hrRecord.frequency ? parseFloat(hrRecord.frequency) : undefined,
+                frequencyUnit: hrRecord.frequencyUnit,
+              }],
+              repeatForward: hrRecord.repeatForward,
+              includePlacebo: hrRecord.includePlacebo,
+              headache: hrRecord.headache,
+            },
+          };
+          // Pass the record ID if editing
+          if (hrRecord.id) {
+            (record as any).id = hrRecord.id;
+          }
+          return record;
+        });
+      
+      if (onAddMultiple && recordsToSave.length > 0) {
+        const recordDate = new Date(recordsToSave[0].startDate);
+        onAddMultiple(recordsToSave, recordDate);
+      } else if (recordsToSave.length > 0) {
+        // Fallback to single add if onAddMultiple not available
+        recordsToSave.forEach((record) => {
+          const recordDate = new Date(record.startDate);
+          onAdd(record, recordDate);
+        });
       }
-      if (hsDrugName) {
-        record.details!.treatments = [{
-          drugName: hsDrugName,
-          dose: hsDose ? parseFloat(hsDose) : undefined,
-          doseUnit: hsDoseUnit,
-          frequency: hsFrequency ? parseFloat(hsFrequency) : undefined,
-          frequencyUnit: hsFrequencyUnit,
-        }];
-      }
-      record.details!.repeatForward = repeatForward;
-    } else if (selectedType === 'mental-health') {
-      record.details!.mood = mood;
-      record.details!.notes = notes;
     } else if (selectedType === 'workout') {
-      record.details!.workoutType = workoutType;
-      record.details!.duration = duration ? parseFloat(duration) : undefined;
-      record.details!.durationUnit = 'minutes';
+      // Collect all workout records to save
+      const recordsToSave: RecordData[] = workoutRecords
+        .filter(r => r.startDate && r.endDate && r.workoutType)
+        .map((woRecord) => {
+          const record: RecordData = {
+            type: selectedType,
+            startDate: new Date(woRecord.startDate),
+            endDate: new Date(woRecord.endDate),
+            details: {
+              workoutType: woRecord.workoutType,
+              duration: woRecord.duration ? parseFloat(woRecord.duration) : undefined,
+              durationUnit: 'minutes',
+            },
+          };
+          // Pass the record ID if editing
+          if (woRecord.id) {
+            (record as any).id = woRecord.id;
+          }
+          return record;
+        });
+      
+      if (onAddMultiple && recordsToSave.length > 0) {
+        const recordDate = new Date(recordsToSave[0].startDate);
+        onAddMultiple(recordsToSave, recordDate);
+      } else if (recordsToSave.length > 0) {
+        // Fallback to single add if onAddMultiple not available
+        recordsToSave.forEach((record) => {
+          const recordDate = new Date(record.startDate);
+          onAdd(record, recordDate);
+        });
+      }
+    } else {
+      // Single record types
+      const record: RecordData = {
+        type: selectedType,
+        startDate: new Date(startDate),
+        endDate: new Date(endDate),
+        details: {},
+      };
+
+      if (selectedType === 'period') {
+        record.details!.intensity = intensity;
+      } else if (selectedType === 'hsv') {
+        record.details!.hadBreakout = hadBreakout;
+        if (hadBreakout) {
+          record.details!.severity = severity;
+        }
+        if (hsDrugName) {
+          record.details!.treatments = [{
+            drugName: hsDrugName,
+            dose: hsDose ? parseFloat(hsDose) : undefined,
+            doseUnit: hsDoseUnit,
+            frequency: hsFrequency ? parseFloat(hsFrequency) : undefined,
+            frequencyUnit: hsFrequencyUnit,
+          }];
+        }
+        record.details!.repeatForward = repeatForward;
+      } else if (selectedType === 'mental-health') {
+        record.details!.mood = mood;
+        record.details!.notes = notes;
+      }
+
+      // Pass the record ID if editing
+      if (editingRecords && editingRecords[0]?.id) {
+        (record as any).id = editingRecords[0].id;
+      }
+
+      const recordDate = new Date(startDate);
+      onAdd(record, recordDate);
     }
 
-    // Record date equals start date
-    const recordDate = new Date(startDate);
-    
-    onAdd(record, recordDate);
     setIsAdding(true);
     
     setTimeout(() => {
       handleClose();
       setIsAdding(false);
+    }, 500);
+  };
+
+  const handleDelete = () => {
+    if (!selectedDate || !onDelete || isDeleting) return;
+
+    const startDateObj = new Date(startDate);
+    const endDateObj = new Date(endDate);
+    
+    setIsDeleting(true);
+    onDelete(selectedType, startDateObj, endDateObj);
+    
+    setTimeout(() => {
+      handleClose();
+      setIsDeleting(false);
     }, 500);
   };
 
@@ -328,6 +573,8 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd, labels }:
     setWorkoutType('');
     setDuration('');
     setIsAdding(false);
+    setHasExistingRecord(false);
+    setIsDeleting(false);
     onClose();
   };
 
@@ -345,6 +592,28 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd, labels }:
       repeatForward: false,
       headache: false,
     }]);
+  };
+
+  const addWorkoutRecord = () => {
+    const dateStr = selectedDate ? selectedDate.toISOString().split('T')[0] : '';
+    setWorkoutRecords([...workoutRecords, {
+      startDate: dateStr,
+      endDate: dateStr,
+      workoutType: '',
+      duration: '',
+    }]);
+  };
+
+  const updateWorkoutRecord = (index: number, field: keyof WorkoutRecordItem, value: any) => {
+    const updated = [...workoutRecords];
+    updated[index] = { ...updated[index], [field]: value };
+    setWorkoutRecords(updated);
+  };
+
+  const deleteWorkoutRecord = (index: number) => {
+    if (workoutRecords.length > 1) {
+      setWorkoutRecords(workoutRecords.filter((_, i) => i !== index));
+    }
   };
 
   const updateHrRecord = (index: number, field: keyof HRRecordItem, value: any) => {
@@ -469,9 +738,73 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd, labels }:
           {selectedType === 'hormone-replacement-therapy' && (
             <>
               {hrRecords.map((record, index) => (
-                <div key={index} className="record-item" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                  <div className="form-date-selector">
-                    <label className="form-section-headers">Date Range</label>
+                <div key={record.id || index} className="record-item" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                  <div className="form-date-selector" style={{ position: 'relative' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                      <label className="form-section-headers" style={{ marginBottom: 0 }}>Date Range</label>
+                      {hrRecords.length > 1 && (
+                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                          {confirmingDeleteId === (record.id || `hr-${index}`) ? (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (record.id && onDelete) {
+                                    const startDateObj = new Date(record.startDate);
+                                    const endDateObj = new Date(record.endDate);
+                                    onDelete('hormone-replacement-therapy', startDateObj, endDateObj, record.id);
+                                  } else {
+                                    setHrRecords(hrRecords.filter((_, i) => i !== index));
+                                  }
+                                  setConfirmingDeleteId(null);
+                                }}
+                                style={{ 
+                                  fontSize: '12px', 
+                                  padding: '4px 8px', 
+                                  background: 'var(--color-destructive, #dc2626)', 
+                                  color: 'white', 
+                                  border: 'none', 
+                                  borderRadius: '4px',
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                Confirm
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setConfirmingDeleteId(null)}
+                                style={{ 
+                                  fontSize: '12px', 
+                                  padding: '4px 8px', 
+                                  background: 'transparent', 
+                                  color: 'var(--gray-700)', 
+                                  border: '1px solid var(--gray-300)', 
+                                  borderRadius: '4px',
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                Cancel
+                              </button>
+                            </>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => setConfirmingDeleteId(record.id || `hr-${index}`)}
+                              style={{ 
+                                background: 'transparent', 
+                                border: 'none', 
+                                cursor: 'pointer',
+                                padding: '4px',
+                                display: 'flex',
+                                alignItems: 'center'
+                              }}
+                            >
+                              <Trash2 size={16} style={{ color: 'var(--color-destructive, #dc2626)' }} />
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
                     <div className="date-range-container">
                       <div className="date-input-group">
                         <IOSDatePicker
@@ -822,90 +1155,173 @@ export function AddRecordSheet({ isOpen, selectedDate, onClose, onAdd, labels }:
           {/* Workout */}
           {selectedType === 'workout' && (
             <>
-              <div className="form-date-selector">
-                <label className="form-section-headers">Date Range</label>
-                <div className="date-range-container">
-              <div className="date-input-group">
-                <IOSDatePicker
-                  value={startDate}
-                  onChange={(newStartDate) => {
-                    setStartDate(newStartDate);
-                    setEndDate(newStartDate);
-                  }}
-                  label="Start"
-                  className="date-input-group"
-                />
-              </div>
-              <div className="date-input-group">
-                <IOSDatePicker
-                  value={endDate}
-                  onChange={setEndDate}
-                  label="End"
-                  className="date-input-group"
-                />
-              </div>
-                </div>
-              </div>
-
-              <div className="form-section">
-                <div className="form-text-input">
-                  <label className="form-label">Type</label>
-                  <SearchableInput
-                    id="workout-type-input"
-                    value={workoutType}
-                    options={workoutTypes}
-                    onChange={setWorkoutType}
-                    onBlur={() => {
-                      // Use the input element's current value to avoid stale closure
-                      const inputElement = document.getElementById('workout-type-input') as HTMLInputElement;
-                      const currentValue = inputElement?.value?.trim() || workoutType.trim();
-                      if (currentValue && !workoutTypes.includes(currentValue)) {
-                        console.log('Saving workout type on blur:', currentValue, 'for user:', user?.username);
-                        saveWorkoutType(currentValue);
-                      }
-                    }}
-                    placeholder="Enter workout type"
-                    color={(() => {
-                      const workoutLabel = labels.find(l => l.id === 'workout');
-                      return workoutLabel ? getLabelColor(workoutLabel.color) : '#B3B3B3';
-                    })()}
-                  />
-                </div>
-
-                <div style={{ display: 'flex', gap: 'var(--spacing-md)' }}>
-                  <div className="form-text-input" style={{ flex: 1 }}>
-                    <label className="form-label">Duration</label>
-                    <input
-                      type="number"
-                      value={duration}
-                      onChange={(e) => setDuration(e.target.value)}
-                      className="form-input"
-                      placeholder="0"
-                    />
+              {workoutRecords.map((record, index) => (
+                <div key={record.id || index} className="record-item" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                  <div className="form-date-selector" style={{ position: 'relative' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                      <label className="form-section-headers" style={{ marginBottom: 0 }}>Date Range</label>
+                      {workoutRecords.length > 1 && (
+                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                          {confirmingDeleteId === (record.id || `wo-${index}`) ? (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (record.id && onDelete) {
+                                    const startDateObj = new Date(record.startDate);
+                                    const endDateObj = new Date(record.endDate);
+                                    onDelete('workout', startDateObj, endDateObj, record.id);
+                                  } else {
+                                    deleteWorkoutRecord(index);
+                                  }
+                                  setConfirmingDeleteId(null);
+                                }}
+                                style={{ 
+                                  fontSize: '12px', 
+                                  padding: '4px 8px', 
+                                  background: 'var(--color-destructive, #dc2626)', 
+                                  color: 'white', 
+                                  border: 'none', 
+                                  borderRadius: '4px',
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                Confirm
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setConfirmingDeleteId(null)}
+                                style={{ 
+                                  fontSize: '12px', 
+                                  padding: '4px 8px', 
+                                  background: 'transparent', 
+                                  color: 'var(--gray-700)', 
+                                  border: '1px solid var(--gray-300)', 
+                                  borderRadius: '4px',
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                Cancel
+                              </button>
+                            </>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => setConfirmingDeleteId(record.id || `wo-${index}`)}
+                              style={{ 
+                                background: 'transparent', 
+                                border: 'none', 
+                                cursor: 'pointer',
+                                padding: '4px',
+                                display: 'flex',
+                                alignItems: 'center'
+                              }}
+                            >
+                              <Trash2 size={16} style={{ color: 'var(--color-destructive, #dc2626)' }} />
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    <div className="date-range-container">
+                      <div className="date-input-group">
+                        <IOSDatePicker
+                          value={record.startDate}
+                          onChange={(newStartDate) => {
+                            updateWorkoutRecord(index, 'startDate', newStartDate);
+                            updateWorkoutRecord(index, 'endDate', newStartDate);
+                          }}
+                          label="Start"
+                          className="date-input-group"
+                        />
+                      </div>
+                      <div className="date-input-group">
+                        <IOSDatePicker
+                          value={record.endDate}
+                          onChange={(newEndDate) => updateWorkoutRecord(index, 'endDate', newEndDate)}
+                          label="End"
+                          className="date-input-group"
+                        />
+                      </div>
+                    </div>
                   </div>
-                  <div className="form-input-dropdown" style={{ flex: 1 }}>
-                    <label className="form-label">Unit</label>
-                    <CustomSelect
-                      value="minutes"
-                      options={['minutes']}
-                      onChange={() => {}}
-                      disabled={true}
-                    />
+
+                  <div className="form-section">
+                    <div className="form-text-input">
+                      <label className="form-label">Type</label>
+                      <SearchableInput
+                        id={`workout-type-input-${index}`}
+                        value={record.workoutType}
+                        options={workoutTypes}
+                        onChange={(value) => updateWorkoutRecord(index, 'workoutType', value)}
+                        onBlur={() => {
+                          const inputElement = document.getElementById(`workout-type-input-${index}`) as HTMLInputElement;
+                          const currentValue = inputElement?.value?.trim() || record.workoutType.trim();
+                          if (currentValue && !workoutTypes.includes(currentValue)) {
+                            saveWorkoutType(currentValue);
+                          }
+                        }}
+                        placeholder="Enter workout type"
+                        color={(() => {
+                          const workoutLabel = labels.find(l => l.id === 'workout');
+                          return workoutLabel ? getLabelColor(workoutLabel.color) : '#B3B3B3';
+                        })()}
+                      />
+                    </div>
+
+                    <div style={{ display: 'flex', gap: 'var(--spacing-md)' }}>
+                      <div className="form-text-input" style={{ flex: 1 }}>
+                        <label className="form-label">Duration</label>
+                        <input
+                          type="number"
+                          value={record.duration}
+                          onChange={(e) => updateWorkoutRecord(index, 'duration', e.target.value)}
+                          className="form-input"
+                          placeholder="0"
+                        />
+                      </div>
+                      <div className="form-input-dropdown" style={{ flex: 1 }}>
+                        <label className="form-label">Unit</label>
+                        <CustomSelect
+                          value="minutes"
+                          options={['minutes']}
+                          onChange={() => {}}
+                          disabled={true}
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
+              ))}
+              <button
+                className="ds-button-secondary"
+                style={{ width: '100%', borderRadius: '8px', border: '1px solid var(--gray-800)' }}
+                onClick={addWorkoutRecord}
+              >
+                <Plus size={16} style={{ marginRight: 'var(--spacing-sm)' }} />
+                Add Record
+              </button>
             </>
           )}
         </div>
 
         <div className="bottom-sheet-actions">
-          <button className="ds-button-primary" onClick={handleAdd} disabled={isAdding}>
+          <button className="ds-button-primary" onClick={handleAdd} disabled={isAdding || isDeleting}>
             {isAdding ? (
               <CheckCircle2 size={24} className="checkmark-animation" />
             ) : (
               'Save Record'
             )}
           </button>
+          {hasExistingRecord && onDelete && (
+            <button className="ds-button-destructive" onClick={handleDelete} disabled={isAdding || isDeleting}>
+              {isDeleting ? (
+                <CheckCircle2 size={24} className="checkmark-animation" />
+              ) : (
+                'Delete Record'
+              )}
+            </button>
+          )}
         </div>
       </div>
     </>

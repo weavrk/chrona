@@ -100,7 +100,7 @@ export function App() {
         }
       });
 
-      const response = await fetch('/api/save_user_labels.php', {
+      const response = await fetch(`${import.meta.env.BASE_URL}api/save_user_labels.php`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: user.username, labels: labelsToSave }),
@@ -180,8 +180,13 @@ export function App() {
     setIsSheetOpen(true);
   };
 
-  const handleSheetDateChange = (date: Date) => {
+  const [editingRecords, setEditingRecords] = useState<any[] | null>(null);
+  const [editingRecordType, setEditingRecordType] = useState<string | null>(null);
+
+  const handleSheetDateChange = (date: Date, recordType?: string, recordData?: any[]) => {
     setSelectedDate(date);
+    setEditingRecordType(recordType || null);
+    setEditingRecords(recordData || null);
     setIsSheetOpen(true);
   };
 
@@ -197,12 +202,13 @@ export function App() {
         records = data && typeof data === 'object' ? data : {};
       }
 
-      // Generate unique ID for the new record
-      const recordId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-      
       // Convert dates to YYYY-MM-DD format
       const startDateStr = record.startDate.toISOString().split('T')[0];
       const endDateStr = record.endDate.toISOString().split('T')[0];
+      
+      // Check if this is an edit (has ID) or new record
+      const recordId = (record as any).id || `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      const isEdit = !!(record as any).id;
       
       // Create record object (without dates since they're in the key)
       const recordToAdd = {
@@ -211,7 +217,20 @@ export function App() {
         data: record.details || {},
       };
 
-      // Add record to all dates in the range (inclusive)
+      // If editing, first remove the old record from all dates in its range
+      if (isEdit) {
+        // Find and remove the old record by ID
+        Object.keys(records).forEach((dateKey) => {
+          if (records[dateKey]) {
+            records[dateKey] = records[dateKey].filter((r: any) => r.id !== recordId);
+            if (records[dateKey].length === 0) {
+              delete records[dateKey];
+            }
+          }
+        });
+      }
+
+      // Add/update record to all dates in the range (inclusive)
       const start = new Date(startDateStr);
       const end = new Date(endDateStr);
       const currentDate = new Date(start);
@@ -224,24 +243,37 @@ export function App() {
           records[dateKey] = [];
         }
         
-        // Add the record to this date's array
-        records[dateKey].push(recordToAdd);
+        // Add the record to this date's array (or update if editing)
+        const existingIndex = records[dateKey].findIndex((r: any) => r.id === recordId);
+        if (existingIndex >= 0) {
+          records[dateKey][existingIndex] = recordToAdd;
+        } else {
+          records[dateKey].push(recordToAdd);
+        }
         
         // Move to next day
         currentDate.setDate(currentDate.getDate() + 1);
       }
 
       // Save records
-      await fetch('/api/save_records.php', {
+      const saveResponse = await fetch(`${import.meta.env.BASE_URL}api/save_records.php`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: user.username, records }),
       });
 
-      // Store the record date in sessionStorage for scrolling after refresh
+      if (!saveResponse.ok) {
+        const errorData = await saveResponse.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error(errorData.error || 'Failed to save records');
+      }
+
+      // Store the record date and current view mode in sessionStorage for scrolling after refresh
       const recordDateStr = recordDate.toISOString().split('T')[0];
       sessionStorage.setItem('scrollToDate', recordDateStr);
-      sessionStorage.setItem('scrollToViewMode', 'list');
+      // Store current view mode so we stay on the same view after reload
+      const currentViewMode = sessionStorage.getItem('currentViewMode') || 'list';
+      sessionStorage.setItem('scrollToViewMode', currentViewMode);
+      sessionStorage.setItem('restoreViewMode', currentViewMode); // Store to restore after reload
       
       // Close the sheet and reload the page to refresh data
       setIsSheetOpen(false);
@@ -249,6 +281,157 @@ export function App() {
     } catch (error) {
       console.error('Failed to save record:', error);
       alert('Failed to save record. Please try again.');
+    }
+  };
+
+  const handleAddMultipleRecords = async (records: RecordData[], recordDate: Date) => {
+    if (!user || records.length === 0) return;
+    
+    try {
+      // Load existing records
+      const response = await fetch(`${import.meta.env.BASE_URL}data/${user.username}/records-list-${user.username}.json?t=${Date.now()}`);
+      let allRecords: Record<string, any[]> = {};
+      if (response.ok) {
+        const data = await response.json();
+        allRecords = data && typeof data === 'object' ? data : {};
+      }
+
+      // If editing (any record has an ID), first delete all existing records of this type for the selected date
+      const isEdit = records.some(r => (r as any).id);
+      if (isEdit && editingRecordType && selectedDate) {
+        const dateStr = selectedDate.toISOString().split('T')[0];
+        if (allRecords[dateStr]) {
+          // Remove all records of this type (we'll add the updated ones back)
+          allRecords[dateStr] = allRecords[dateStr].filter((r: any) => r.type !== editingRecordType);
+          if (allRecords[dateStr].length === 0) {
+            delete allRecords[dateStr];
+          }
+        }
+      }
+
+      // Process each record
+      for (const record of records) {
+        const recordId = (record as any).id || `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        const startDateStr = record.startDate.toISOString().split('T')[0];
+        const endDateStr = record.endDate.toISOString().split('T')[0];
+        
+        const recordToAdd = {
+          id: recordId,
+          type: record.type,
+          data: record.details || {},
+        };
+
+        // Add record to all dates in the range
+        const start = new Date(startDateStr);
+        const end = new Date(endDateStr);
+        const currentDate = new Date(start);
+        
+        while (currentDate <= end) {
+          const dateKey = currentDate.toISOString().split('T')[0];
+          if (!allRecords[dateKey]) {
+            allRecords[dateKey] = [];
+          }
+          allRecords[dateKey].push(recordToAdd);
+          currentDate.setDate(currentDate.getDate() + 1);
+        }
+      }
+
+      // Save all records
+      const saveResponse = await fetch(`${import.meta.env.BASE_URL}api/save_records.php`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: user.username, records: allRecords }),
+      });
+
+      if (!saveResponse.ok) {
+        const errorData = await saveResponse.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error(errorData.error || 'Failed to save records');
+      }
+
+      // Store the record date and current view mode in sessionStorage
+      const recordDateStr = recordDate.toISOString().split('T')[0];
+      sessionStorage.setItem('scrollToDate', recordDateStr);
+      const currentViewMode = sessionStorage.getItem('currentViewMode') || 'list';
+      sessionStorage.setItem('scrollToViewMode', currentViewMode);
+      sessionStorage.setItem('restoreViewMode', currentViewMode);
+      
+      setIsSheetOpen(false);
+      window.location.reload();
+    } catch (error) {
+      console.error('Failed to save records:', error);
+      alert('Failed to save records. Please try again.');
+    }
+  };
+
+  const handleDeleteRecord = async (recordType: string, startDate: Date, endDate: Date, recordId?: string) => {
+    if (!user) return;
+    
+    try {
+      // Load existing records (date-indexed structure)
+      const response = await fetch(`${import.meta.env.BASE_URL}data/${user.username}/records-list-${user.username}.json?t=${Date.now()}`);
+      let records: Record<string, any[]> = {};
+      if (response.ok) {
+        const data = await response.json();
+        records = data && typeof data === 'object' ? data : {};
+      }
+
+      // Convert dates to YYYY-MM-DD format
+      const startDateStr = startDate.toISOString().split('T')[0];
+      const endDateStr = endDate.toISOString().split('T')[0];
+      
+      // Remove records - if recordId is provided, delete that specific record, otherwise delete all of that type
+      const start = new Date(startDateStr);
+      const end = new Date(endDateStr);
+      const currentDate = new Date(start);
+      
+      while (currentDate <= end) {
+        const dateKey = currentDate.toISOString().split('T')[0];
+        
+        if (records[dateKey]) {
+          if (recordId) {
+            // Delete specific record by ID
+            records[dateKey] = records[dateKey].filter((record: any) => record.id !== recordId);
+          } else {
+            // Delete all records of the specified type
+            records[dateKey] = records[dateKey].filter((record: any) => record.type !== recordType);
+          }
+          
+          // If no records left for this date, remove the date key
+          if (records[dateKey].length === 0) {
+            delete records[dateKey];
+          }
+        }
+        
+        // Move to next day
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+
+      // Save records
+      const saveResponse = await fetch(`${import.meta.env.BASE_URL}api/save_records.php`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: user.username, records }),
+      });
+
+      if (!saveResponse.ok) {
+        const errorData = await saveResponse.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error(errorData.error || 'Failed to delete records');
+      }
+
+      // Store the record date and current view mode in sessionStorage for scrolling after refresh
+      const recordDateStr = startDate.toISOString().split('T')[0];
+      sessionStorage.setItem('scrollToDate', recordDateStr);
+      // Store current view mode so we stay on the same view after reload
+      const currentViewMode = sessionStorage.getItem('currentViewMode') || 'list';
+      sessionStorage.setItem('scrollToViewMode', currentViewMode);
+      sessionStorage.setItem('restoreViewMode', currentViewMode); // Store to restore after reload
+      
+      // Close the sheet and reload the page to refresh data
+      setIsSheetOpen(false);
+      window.location.reload();
+    } catch (error) {
+      console.error('Failed to delete record:', error);
+      alert('Failed to delete record. Please try again.');
     }
   };
 
@@ -329,6 +512,8 @@ export function App() {
         selectedDate={selectedDate}
         onClose={() => setIsSheetOpen(false)}
         onAdd={handleAddRecord}
+        onAddMultiple={handleAddMultipleRecords}
+        onDelete={handleDeleteRecord}
         labels={chipLabels}
       />
 

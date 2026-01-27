@@ -14,7 +14,7 @@ interface CalendarViewProps {
   isSheetOpen: boolean;
   selectedDate: Date | null;
   onSheetClose: () => void;
-  onSheetDateChange: (date: Date) => void;
+  onSheetDateChange: (date: Date, recordType?: string, recordData?: any[]) => void;
   onAddRecord: (record: RecordData, recordDate: Date) => void;
   chipLabels: ChipLabel[];
 }
@@ -763,17 +763,18 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
     if (Math.abs(distance) > minSwipeDistance) {
       if (distance > 0 && viewMode === 'calendar') {
         // Swipe left: switch to list view
+        listScrollRef.current = null; // Reset to force recalculation to today
         setViewMode('list');
-        // Will auto-scroll to today via useEffect
       } else if (distance < 0 && viewMode === 'calendar') {
         // Swipe right: switch to summary view
         setViewMode('summary');
       } else if (distance < 0 && viewMode === 'list') {
         // Swipe right: switch to calendar view
+        calendarScrollRef.current = null; // Reset to force recalculation to today
         setViewMode('calendar');
-        // Scroll position will be set automatically by view mode change handler
       } else if (distance > 0 && viewMode === 'summary') {
         // Swipe left: switch to calendar view
+        calendarScrollRef.current = null; // Reset to force recalculation to today
         setViewMode('calendar');
       }
     }
@@ -1260,6 +1261,20 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
     );
   };
 
+  // Restore view mode after page reload
+  useEffect(() => {
+    const restoreViewMode = sessionStorage.getItem('restoreViewMode');
+    if (restoreViewMode && (restoreViewMode === 'calendar' || restoreViewMode === 'list' || restoreViewMode === 'summary')) {
+      setViewMode(restoreViewMode);
+      sessionStorage.removeItem('restoreViewMode');
+    }
+  }, []);
+
+  // Store current view mode in sessionStorage
+  useEffect(() => {
+    sessionStorage.setItem('currentViewMode', viewMode);
+  }, [viewMode]);
+
   // Load records
   useEffect(() => {
     if (!user || viewMode !== 'list') return;
@@ -1275,12 +1290,7 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
           const scrollToDate = sessionStorage.getItem('scrollToDate');
           const scrollToViewMode = sessionStorage.getItem('scrollToViewMode');
           
-          if (scrollToDate && scrollToViewMode === 'list') {
-            // Switch to list view if not already
-            if (viewMode !== 'list') {
-              setViewMode('list');
-            }
-            
+          if (scrollToDate && scrollToViewMode === 'list' && viewMode === 'list') {
             // Clear the session storage
             sessionStorage.removeItem('scrollToDate');
             sessionStorage.removeItem('scrollToViewMode');
@@ -1519,7 +1529,7 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
                                       className="list-view-record-group"
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        onSheetDateChange(item.date);
+                                        onSheetDateChange(item.date, type, typeRecords);
                                       }}
                                     >
                                       <div 

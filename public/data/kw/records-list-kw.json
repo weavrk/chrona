@@ -1,82 +1,4 @@
 {
-  "2026-01-26": [
-    {
-      "id": "1704067200000-1",
-      "type": "period",
-      "data": {
-        "intensity": "Heavy"
-      }
-    },
-    {
-      "id": "1704067200000-2",
-      "type": "hormone-replacement-therapy",
-      "data": {
-        "treatments": [
-          {
-            "drugName": "Estradiol",
-            "dose": 2,
-            "doseUnit": "Mg",
-            "frequency": 1,
-            "frequencyUnit": "daily"
-          }
-        ],
-        "repeatForward": true,
-        "includePlacebo": false
-      }
-    },
-    {
-      "id": "1704067200000-3",
-      "type": "hsv",
-      "data": {
-        "hadBreakout": false,
-        "repeatForward": false
-      }
-    },
-    {
-      "id": "1704067200000-4",
-      "type": "mental-health",
-      "data": {
-        "mood": "light",
-        "notes": "Feeling great today"
-      }
-    },
-    {
-      "id": "1704067200000-5",
-      "type": "workout",
-      "data": {
-        "workoutType": "Running",
-        "duration": 30,
-        "durationUnit": "minutes"
-      }
-    },
-    {
-      "id": "1769452670465-c9ch67kuo",
-      "type": "workout",
-      "data": {
-        "workoutType": "Jump Rope",
-        "duration": 10,
-        "durationUnit": "minutes"
-      }
-    },
-    {
-      "id": "1769453316516-hzqayg1gk",
-      "type": "workout",
-      "data": {
-        "workoutType": "Jump Rope",
-        "duration": 10,
-        "durationUnit": "minutes"
-      }
-    },
-    {
-      "id": "1769454057789-n7703plgy",
-      "type": "workout",
-      "data": {
-        "workoutType": "Jump Rope",
-        "duration": 10,
-        "durationUnit": "minutes"
-      }
-    }
-  ],
   "2026-02-02": [
     {
       "id": "1704672000000-1",
@@ -251,6 +173,15 @@
       "type": "period",
       "data": {
         "intensity": "Lite"
+      }
+    }
+  ],
+  "2026-01-30": [
+    {
+      "id": "1769477423607-6uaovb4tq",
+      "type": "period",
+      "data": {
+        "intensity": "Medium"
       }
     }
   ]

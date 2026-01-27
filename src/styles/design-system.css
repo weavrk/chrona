@@ -2,13 +2,13 @@
 
 .design-system-toggle {
   position: fixed;
-  bottom: 40px;
-  right: 32px;
-  width: 16px;
-  height: 16px;
+  bottom: 32px;
+  right: 24px;
+  width: 24px;
+  height: 24px;
   background: transparent;
   border: none;
-  color: var(--button-primary, #2a2a2a);
+  color: var(--color-brand-primary, var(--brand-primary));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -24,8 +24,8 @@
 }
 
 .design-system-toggle svg {
-  width: 8px;
-  height: 8px;
+  width: 12px;
+  height: 12px;
 }
 
 .design-system-overlay {
