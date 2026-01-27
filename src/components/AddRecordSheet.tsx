@@ -219,43 +219,49 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
     checkExistingRecord();
   }, [user, selectedDate, selectedType, isOpen]);
 
-  // Prepopulate form when editingRecords is provided
+  // Prepopulate form when editingRecords is provided (ALL records for the date)
   useEffect(() => {
-    if (editingRecords && editingRecordType && isOpen && selectedDate) {
-      // Set the selected type to match the editing record type
-      setSelectedType(editingRecordType);
-      
+    if (isOpen && selectedDate && editingRecords && editingRecords.length > 0) {
       const dateStr = formatLocalDate(selectedDate);
       
-      if (editingRecordType === 'period') {
-        // For period, use the first record's data
-        const firstRecord = editingRecords[0];
-        if (firstRecord?.data?.intensity) {
-          setIntensity(firstRecord.data.intensity);
+      // Group records by type
+      const recordsByType = new Map<string, any[]>();
+      editingRecords.forEach((record: any) => {
+        const type = record.type;
+        if (!recordsByType.has(type)) {
+          recordsByType.set(type, []);
         }
-        // Get date range from the record (we'll need to find it in the records)
-        // For now, use selectedDate
-        setStartDate(dateStr);
-        setEndDate(dateStr);
-      } else if (editingRecordType === 'hormone-replacement-therapy') {
-        // Convert records to HRRecordItem format
-        const hrItems: HRRecordItem[] = editingRecords.map((record: any) => {
-          const treatment = record.data?.treatments?.[0] || {};
-          return {
-            id: record.id,
-            startDate: dateStr,
-            endDate: dateStr,
-            drugName: treatment.drugName || '',
-            dose: treatment.dose?.toString() || '',
-            doseUnit: treatment.doseUnit || 'Mg',
-            frequency: treatment.frequency?.toString() || '',
-            frequencyUnit: treatment.frequencyUnit || 'daily',
-            includePlacebo: record.data?.includePlacebo || false,
-            repeatForward: record.data?.repeatForward || false,
-            headache: record.data?.headache || false,
-          };
-        });
-        setHrRecords(hrItems.length > 0 ? hrItems : [{
+        recordsByType.get(type)!.push(record);
+      });
+      
+      // Populate Period records (single record only)
+      const periodRecords = recordsByType.get('period') || [];
+      if (periodRecords.length > 0) {
+        const firstRecord = periodRecords[0];
+        setIntensity(firstRecord?.data?.intensity || '');
+      } else {
+        setIntensity('');
+      }
+      
+      // Populate HR records (multiple allowed)
+      const hrRecordsData = recordsByType.get('hormone-replacement-therapy') || [];
+      if (hrRecordsData.length > 0) {
+        const hrItems: HRRecordItem[] = hrRecordsData.map((rec: any) => ({
+          id: rec.id,
+          startDate: dateStr,
+          endDate: dateStr,
+          drugName: rec.data?.treatments?.[0]?.drugName || '',
+          dose: rec.data?.treatments?.[0]?.dose?.toString() || '',
+          doseUnit: rec.data?.treatments?.[0]?.doseUnit || 'Mg',
+          frequency: rec.data?.treatments?.[0]?.frequency?.toString() || '',
+          frequencyUnit: rec.data?.treatments?.[0]?.frequencyUnit || 'daily',
+          includePlacebo: rec.data?.includePlacebo || false,
+          repeatForward: rec.data?.repeatForward || false,
+          headache: rec.data?.headache || false,
+        }));
+        setHrRecords(hrItems);
+      } else {
+        setHrRecords([{
           startDate: dateStr,
           endDate: dateStr,
           drugName: '',
@@ -267,50 +273,69 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
           repeatForward: false,
           headache: false,
         }]);
-        setStartDate(dateStr);
-        setEndDate(dateStr);
-      } else if (editingRecordType === 'hsv') {
-        const firstRecord = editingRecords[0];
+      }
+      
+      // Populate HSV records (single record only)
+      const hsvRecords = recordsByType.get('hsv') || [];
+      if (hsvRecords.length > 0) {
+        const firstRecord = hsvRecords[0];
         setHadBreakout(firstRecord?.data?.hadBreakout || false);
         setSeverity(firstRecord?.data?.severity || '');
-        const treatment = firstRecord?.data?.treatments?.[0] || {};
-        setHsDrugName(treatment.drugName || '');
-        setHsDose(treatment.dose?.toString() || '');
-        setHsDoseUnit(treatment.doseUnit || 'Mg');
-        setHsFrequency(treatment.frequency?.toString() || '');
-        setHsFrequencyUnit(treatment.frequencyUnit || 'daily');
+        setHsDrugName(firstRecord?.data?.treatments?.[0]?.drugName || '');
+        setHsDose(firstRecord?.data?.treatments?.[0]?.dose?.toString() || '');
+        setHsDoseUnit(firstRecord?.data?.treatments?.[0]?.doseUnit || 'Mg');
+        setHsFrequency(firstRecord?.data?.treatments?.[0]?.frequency?.toString() || '');
+        setHsFrequencyUnit(firstRecord?.data?.treatments?.[0]?.frequencyUnit || 'daily');
         setRepeatForward(firstRecord?.data?.repeatForward || false);
-        setStartDate(dateStr);
-        setEndDate(dateStr);
-      } else if (editingRecordType === 'mental-health') {
-        const firstRecord = editingRecords[0];
+      } else {
+        setHadBreakout(false);
+        setSeverity('');
+        setHsDrugName('');
+        setHsDose('');
+        setHsFrequency('');
+        setRepeatForward(false);
+      }
+      
+      // Populate Mental Health records (single record only)
+      const mentalHealthRecords = recordsByType.get('mental-health') || [];
+      if (mentalHealthRecords.length > 0) {
+        const firstRecord = mentalHealthRecords[0];
         setMood(firstRecord?.data?.mood || '');
         setNotes(firstRecord?.data?.notes || '');
-        setStartDate(dateStr);
-        setEndDate(dateStr);
-      } else if (editingRecordType === 'workout') {
-        // Convert records to WorkoutRecordItem format
-        const workoutItems: WorkoutRecordItem[] = editingRecords.map((record: any) => ({
-          id: record.id,
+      } else {
+        setMood('');
+        setNotes('');
+      }
+      
+      // Populate Workout records (multiple allowed)
+      const workoutRecordsData = recordsByType.get('workout') || [];
+      if (workoutRecordsData.length > 0) {
+        const woItems: WorkoutRecordItem[] = workoutRecordsData.map((rec: any) => ({
+          id: rec.id,
           startDate: dateStr,
           endDate: dateStr,
-          workoutType: record.data?.workoutType || '',
-          duration: record.data?.duration?.toString() || '',
+          workoutType: rec.data?.workoutType || '',
+          duration: rec.data?.duration?.toString() || '',
         }));
-        setWorkoutRecords(workoutItems.length > 0 ? workoutItems : [{
+        setWorkoutRecords(woItems);
+      } else {
+        setWorkoutRecords([{
           startDate: dateStr,
           endDate: dateStr,
           workoutType: '',
           duration: '',
         }]);
-        setStartDate(dateStr);
-        setEndDate(dateStr);
       }
-    } else if (!editingRecords && isOpen) {
-      // Reset form when not editing
+      
+      setHasExistingRecord(true);
+      
+      // If editingRecordType is provided, switch to that tab
+      if (editingRecordType) {
+        setSelectedType(editingRecordType);
+      }
+    } else if (isOpen && (!editingRecords || editingRecords.length === 0)) {
+      // Reset form for new record if no editing data
       const dateStr = selectedDate ? formatLocalDate(selectedDate) : '';
-      setStartDate(dateStr);
-      setEndDate(dateStr);
       setIntensity('');
       setHadBreakout(false);
       setSeverity('');
@@ -338,6 +363,7 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
         workoutType: '',
         duration: '',
       }]);
+      setHasExistingRecord(false);
     }
   }, [editingRecords, editingRecordType, isOpen, selectedDate]);
 

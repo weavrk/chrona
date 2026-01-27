@@ -150,29 +150,12 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
     const date = new Date(year, month, day);
     date.setHours(0, 0, 0, 0);
     
-    // Check if there are records for this date
+    // Pass all records for this date (AddRecordSheet will handle them)
     const dateKey = `${year}-${month}-${day}`;
     const dayRecords = records[dateKey] || [];
     
-    if (dayRecords.length > 0) {
-      // If there are records, group by type and pass the first type's records
-      const recordsByType = new Map<string, any[]>();
-      dayRecords.forEach((record: any) => {
-        const type = record.type;
-        if (!recordsByType.has(type)) {
-          recordsByType.set(type, []);
-        }
-        recordsByType.get(type)!.push(record);
-      });
-      
-      // Pass the first record type and its records
-      const firstType = Array.from(recordsByType.keys())[0];
-      const firstTypeRecords = recordsByType.get(firstType) || [];
-      onSheetDateChange(date, firstType, firstTypeRecords);
-    } else {
-      // No records, just pass the date
-      onSheetDateChange(date);
-    }
+    // Pass the date and all records (no specific type)
+    onSheetDateChange(date, undefined, dayRecords);
   };
 
   const handleScrollToToday = () => {
