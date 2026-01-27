@@ -1158,13 +1158,13 @@ Location: Add Record sheet (record type selector, intensity, severity)`}</pre>
                           <pre>{`display: inline-flex
 align-items: center
 gap: 8px
-padding: 6px 12px
+padding: 4px 12px
 border-radius: 20px
 font-size: 16px
 font-weight: 500
 font-family: var(--font-family)
-color: var(--gray-700)
-border: 2px solid var(--gray-700)
+color: var(--gray-600)
+border: 2px solid var(--gray-600)
 background: transparent
 cursor: pointer
 transition: all 0.2s
@@ -1184,6 +1184,97 @@ align-items: center`}</pre>
                           <pre>{`Components: AddRecordSheet.tsx
 Containers: .form-chips-single
 Location: Add Record sheet (PE intensity, HS severity)`}</pre>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="button-demo-item">
+                      <h4 className="button-demo-label">
+                        ds-chip-md
+                        <button
+                          onClick={() => handleCopyToClipboard('ds-chip-md')}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: copiedName === 'ds-chip-md' ? 'var(--color-accent)' : 'var(--gray-700)',
+                            cursor: 'pointer',
+                            padding: '2px',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            transition: 'color 0.2s',
+                            marginLeft: '8px'
+                          }}
+                          title="Copy to clipboard"
+                        >
+                          {copiedName === 'ds-chip-md' ? (
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M20 6L9 17l-5-5"/>
+                            </svg>
+                          ) : (
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                            </svg>
+                          )}
+                        </button>
+                      </h4>
+                      <div style={{ display: 'flex', gap: 'var(--spacing-sm)', flexWrap: 'wrap' }}>
+                        <button className="ds-chip-md" style={{ color: 'var(--sand)', borderColor: 'var(--sand)' }}>
+                          <span>Upper Lip</span>
+                        </button>
+                        <button className="ds-chip-md active" style={{ backgroundColor: 'var(--sand)', borderColor: 'var(--sand)' }}>
+                          <span>Lower Lip</span>
+                        </button>
+                        <button className="ds-chip-md active" style={{ backgroundColor: 'var(--sand)', borderColor: 'var(--sand)' }}>
+                          <span>Cheek</span>
+                        </button>
+                        <button className="ds-chip-md" style={{ color: 'var(--sand)', borderColor: 'var(--sand)' }}>
+                          <span>Nose</span>
+                        </button>
+                      </div>
+                      <p className="button-demo-description">Medium-sized multi-select chip variant. Same sizing as ds-chip-single-select-md but allows multiple selections. Used for HS location tracking (Upper Lip, Lower Lip, Cheek, Nose).</p>
+                      
+                      <button
+                        className="style-reference-toggle"
+                        onClick={() => toggleStyleSection('ds-chip-md')}
+                      >
+                        <span>Style Reference</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ transform: expandedStyleSections.has('ds-chip-md') ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
+                          <path d="m6 9 6 6 6-6"/>
+                        </svg>
+                      </button>
+                      
+                      {expandedStyleSections.has('ds-chip-md') && (
+                        <div className="style-reference-content">
+                          <h5>Base Class: <code>.ds-chip-md</code></h5>
+                          <pre>{`display: inline-flex
+align-items: center
+gap: 8px
+padding: 4px 12px
+border-radius: 20px
+font-size: 16px
+font-weight: 500
+font-family: var(--font-family)
+color: var(--gray-600)
+border: 2px solid var(--gray-600)
+background: transparent
+cursor: pointer
+transition: all 0.2s
+white-space: nowrap`}</pre>
+                          
+                          <h5>Active State: <code>.ds-chip-md.active</code></h5>
+                          <pre>{`color: var(--gray-100)
+/* Background and border colors set via inline styles */`}</pre>
+                          
+                          <h5>Multi-Select Behavior:</h5>
+                          <pre>{`Multiple chips can be active simultaneously
+Click toggles selection on/off
+Stores array of selected values`}</pre>
+                          
+                          <h5>Used In:</h5>
+                          <pre>{`Components: AddRecordSheet.tsx
+Location: HS breakout location selector`}</pre>
                         </div>
                       )}
                     </div>
