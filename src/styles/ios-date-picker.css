@@ -41,7 +41,7 @@
 
 .ios-date-input-value {
   color: var(--gray-800);
-  font-size: 1rem;
+  font-size: 14px;
 }
 
 /* iOS Date Picker Modal */
