@@ -1535,7 +1535,7 @@
 .ds-nav-tab-bar {
   display: flex;
   width: 100%;
-  background: var(--color-background-shells, var(--bg-secondary));
+  background: var(--color-background-components, var(--bg-components));
   border-radius: 24px;
   padding: 8px;
   gap: 8px;
