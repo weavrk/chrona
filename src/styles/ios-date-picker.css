@@ -26,8 +26,9 @@
   box-sizing: border-box;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   min-height: 44px; /* iOS touch target size */
+  text-align: left;
 }
 
 .ios-date-input-button:focus {
@@ -38,11 +39,6 @@
 .ios-date-input-value {
   color: var(--gray-800);
   font-size: 1rem;
-}
-
-.ios-date-icon {
-  color: var(--gray-600);
-  flex-shrink: 0;
 }
 
 /* iOS Date Picker Modal */
