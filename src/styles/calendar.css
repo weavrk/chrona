@@ -317,15 +317,16 @@
 .date-range-container {
   display: flex;
   justify-content: space-between;
-  width: calc(100% - 48px);
+  width: 100%;
   box-sizing: border-box;
+  gap: 12px;
 }
 
 .date-input-group {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  width: calc((100% - 48px) / 2);
+  width: calc((100% - 12px) / 2);
   flex-shrink: 0;
   flex-grow: 0;
   min-width: 0;
