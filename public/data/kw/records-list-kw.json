@@ -187,13 +187,6 @@
   ],
   "2026-01-28": [
     {
-      "id": "1769518103850-ff4poh87j",
-      "type": "period",
-      "data": {
-        "intensity": "Medium"
-      }
-    },
-    {
       "id": "1769518119438-fha68knby",
       "type": "period",
       "data": {
@@ -203,27 +196,6 @@
   ],
   "2026-01-27": [
     {
-      "id": "1769470209143-r3b6cayh3",
-      "type": "period",
-      "data": {
-        "intensity": "Lite"
-      }
-    },
-    {
-      "id": "1769480783801-qnqz3pglr",
-      "type": "period",
-      "data": {
-        "intensity": "Spotting"
-      }
-    },
-    {
-      "id": "1769484553757-3tgbvz4aj",
-      "type": "period",
-      "data": {
-        "intensity": "Medium"
-      }
-    },
-    {
       "id": "1769484669893-pwv3ndjkw",
       "type": "period",
       "data": {
@@ -232,111 +204,6 @@
     }
   ],
   "2026-01-26": [
-    {
-      "id": "1769481016302-jd9rgvwar",
-      "type": "period",
-      "data": {
-        "intensity": "Spotting"
-      }
-    },
-    {
-      "id": "1769481198050-u10obaj06",
-      "type": "period",
-      "data": {
-        "intensity": "Spotting"
-      }
-    },
-    {
-      "id": "1769481387766-prnb9tmov",
-      "type": "period",
-      "data": {
-        "intensity": "Spotting"
-      }
-    },
-    {
-      "id": "1769481766716-6ftksxnel",
-      "type": "period",
-      "data": {
-        "intensity": "Spotting"
-      }
-    },
-    {
-      "id": "1769482127320-kvx4xofzo",
-      "type": "period",
-      "data": {
-        "intensity": "Spotting"
-      }
-    },
-    {
-      "id": "1769482359873-x0fxn564y",
-      "type": "period",
-      "data": {
-        "intensity": "Spotting"
-      }
-    },
-    {
-      "id": "1769482516142-tn0i38mgf",
-      "type": "period",
-      "data": {
-        "intensity": "Lite"
-      }
-    },
-    {
-      "id": "1769482672060-l2bji99rk",
-      "type": "period",
-      "data": {
-        "intensity": "Medium"
-      }
-    },
-    {
-      "id": "1769482931055-1dfi569j9",
-      "type": "period",
-      "data": {
-        "intensity": "Heavy"
-      }
-    },
-    {
-      "id": "1769483070779-4jsx33ubm",
-      "type": "period",
-      "data": {
-        "intensity": "Heavy"
-      }
-    },
-    {
-      "id": "1769483366797-vp8uja7ge",
-      "type": "period",
-      "data": {
-        "intensity": "Spotting"
-      }
-    },
-    {
-      "id": "1769483397697-8jlzkmb2g",
-      "type": "period",
-      "data": {
-        "intensity": "Medium"
-      }
-    },
-    {
-      "id": "1769483542247-hfblbyt1r",
-      "type": "period",
-      "data": {
-        "intensity": "Spotting"
-      }
-    },
-    {
-      "id": "1769483784199-7557yma7v",
-      "type": "period",
-      "data": {
-        "intensity": "Heavy"
-      }
-    },
-    {
-      "id": "1769483901522-c3x893sbe",
-      "type": "period",
-      "data": {
-        "intensity": "Medium"
-      }
-    },
     {
       "id": "1769484178176-tr3zpbpgo",
       "type": "period",
@@ -351,13 +218,6 @@
       "type": "period",
       "data": {
         "intensity": "Medium"
-      }
-    },
-    {
-      "id": "1769479762676-hewpghr7l",
-      "type": "period",
-      "data": {
-        "intensity": "Heavy"
       }
     }
   ]
