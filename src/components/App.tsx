@@ -254,9 +254,18 @@ export function App() {
       const [endYear, endMonth, endDay] = endDateStr.split('-').map(Number);
       const start = new Date(startYear, startMonth - 1, startDay);
       const end = new Date(endYear, endMonth - 1, endDay);
+      
+      // Determine if we should repeat forward
+      const shouldRepeatForward = record.details?.repeatForward === true;
+      
+      // If repeat forward is enabled, extend end date by 365 days
+      const finalEnd = shouldRepeatForward 
+        ? new Date(end.getTime() + (365 * 24 * 60 * 60 * 1000)) 
+        : end;
+      
       const currentDate = new Date(start);
       
-      while (currentDate <= end) {
+      while (currentDate <= finalEnd) {
         const dateKey = formatLocalDate(currentDate);
         
         // Initialize array for this date if it doesn't exist
@@ -327,39 +336,58 @@ export function App() {
         }
       }
 
+      // Generate ID in format: YYYYMMDD-randomstring
+      const generateId = () => {
+        const now = new Date();
+        const dateStr = formatLocalDate(now).replace(/-/g, ''); // YYYYMMDD
+        const random = Math.random().toString(36).substr(2, 6); // 6 char random
+        return `${dateStr}-${random}`;
+      };
+
       // Process each record
       for (const record of records) {
-        // Generate ID in format: YYYYMMDD-randomstring (e.g., 20260128-abc123)
-        const generateId = () => {
-          const now = new Date();
-          const dateStr = formatLocalDate(now).replace(/-/g, ''); // YYYYMMDD
-          const random = Math.random().toString(36).substr(2, 6); // 6 char random
-          return `${dateStr}-${random}`;
-        };
-        const recordId = (record as any).id || generateId();
         const startDateStr = formatLocalDate(record.startDate);
         const endDateStr = formatLocalDate(record.endDate);
         
-        const recordToAdd = {
+        // Use existing ID or generate new one
+        const recordId = (record as any).id || generateId();
+        
+        const recordObject = {
           id: recordId,
           type: record.type,
           data: record.details || {},
         };
 
-        // Add record to all dates in the range
-        // Parse dates correctly in local timezone (not UTC)
+        // Parse dates correctly in local timezone
         const [startYear, startMonth, startDay] = startDateStr.split('-').map(Number);
         const [endYear, endMonth, endDay] = endDateStr.split('-').map(Number);
         const start = new Date(startYear, startMonth - 1, startDay);
         const end = new Date(endYear, endMonth - 1, endDay);
-        const currentDate = new Date(start);
         
-        while (currentDate <= end) {
+        // Determine if we should repeat forward
+        const shouldRepeatForward = record.details?.repeatForward === true;
+        
+        // If repeat forward is enabled, extend end date by 365 days
+        const finalEnd = shouldRepeatForward 
+          ? new Date(end.getTime() + (365 * 24 * 60 * 60 * 1000)) 
+          : end;
+        
+        const currentDate = new Date(start);
+
+        while (currentDate <= finalEnd) {
           const dateKey = formatLocalDate(currentDate);
+          
           if (!allRecords[dateKey]) {
             allRecords[dateKey] = [];
           }
-          allRecords[dateKey].push(recordToAdd);
+          
+          const existingIndex = allRecords[dateKey].findIndex((r: any) => r.id === recordId);
+          if (existingIndex >= 0) {
+            allRecords[dateKey][existingIndex] = recordObject;
+          } else {
+            allRecords[dateKey].push(recordObject);
+          }
+          
           currentDate.setDate(currentDate.getDate() + 1);
         }
       }
