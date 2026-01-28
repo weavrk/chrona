@@ -679,6 +679,18 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
       console.log('recordIdToCheck:', recordIdToCheck);
     }
     
+    // Fallback for legacy records without explicit parent fields:
+    // if we still don't have a recordIdToCheck, use the record's own id
+    if (!recordIdToCheck) {
+      if (specificRecordId) {
+        recordIdToCheck = specificRecordId;
+        console.log('Fallback recordIdToCheck from specificRecordId:', recordIdToCheck);
+      } else if (editingRecords && editingRecords.length > 0 && editingRecords[0].id) {
+        recordIdToCheck = editingRecords[0].id;
+        console.log('Fallback recordIdToCheck from editingRecords[0].id:', recordIdToCheck);
+      }
+    }
+    
     if (!recordIdToCheck) {
       console.log('No recordIdToCheck found');
       return false;

@@ -631,6 +631,11 @@ export function App() {
       const recordIdOrParent = targetRecord?.isParent ? targetRecord.id : targetRecord?.parentId;
       console.log('recordIdOrParent:', recordIdOrParent);
       
+      // Fallback for legacy sequences without explicit parent fields:
+      // if we don't have a parent id, use the recordId itself for cascading deletes
+      const cascadeId = recordIdOrParent || recordId;
+      console.log('cascadeId used for future deletes (if enabled):', cascadeId);
+      
       // Remove records - if recordId is provided, delete that specific record, otherwise delete all of that type
       // Parse dates correctly in local timezone (not UTC)
       const [delStartYear, delStartMonth, delStartDay] = startDateStr.split('-').map(Number);
@@ -681,14 +686,14 @@ export function App() {
       }
       
       // If deleteFutureEvents is true, also delete all future children
-      if (deleteFutureEvents && recordIdOrParent) {
-        console.log('Deleting future events with recordIdOrParent:', recordIdOrParent);
+      if (deleteFutureEvents && cascadeId) {
+        console.log('Deleting future events with cascadeId:', cascadeId);
         Object.keys(records).forEach((dateKey) => {
           if (dateKey > startDateStr && records[dateKey]) {
             const beforeCount = records[dateKey].length;
             records[dateKey] = records[dateKey].filter((r: any) => {
               // Remove records with matching parent ID or matching record ID
-              const shouldKeep = r.id !== recordIdOrParent && r.parentId !== recordIdOrParent;
+              const shouldKeep = r.id !== cascadeId && r.parentId !== cascadeId;
               if (!shouldKeep) {
                 console.log('Deleting future record on', dateKey, ':', r);
               }
@@ -732,10 +737,9 @@ export function App() {
       sessionStorage.setItem('restoreViewMode', currentViewMode);
       
       // Close the sheet and reload the page to refresh data
-      console.log('=== DELETE COMPLETE - RELOAD DISABLED FOR DEBUGGING ===');
+      console.log('=== DELETE COMPLETE - RELOADING PAGE ===');
       setIsSheetOpen(false);
-      // TEMPORARILY DISABLED FOR DEBUGGING - UNCOMMENT AFTER FIXING
-      // window.location.reload();
+      window.location.reload();
     } catch (error) {
       console.error('Failed to delete record:', error);
       alert('Failed to delete record. Please try again.');
