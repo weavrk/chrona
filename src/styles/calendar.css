@@ -769,6 +769,7 @@
   font-weight: 700;
   color: var(--gray-800);
   line-height: 1.4;
+  white-space: nowrap;
 }
 
 .list-view-records {
