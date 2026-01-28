@@ -159,8 +159,8 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
       // Only initialize if this is a different date than last time, or if we haven't initialized yet
       if (lastInitializedDate.current !== dateStr) {
         
-        setStartDate(dateStr);
-        setEndDate(dateStr);
+      setStartDate(dateStr);
+      setEndDate(dateStr);
         
         // Set HR records initial date
         setHrRecords([{
@@ -493,9 +493,9 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
           // Parse dates correctly in local timezone (not UTC)
           const [startYear, startMonth, startDay] = hrRecord.startDate.split('-').map(Number);
           const [endYear, endMonth, endDay] = hrRecord.endDate.split('-').map(Number);
-          
-          const record: RecordData = {
-            type: selectedType,
+
+    const record: RecordData = {
+      type: selectedType,
             startDate: new Date(startYear, startMonth - 1, startDay),
             endDate: new Date(endYear, endMonth - 1, endDay),
             details: {
@@ -574,11 +574,11 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
         type: selectedType,
         startDate: new Date(startYear, startMonth - 1, startDay),
         endDate: new Date(endYear, endMonth - 1, endDay),
-        details: {},
-      };
+      details: {},
+    };
 
       if (selectedType === 'period') {
-        record.details!.intensity = intensity;
+      record.details!.intensity = intensity;
       } else if (selectedType === 'hsv') {
         record.details!.hadBreakout = hadBreakout;
         if (hadBreakout) {
@@ -594,9 +594,9 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
             frequencyUnit: hsFrequencyUnit,
           }];
         }
-        record.details!.repeatForward = repeatForward;
+      record.details!.repeatForward = repeatForward;
       } else if (selectedType === 'mental-health') {
-        record.details!.mood = mood;
+      record.details!.mood = mood;
         record.details!.notes = notes;
       }
 
@@ -624,7 +624,7 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
     onDelete(selectedType, startDateObj, endDateObj);
     
     setTimeout(() => {
-      handleClose();
+    handleClose();
       setIsDeleting(false);
     }, 500);
   };
@@ -746,57 +746,57 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
         {/* Record Type Nav Tabs */}
         <div className="ds-nav-tab-bar-container">
           <div className="ds-nav-tab-bar">
-              {RECORD_TYPES.map((type) => (
-                <button
-                  key={type.id}
+            {RECORD_TYPES.map((type) => (
+              <button
+                key={type.id}
                 className={`ds-nav-tab ${selectedType === type.id ? 'active' : ''}`}
-                  style={
-                    selectedType === type.id
+                style={
+                  selectedType === type.id
                     ? { '--active-bg': type.color } as React.CSSProperties
                     : undefined
-                  }
-                  onClick={() => {
-                    setSelectedType(type.id);
-                    setIntensity('');
-                    setMood('');
+                }
+                onClick={() => {
+                  setSelectedType(type.id);
+                  setIntensity('');
+                  setMood('');
                   setSeverity('');
                   setHadBreakout(false);
-                  }}
-                >
-                  <span>{type.label}</span>
-                </button>
-              ))}
-            </div>
+                }}
+              >
+                <span>{type.label}</span>
+              </button>
+            ))}
           </div>
+        </div>
 
         <div className="bottom-sheet-content">
                       {/* Period */}
                       {selectedType === 'period' && (
                         <>
-                          <div className="form-date-selector">
-                            <label className="form-section-headers">Date Range</label>
-                            <div className="date-range-container">
-                          <div className="date-input-group">
+          <div className="form-date-selector">
+            <label className="form-section-headers">Date Range</label>
+            <div className="date-range-container">
+              <div className="date-input-group">
                             <IOSDatePicker
-                              value={startDate}
+                  value={startDate}
                               onChange={(newStartDate) => {
                                 setStartDate(newStartDate);
                                 setEndDate(newStartDate);
                               }}
                               label="Start"
                               className="date-input-group"
-                            />
-                          </div>
-                          <div className="date-input-group">
+                />
+              </div>
+              <div className="date-input-group">
                             <IOSDatePicker
-                              value={endDate}
+                  value={endDate}
                               onChange={setEndDate}
                               label="End"
                               className="date-input-group"
-                            />
-                          </div>
-                            </div>
-                          </div>
+                />
+              </div>
+            </div>
+          </div>
             <div className="form-chips-single">
               <label className="form-section-headers">Intensity</label>
               <div className="chip-bar-single-select">
@@ -1071,12 +1071,12 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
                     <span>Had Breakout</span>
                   </label>
 
-                  <div className="form-chips-single">
+            <div className="form-chips-single">
                     <label className="form-section-subheader">Severity</label>
-                    <div className="chip-bar-single-select">
-                      {HSV_INTENSITY.map((level) => (
-                        <button
-                          key={level}
+              <div className="chip-bar-single-select">
+                {HSV_INTENSITY.map((level) => (
+                  <button
+                    key={level}
                           className={`ds-chip-single-select-md ${severity === level ? 'active' : ''}`}
                           onClick={() => {
                             if (hadBreakout) {
@@ -1091,12 +1091,12 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
                               ? { backgroundColor: 'var(--gray-600)', borderColor: 'var(--gray-600)' }
                               : undefined
                           }
-                        >
-                          <span>{level}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
+                  >
+                    <span>{level}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
 
                   <div className="form-chips-single">
                     <label className="form-section-subheader">Location</label>
@@ -1156,7 +1156,7 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
                 <div style={{ display: 'flex', gap: 'var(--spacing-md)' }}>
                   <div className="form-text-input" style={{ flex: 1 }}>
                     <label className="form-label">Dose</label>
-                    <input
+                  <input
                       type="number"
                       value={hsDose}
                       onChange={(e) => setHsDose(e.target.value)}
@@ -1263,7 +1263,7 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
                   placeholder="Enter notes..."
                   style={{ 
                     flex: 1,
-                    minHeight: '200px',
+                    minHeight: '120px',
                     resize: 'none'
                   }}
                 />
