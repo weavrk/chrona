@@ -797,7 +797,7 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
               </div>
             </div>
           </div>
-            <div className="form-chips-single">
+            <div className="form-chips-single period-intensity">
               <label className="form-section-headers">Intensity</label>
               <div className="chip-bar-single-select">
                 {PERIOD_INTENSITY.map((level) => (
@@ -1238,7 +1238,7 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
                 </div>
               </div>
 
-            <div className="form-chips-single">
+            <div className="form-chips-single mental-health-mood">
               <label className="form-section-headers">Mood</label>
               <div className="mood-chips">
                 {MOODS.map((moodItem) => (

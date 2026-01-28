@@ -1434,7 +1434,9 @@
   gap: 20px;
 }
 
-.hsv-breakout-container .form-chips-single {
+/* Period and Mental Health sections: labels above chips */
+.form-chips-single.period-intensity,
+.form-chips-single.mental-health-mood {
   flex-direction: column;
   gap: 12px;
 }
