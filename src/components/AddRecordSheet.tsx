@@ -1088,7 +1088,7 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
                             !hadBreakout
                               ? { opacity: 0.5, cursor: 'not-allowed' }
                               : severity === level
-                              ? { backgroundColor: 'var(--sand)', borderColor: 'var(--sand)' }
+                              ? { backgroundColor: 'var(--gray-600)', borderColor: 'var(--gray-600)' }
                               : undefined
                           }
                         >
@@ -1119,7 +1119,7 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
                             !hadBreakout
                               ? { opacity: 0.5, cursor: 'not-allowed' }
                               : hsLocations.includes(location)
-                              ? { backgroundColor: 'var(--sand)', borderColor: 'var(--sand)' }
+                              ? { backgroundColor: 'var(--gray-600)', borderColor: 'var(--gray-600)' }
                               : undefined
                           }
                         >
