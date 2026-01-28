@@ -1054,7 +1054,7 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
             <div className="form-section">
                 <label className="form-section-headers">Breakout</label>
                 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div className="hsv-breakout-container">
                   <label className="checkbox-label">
                     <input
                       type="checkbox"
@@ -1130,6 +1130,9 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
                   </div>
                 </div>
               </div>
+
+              {/* Close hsv-breakout-container */}
+              
 
             <div className="form-section">
                 <label className="form-section-headers">Treatment</label>

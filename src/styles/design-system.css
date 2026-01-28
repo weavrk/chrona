@@ -1428,6 +1428,12 @@
   display: block;
 }
 
+.hsv-breakout-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
 .form-chips-single .chip-bar-single-select {
   display: flex;
   flex-wrap: wrap;
