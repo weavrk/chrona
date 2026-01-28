@@ -805,7 +805,7 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
                     key={level}
                       className={`ds-chip-single-select-md ${intensity === level ? 'active' : ''}`}
                     onClick={() => setIntensity(intensity === level ? '' : level)}
-                    style={intensity === level ? { backgroundColor: 'var(--brick)', borderColor: 'var(--brick)' } : undefined}
+                    style={intensity === level ? { backgroundColor: 'var(--gray-600)', borderColor: 'var(--gray-600)' } : undefined}
                   >
                     <span>{level}</span>
                   </button>
