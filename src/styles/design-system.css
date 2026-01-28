@@ -1434,6 +1434,11 @@
   gap: 20px;
 }
 
+.hsv-breakout-container .form-chips-single {
+  flex-direction: column;
+  gap: 12px;
+}
+
 .form-chips-single .chip-bar-single-select {
   display: flex;
   flex-wrap: wrap;
