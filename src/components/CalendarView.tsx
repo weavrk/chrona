@@ -1459,6 +1459,7 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
                   const isToday = item.date.toDateString() === new Date().toDateString();
                   const dateKey = item.date.toISOString().split('T')[0];
                   const dayRecords = records[dateKey] || [];
+                  const monthAbbr = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][item.month];
                   
                   return (
                     <div 
@@ -1469,7 +1470,7 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
                     >
                       <div className="list-view-item-content">
                         <div className="list-view-item-date-header">
-                          {item.dayName}, {item.monthName} {item.dayNumber}
+                          {item.dayName} {monthAbbr} {item.dayNumber}
                         </div>
                         {dayRecords.length > 0 ? (
                           <div className="list-view-records">

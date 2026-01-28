@@ -442,8 +442,10 @@ export function App() {
       
       // Close the sheet and reload the page to refresh data
       console.log('Closing sheet and reloading...');
+      console.log('=== SAVE COMPLETE - RELOAD DISABLED FOR DEBUGGING ===');
       setIsSheetOpen(false);
-      window.location.reload();
+      // TEMPORARILY DISABLED FOR DEBUGGING - UNCOMMENT AFTER FIXING
+      // window.location.reload();
     } catch (error) {
       console.error('Failed to save record:', error);
       alert('Failed to save record. Please try again.');
@@ -730,8 +732,10 @@ export function App() {
       sessionStorage.setItem('restoreViewMode', currentViewMode);
       
       // Close the sheet and reload the page to refresh data
+      console.log('=== DELETE COMPLETE - RELOAD DISABLED FOR DEBUGGING ===');
       setIsSheetOpen(false);
-      window.location.reload();
+      // TEMPORARILY DISABLED FOR DEBUGGING - UNCOMMENT AFTER FIXING
+      // window.location.reload();
     } catch (error) {
       console.error('Failed to delete record:', error);
       alert('Failed to delete record. Please try again.');

@@ -568,6 +568,8 @@
   transform: translateX(0);
   position: relative;
   pointer-events: auto;
+  display: flex;
+  flex-direction: row;
 }
 
 .view-container.list-view:not(.active) {
@@ -740,17 +742,20 @@
   flex: 1;
   min-height: 40px;
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 12px;
 }
 
 .list-view-item-date-header {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 700;
-  color: var(--gray-700);
+  color: var(--gray-800);
   font-family: var(--font-family);
   line-height: 1.4;
   margin-bottom: 0;
+  width: 96px;
+  flex-shrink: 0;
 }
 
 .list-view-records {
@@ -758,6 +763,7 @@
   flex-direction: column;
   gap: 8px;
   width: 100%;
+  flex: 1;
 }
 
 .list-view-record,

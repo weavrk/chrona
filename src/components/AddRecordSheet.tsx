@@ -795,7 +795,9 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
       setTimeout(() => {
         setConfirmingDeleteId(null);
         setIsDeleting(false);
-        window.location.reload();
+        console.log('=== INLINE DELETE (NO FUTURE) COMPLETE - RELOAD DISABLED FOR DEBUGGING ===');
+        // TEMPORARILY DISABLED FOR DEBUGGING
+        // window.location.reload();
       }, 500);
     }
   };
