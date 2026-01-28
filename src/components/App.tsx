@@ -551,6 +551,13 @@ export function App() {
     if (!user) return;
     
     try {
+      console.log('=== DELETE RECORD CALLED ===');
+      console.log('recordType:', recordType);
+      console.log('startDate:', startDate);
+      console.log('endDate:', endDate);
+      console.log('recordId:', recordId);
+      console.log('deleteFutureEvents:', deleteFutureEvents);
+      
       // Load existing records (date-indexed structure)
       const response = await fetch(`${import.meta.env.BASE_URL}data/${user.username}/records-list-${user.username}.json?t=${Date.now()}`);
       let records: Record<string, any[]> = {};
@@ -563,13 +570,18 @@ export function App() {
       const startDateStr = formatLocalDate(startDate);
       const endDateStr = formatLocalDate(endDate);
       
+      console.log('startDateStr:', startDateStr);
+      console.log('Records for this date:', records[startDateStr]);
+      
       // Find the record to determine parent/child relationship
       let targetRecord: any = null;
       if (recordId && records[startDateStr]) {
         targetRecord = records[startDateStr].find((r: any) => r.id === recordId);
+        console.log('Found targetRecord:', targetRecord);
       }
       
       const recordIdOrParent = targetRecord?.isParent ? targetRecord.id : targetRecord?.parentId;
+      console.log('recordIdOrParent:', recordIdOrParent);
       
       // Remove records - if recordId is provided, delete that specific record, otherwise delete all of that type
       // Parse dates correctly in local timezone (not UTC)
@@ -583,17 +595,36 @@ export function App() {
         const dateKey = formatLocalDate(currentDate);
         
         if (records[dateKey]) {
+          console.log('Before delete, records for', dateKey, ':', records[dateKey]);
+          const beforeCount = records[dateKey].length;
+          
           if (recordId) {
             // Delete specific record by ID
-            records[dateKey] = records[dateKey].filter((record: any) => record.id !== recordId);
+            records[dateKey] = records[dateKey].filter((record: any) => {
+              const shouldKeep = record.id !== recordId;
+              if (!shouldKeep) {
+                console.log('Deleting record with ID:', record.id);
+              }
+              return shouldKeep;
+            });
           } else {
             // Delete all records of the specified type
-            records[dateKey] = records[dateKey].filter((record: any) => record.type !== recordType);
+            records[dateKey] = records[dateKey].filter((record: any) => {
+              const shouldKeep = record.type !== recordType;
+              if (!shouldKeep) {
+                console.log('Deleting record of type:', record.type);
+              }
+              return shouldKeep;
+            });
           }
+          
+          console.log('After delete, records for', dateKey, ':', records[dateKey]);
+          console.log('Deleted', beforeCount - records[dateKey].length, 'records');
           
           // If no records left for this date, remove the date key
           if (records[dateKey].length === 0) {
             delete records[dateKey];
+            console.log('Removed empty date key:', dateKey);
           }
         }
         
@@ -603,19 +634,33 @@ export function App() {
       
       // If deleteFutureEvents is true, also delete all future children
       if (deleteFutureEvents && recordIdOrParent) {
+        console.log('Deleting future events with recordIdOrParent:', recordIdOrParent);
         Object.keys(records).forEach((dateKey) => {
           if (dateKey > startDateStr && records[dateKey]) {
+            const beforeCount = records[dateKey].length;
             records[dateKey] = records[dateKey].filter((r: any) => {
               // Remove records with matching parent ID or matching record ID
-              return r.id !== recordIdOrParent && r.parentId !== recordIdOrParent;
+              const shouldKeep = r.id !== recordIdOrParent && r.parentId !== recordIdOrParent;
+              if (!shouldKeep) {
+                console.log('Deleting future record on', dateKey, ':', r);
+              }
+              return shouldKeep;
             });
+            const deletedCount = beforeCount - records[dateKey].length;
+            if (deletedCount > 0) {
+              console.log('Deleted', deletedCount, 'future records on', dateKey);
+            }
             if (records[dateKey].length === 0) {
               delete records[dateKey];
+              console.log('Removed empty future date key:', dateKey);
             }
           }
         });
       }
 
+      console.log('Saving records to server...');
+      console.log('Total dates with records:', Object.keys(records).length);
+      
       // Save records
       const saveResponse = await fetch(`${import.meta.env.BASE_URL}api/save_records.php`, {
         method: 'POST',
@@ -623,10 +668,16 @@ export function App() {
         body: JSON.stringify({ username: user.username, records }),
       });
 
+      console.log('Save response status:', saveResponse.status);
+      
       if (!saveResponse.ok) {
         const errorData = await saveResponse.json().catch(() => ({ error: 'Unknown error' }));
+        console.error('Save failed:', errorData);
         throw new Error(errorData.error || 'Failed to delete records');
       }
+      
+      const saveResult = await saveResponse.json();
+      console.log('Save result:', saveResult);
 
       // Store current view mode so we stay on the same view after reload
       const currentViewMode = sessionStorage.getItem('currentViewMode') || 'list';

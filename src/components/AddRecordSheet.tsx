@@ -644,18 +644,45 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
     // Don't call handleClose here - onAdd/onAddMultiple will handle closing and reloading
   };
 
-  const checkForFutureEvents = () => {
-    if (!allRecords || !editingRecords || editingRecords.length === 0 || !selectedDate) {
+  const checkForFutureEvents = (specificRecordId?: string) => {
+    console.log('=== CHECK FOR FUTURE EVENTS ===');
+    console.log('allRecords:', allRecords);
+    console.log('editingRecords:', editingRecords);
+    console.log('selectedDate:', selectedDate);
+    console.log('specificRecordId:', specificRecordId);
+    
+    if (!allRecords || !selectedDate) {
+      console.log('Missing allRecords or selectedDate');
       return false;
     }
 
-    const currentRecord = editingRecords[0];
     const currentDateStr = formatLocalDate(selectedDate);
+    let recordIdToCheck: string | undefined;
     
-    // Get the record ID or parent ID to check for related records
-    const recordIdToCheck = currentRecord.isParent ? currentRecord.id : currentRecord.parentId;
+    // If a specific record ID is provided (for inline delete), use that
+    if (specificRecordId) {
+      // Find the record to check if it's a parent or has a parent
+      for (const dateKey of Object.keys(allRecords)) {
+        const foundRecord = allRecords[dateKey].find((r: any) => r.id === specificRecordId);
+        if (foundRecord) {
+          recordIdToCheck = foundRecord.isParent ? foundRecord.id : foundRecord.parentId;
+          console.log('Found record for specificRecordId:', foundRecord);
+          console.log('recordIdToCheck:', recordIdToCheck);
+          break;
+        }
+      }
+    } else if (editingRecords && editingRecords.length > 0) {
+      // Use the first editing record
+      const currentRecord = editingRecords[0];
+      recordIdToCheck = currentRecord.isParent ? currentRecord.id : currentRecord.parentId;
+      console.log('Using editingRecords[0]:', currentRecord);
+      console.log('recordIdToCheck:', recordIdToCheck);
+    }
     
-    if (!recordIdToCheck) return false;
+    if (!recordIdToCheck) {
+      console.log('No recordIdToCheck found');
+      return false;
+    }
     
     // Check if there are future records with the same parent/record ID
     for (const dateKey of Object.keys(allRecords)) {
@@ -664,21 +691,28 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
           r.id === recordIdToCheck || r.parentId === recordIdToCheck
         );
         if (futureRecords.length > 0) {
+          console.log('Found future records on', dateKey, ':', futureRecords);
           return true;
         }
       }
     }
     
+    console.log('No future events found');
     return false;
   };
 
   const handleDelete = () => {
     if (!selectedDate || !onDelete || isDeleting) return;
 
+    console.log('=== HANDLE DELETE ===');
+    console.log('selectedType:', selectedType);
+    console.log('editingRecords:', editingRecords);
+    
     // Check if there are future events
     const futureEventsExist = checkForFutureEvents();
     
     if (futureEventsExist && !showDeletePrompt) {
+      console.log('Future events exist, showing prompt');
       setHasFutureEvents(true);
       setShowDeletePrompt(true);
       return;
@@ -688,8 +722,13 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
     const endDateObj = new Date(endDate);
     const recordId = editingRecords && editingRecords.length > 0 ? editingRecords[0].id : undefined;
     
+    // If we got here after showing the prompt, delete future events
+    const shouldDeleteFuture = showDeletePrompt && hasFutureEvents;
+    
+    console.log('Calling onDelete with:', { selectedType, startDateObj, endDateObj, recordId, deleteFuture: shouldDeleteFuture });
+    
     setIsDeleting(true);
-    onDelete(selectedType, startDateObj, endDateObj, recordId, hasFutureEvents);
+    onDelete(selectedType, startDateObj, endDateObj, recordId, shouldDeleteFuture);
     
     setTimeout(() => {
       handleClose();
@@ -702,9 +741,13 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
   const handleDeleteSingleOnly = () => {
     if (!selectedDate || !onDelete || isDeleting) return;
     
+    console.log('=== HANDLE DELETE SINGLE ONLY ===');
+    
     const startDateObj = new Date(startDate);
     const endDateObj = new Date(endDate);
     const recordId = editingRecords && editingRecords.length > 0 ? editingRecords[0].id : undefined;
+    
+    console.log('Calling onDelete with deleteFuture=false:', { selectedType, startDateObj, endDateObj, recordId });
     
     setIsDeleting(true);
     onDelete(selectedType, startDateObj, endDateObj, recordId, false);
@@ -715,6 +758,46 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
       setShowDeletePrompt(false);
       setHasFutureEvents(false);
     }, 500);
+  };
+  
+  const handleInlineRecordDelete = (recordId: string, recordType: string, recordStartDate: string, recordEndDate: string) => {
+    console.log('=== HANDLE INLINE RECORD DELETE ===');
+    console.log('recordId:', recordId);
+    console.log('recordType:', recordType);
+    console.log('showDeletePrompt:', showDeletePrompt);
+    
+    if (!onDelete) return;
+    
+    // Check if there are future events for this specific record
+    const futureEventsExist = checkForFutureEvents(recordId);
+    
+    if (futureEventsExist && !showDeletePrompt) {
+      console.log('Future events exist for inline delete, showing prompt');
+      setHasFutureEvents(true);
+      setShowDeletePrompt(true);
+      // Store the record details for the prompt
+      (window as any).__pendingDelete = { recordId, recordType, recordStartDate, recordEndDate };
+      return;
+    }
+    
+    // If we got here after the prompt, this means user answered the prompt
+    // The prompt handlers will take care of calling onDelete
+    // This path should only be reached if there are no future events
+    if (!futureEventsExist) {
+      const startDateObj = new Date(recordStartDate);
+      const endDateObj = new Date(recordEndDate);
+      
+      console.log('No future events, calling onDelete directly:', { recordType, startDateObj, endDateObj, recordId });
+      
+      setIsDeleting(true);
+      onDelete(recordType, startDateObj, endDateObj, recordId, false);
+      
+      setTimeout(() => {
+        setConfirmingDeleteId(null);
+        setIsDeleting(false);
+        window.location.reload();
+      }, 500);
+    }
   };
 
   const handleClose = () => {
@@ -923,13 +1006,11 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
                                 type="button"
                                 onClick={() => {
                                   if (record.id && onDelete) {
-                                    const startDateObj = new Date(record.startDate);
-                                    const endDateObj = new Date(record.endDate);
-                                    onDelete('hormone-replacement-therapy', startDateObj, endDateObj, record.id);
+                                    handleInlineRecordDelete(record.id, 'hormone-replacement-therapy', record.startDate, record.endDate);
                                   } else {
                                     setHrRecords(hrRecords.filter((_, i) => i !== index));
+                                    setConfirmingDeleteId(null);
                                   }
-                                  setConfirmingDeleteId(null);
                                 }}
                                 style={{ 
                                   fontSize: '12px', 
@@ -1421,13 +1502,11 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
                                 type="button"
                                 onClick={() => {
                                   if (record.id && onDelete) {
-                                    const startDateObj = new Date(record.startDate);
-                                    const endDateObj = new Date(record.endDate);
-                                    onDelete('workout', startDateObj, endDateObj, record.id);
+                                    handleInlineRecordDelete(record.id, 'workout', record.startDate, record.endDate);
                                   } else {
                                     deleteWorkoutRecord(index);
+                                    setConfirmingDeleteId(null);
                                   }
-                                  setConfirmingDeleteId(null);
                                 }}
                                 style={{ 
                                   fontSize: '12px', 
@@ -1576,7 +1655,29 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
                   <div style={{ display: 'flex', gap: '8px' }}>
                     <button 
                       className="ds-button-destructive" 
-                      onClick={handleDelete} 
+                      onClick={() => {
+                        console.log('User clicked YES to delete future events');
+                        // Check if this is an inline delete
+                        const pendingDelete = (window as any).__pendingDelete;
+                        if (pendingDelete && onDelete) {
+                          const startDateObj = new Date(pendingDelete.recordStartDate);
+                          const endDateObj = new Date(pendingDelete.recordEndDate);
+                          console.log('Processing pending inline delete with future events');
+                          setIsDeleting(true);
+                          onDelete(pendingDelete.recordType, startDateObj, endDateObj, pendingDelete.recordId, true);
+                          setTimeout(() => {
+                            setConfirmingDeleteId(null);
+                            setIsDeleting(false);
+                            setShowDeletePrompt(false);
+                            setHasFutureEvents(false);
+                            (window as any).__pendingDelete = null;
+                            window.location.reload();
+                          }, 500);
+                        } else {
+                          // Bottom delete button
+                          handleDelete();
+                        }
+                      }} 
                       disabled={isDeleting}
                       style={{ flex: 1 }}
                     >
@@ -1584,7 +1685,29 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
                     </button>
                     <button 
                       className="ds-button-secondary" 
-                      onClick={handleDeleteSingleOnly} 
+                      onClick={() => {
+                        console.log('User clicked NO to delete only this event');
+                        // Check if this is an inline delete
+                        const pendingDelete = (window as any).__pendingDelete;
+                        if (pendingDelete && onDelete) {
+                          const startDateObj = new Date(pendingDelete.recordStartDate);
+                          const endDateObj = new Date(pendingDelete.recordEndDate);
+                          console.log('Processing pending inline delete without future events');
+                          setIsDeleting(true);
+                          onDelete(pendingDelete.recordType, startDateObj, endDateObj, pendingDelete.recordId, false);
+                          setTimeout(() => {
+                            setConfirmingDeleteId(null);
+                            setIsDeleting(false);
+                            setShowDeletePrompt(false);
+                            setHasFutureEvents(false);
+                            (window as any).__pendingDelete = null;
+                            window.location.reload();
+                          }, 500);
+                        } else {
+                          // Bottom delete button
+                          handleDeleteSingleOnly();
+                        }
+                      }} 
                       disabled={isDeleting}
                       style={{ flex: 1 }}
                     >
