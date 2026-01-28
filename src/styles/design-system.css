@@ -1398,8 +1398,8 @@
 /* 5. form-chips-single */
 .form-chips-single {
   display: flex;
-  flex-direction: column;
-  gap: 16px;
+  flex-direction: row;
+  gap: 24px;
   width: 100%;
 }
 
