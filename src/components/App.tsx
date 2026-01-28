@@ -246,6 +246,14 @@ export function App() {
       const recordId = (record as any).id || generateId();
       const isEdit = !!(record as any).id;
       
+      console.log('=== HANDLE ADD RECORD ===');
+      console.log('Record type:', record.type);
+      console.log('Record ID:', recordId);
+      console.log('Is Edit:', isEdit);
+      console.log('Start date:', startDateStr);
+      console.log('End date:', endDateStr);
+      console.log('Record details:', record.details);
+      
       // Check if this is a parent or child record
       let isParentRecord = false;
       let parentIdToUpdate: string | undefined = undefined;
@@ -257,6 +265,9 @@ export function App() {
           if (existingRecord) {
             isParentRecord = existingRecord.isParent === true;
             parentIdToUpdate = existingRecord.parentId;
+            console.log('Found existing record on date:', dateKey);
+            console.log('Is parent record:', isParentRecord);
+            console.log('Parent ID:', parentIdToUpdate);
             break;
           }
         }
@@ -271,10 +282,14 @@ export function App() {
 
       // If editing, first remove the old record from all dates in its range
       if (isEdit) {
+        console.log('Removing old record from all dates...');
+        let removedCount = 0;
+        
         if (isParentRecord) {
           // If editing a parent, remove parent and all non-manually-edited children
           Object.keys(records).forEach((dateKey) => {
             if (records[dateKey]) {
+              const beforeLength = records[dateKey].length;
               records[dateKey] = records[dateKey].filter((r: any) => {
                 // Remove parent
                 if (r.id === recordId) return false;
@@ -282,6 +297,11 @@ export function App() {
                 if (r.parentId === recordId && r.manuallyEdited !== true) return false;
                 return true;
               });
+              const removed = beforeLength - records[dateKey].length;
+              if (removed > 0) {
+                console.log(`Removed ${removed} records from ${dateKey}`);
+                removedCount += removed;
+              }
               if (records[dateKey].length === 0) {
                 delete records[dateKey];
               }
@@ -292,13 +312,20 @@ export function App() {
           // (it will be marked as manuallyEdited when re-added)
           Object.keys(records).forEach((dateKey) => {
             if (records[dateKey]) {
+              const beforeLength = records[dateKey].length;
               records[dateKey] = records[dateKey].filter((r: any) => r.id !== recordId);
+              const removed = beforeLength - records[dateKey].length;
+              if (removed > 0) {
+                console.log(`Removed ${removed} record from ${dateKey}`);
+                removedCount += removed;
+              }
               if (records[dateKey].length === 0) {
                 delete records[dateKey];
               }
             }
           });
         }
+        console.log(`Total records removed: ${removedCount}`);
       }
 
       // Add/update record to all dates in the range (inclusive)
@@ -329,6 +356,10 @@ export function App() {
       const includePlacebo = record.details?.includePlacebo === true;
       let dayCount = 0;
       let isFirstRecord = true;
+      let addedCount = 0;
+      
+      console.log('Adding records from', formatLocalDate(start), 'to', formatLocalDate(finalEnd));
+      console.log('Should repeat forward:', shouldRepeatForward);
       
       while (currentDate <= finalEnd) {
         const dateKey = formatLocalDate(currentDate);
@@ -367,9 +398,12 @@ export function App() {
           // Add the record to this date's array (or update if editing)
           const existingIndex = records[dateKey].findIndex((r: any) => r.id === recordToAdd.id);
           if (existingIndex >= 0) {
+            console.log(`Updating existing record on ${dateKey}`);
             records[dateKey][existingIndex] = recordForDate;
           } else {
+            console.log(`Adding new record to ${dateKey}`);
             records[dateKey].push(recordForDate);
+            addedCount++;
           }
         }
         
@@ -377,25 +411,37 @@ export function App() {
         currentDate.setDate(currentDate.getDate() + 1);
         dayCount++;
       }
+      
+      console.log(`Total records added: ${addedCount}`);
 
       // Save records
+      console.log('Saving records...');
+      console.log('Total date keys:', Object.keys(records).length);
+      console.log('Dates with records:', Object.keys(records).sort());
+      
       const saveResponse = await fetch(`${import.meta.env.BASE_URL}api/save_records.php`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: user.username, records }),
       });
 
+      console.log('Save response status:', saveResponse.status);
+
       if (!saveResponse.ok) {
         const errorData = await saveResponse.json().catch(() => ({ error: 'Unknown error' }));
         console.error('Save failed:', errorData);
         throw new Error(errorData.error || 'Failed to save records');
       }
+      
+      const saveResult = await saveResponse.json();
+      console.log('Save successful:', saveResult);
 
       // Store current view mode so we stay on the same view after reload
       const currentViewMode = sessionStorage.getItem('currentViewMode') || 'list';
       sessionStorage.setItem('restoreViewMode', currentViewMode);
       
       // Close the sheet and reload the page to refresh data
+      console.log('Closing sheet and reloading...');
       setIsSheetOpen(false);
       window.location.reload();
     } catch (error) {
