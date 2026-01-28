@@ -1673,7 +1673,9 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
                             setShowDeletePrompt(false);
                             setHasFutureEvents(false);
                             (window as any).__pendingDelete = null;
-                            window.location.reload();
+                            console.log('=== INLINE DELETE YES COMPLETE - RELOAD DISABLED FOR DEBUGGING ===');
+                            // TEMPORARILY DISABLED FOR DEBUGGING
+                            // window.location.reload();
                           }, 500);
                         } else {
                           // Bottom delete button
@@ -1703,7 +1705,9 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
                             setShowDeletePrompt(false);
                             setHasFutureEvents(false);
                             (window as any).__pendingDelete = null;
-                            window.location.reload();
+                            console.log('=== INLINE DELETE NO COMPLETE - RELOAD DISABLED FOR DEBUGGING ===');
+                            // TEMPORARILY DISABLED FOR DEBUGGING
+                            // window.location.reload();
                           }, 500);
                         } else {
                           // Bottom delete button
