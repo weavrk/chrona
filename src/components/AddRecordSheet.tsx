@@ -34,6 +34,7 @@ export interface RecordData {
     hadBreakout?: boolean;
     severity?: string;
     locations?: string[];
+    warningSign?: boolean;
     repeatForward?: boolean;
     includePlacebo?: boolean;
     headache?: boolean;
@@ -77,7 +78,7 @@ interface WorkoutRecordItem {
 const PERIOD_INTENSITY = ['Heavy', 'Medium', 'Lite', 'Spotting'];
 const HSV_INTENSITY = ['Bad', 'Medium', 'Mild'];
 const HSV_LOCATIONS = ['Upper Lip', 'Lower Lip', 'Cheek', 'Nose'];
-const DOSE_UNITS = ['g', 'Mg', 'ml'];
+const DOSE_UNITS = ['pill', 'g', 'Mg', 'ml'];
 const FREQUENCY_UNITS = ['daily', 'weekly'];
 const MOODS = [
   { id: 'light', icon: Laugh, label: 'Energized' },
@@ -103,6 +104,7 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
   const [intensity, setIntensity] = useState<string>('');
   const [hadBreakout, setHadBreakout] = useState(false);
   const [severity, setSeverity] = useState<string>('');
+  const [warningSign, setWarningSign] = useState(false);
   const [repeatForward, setRepeatForward] = useState(false);
   const [mood, setMood] = useState<string>('');
   const [notes, setNotes] = useState<string>('');
@@ -116,7 +118,7 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
     endDate: '',
     drugName: '',
     dose: '',
-    doseUnit: 'Mg',
+    doseUnit: 'pill',
     frequency: '',
     frequencyUnit: 'daily',
     includePlacebo: false,
@@ -129,7 +131,7 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
   // HS specific state
   const [hsDrugName, setHsDrugName] = useState<string>('');
   const [hsDose, setHsDose] = useState<string>('');
-  const [hsDoseUnit, setHsDoseUnit] = useState<string>('Mg');
+  const [hsDoseUnit, setHsDoseUnit] = useState<string>('pill');
   const [hsFrequency, setHsFrequency] = useState<string>('');
   const [hsFrequencyUnit, setHsFrequencyUnit] = useState<string>('daily');
   const [hsLocations, setHsLocations] = useState<string[]>([]);
@@ -175,7 +177,7 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
           endDate: dateStr,
           drugName: '',
           dose: '',
-          doseUnit: 'Mg',
+          doseUnit: 'pill',
           frequency: '',
           frequencyUnit: 'daily',
           includePlacebo: false,
@@ -276,7 +278,7 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
           endDate: dateStr,
           drugName: '',
           dose: '',
-          doseUnit: 'Mg',
+          doseUnit: 'pill',
           frequency: '',
           frequencyUnit: 'daily',
           includePlacebo: false,
@@ -292,6 +294,7 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
         setHadBreakout(firstRecord?.data?.hadBreakout || false);
         setSeverity(firstRecord?.data?.severity || '');
         setHsLocations(firstRecord?.data?.locations || []);
+        setWarningSign(firstRecord?.data?.warningSign || false);
         setHsDrugName(firstRecord?.data?.treatments?.[0]?.drugName || '');
         setHsDose(firstRecord?.data?.treatments?.[0]?.dose?.toString() || '');
         setHsDoseUnit(firstRecord?.data?.treatments?.[0]?.doseUnit || 'Mg');
@@ -302,6 +305,7 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
         setHadBreakout(false);
         setSeverity('');
         setHsLocations([]);
+        setWarningSign(false);
         setHsDrugName('');
         setHsDose('');
         setHsFrequency('');
@@ -592,6 +596,7 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
           record.details!.severity = severity;
           record.details!.locations = hsLocations;
         }
+        record.details!.warningSign = warningSign;
         if (hsDrugName) {
           record.details!.treatments = [{
             drugName: hsDrugName,
@@ -1147,6 +1152,16 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
                       ))}
                     </div>
                   </div>
+
+                  <label className="checkbox-label">
+                    <input
+                      type="checkbox"
+                      checked={warningSign}
+                      onChange={(e) => setWarningSign(e.target.checked)}
+                      className="checkbox-input"
+                    />
+                    <span>Warning Sign</span>
+                  </label>
                 </div>
               </div>
 

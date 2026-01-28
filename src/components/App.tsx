@@ -264,25 +264,33 @@ export function App() {
         : end;
       
       const currentDate = new Date(start);
+      const includePlacebo = record.details?.includePlacebo === true;
+      let dayCount = 0;
       
       while (currentDate <= finalEnd) {
         const dateKey = formatLocalDate(currentDate);
         
-        // Initialize array for this date if it doesn't exist
-        if (!records[dateKey]) {
-          records[dateKey] = [];
-        }
+        // If includePlacebo is enabled: 3 weeks on (21 days), 1 week off (7 days)
+        const shouldIncludeThisDay = !includePlacebo || (dayCount % 28 < 21);
         
-        // Add the record to this date's array (or update if editing)
-        const existingIndex = records[dateKey].findIndex((r: any) => r.id === recordId);
-        if (existingIndex >= 0) {
-          records[dateKey][existingIndex] = recordToAdd;
-        } else {
-          records[dateKey].push(recordToAdd);
+        if (shouldIncludeThisDay) {
+          // Initialize array for this date if it doesn't exist
+          if (!records[dateKey]) {
+            records[dateKey] = [];
+          }
+          
+          // Add the record to this date's array (or update if editing)
+          const existingIndex = records[dateKey].findIndex((r: any) => r.id === recordId);
+          if (existingIndex >= 0) {
+            records[dateKey][existingIndex] = recordToAdd;
+          } else {
+            records[dateKey].push(recordToAdd);
+          }
         }
         
         // Move to next day
         currentDate.setDate(currentDate.getDate() + 1);
+        dayCount++;
       }
 
       // Save records
@@ -373,22 +381,30 @@ export function App() {
           : end;
         
         const currentDate = new Date(start);
+        const includePlacebo = record.details?.includePlacebo === true;
+        let dayCount = 0;
 
         while (currentDate <= finalEnd) {
           const dateKey = formatLocalDate(currentDate);
           
-          if (!allRecords[dateKey]) {
-            allRecords[dateKey] = [];
-          }
+          // If includePlacebo is enabled: 3 weeks on (21 days), 1 week off (7 days)
+          const shouldIncludeThisDay = !includePlacebo || (dayCount % 28 < 21);
           
-          const existingIndex = allRecords[dateKey].findIndex((r: any) => r.id === recordId);
-          if (existingIndex >= 0) {
-            allRecords[dateKey][existingIndex] = recordObject;
-          } else {
-            allRecords[dateKey].push(recordObject);
+          if (shouldIncludeThisDay) {
+            if (!allRecords[dateKey]) {
+              allRecords[dateKey] = [];
+            }
+            
+            const existingIndex = allRecords[dateKey].findIndex((r: any) => r.id === recordId);
+            if (existingIndex >= 0) {
+              allRecords[dateKey][existingIndex] = recordObject;
+            } else {
+              allRecords[dateKey].push(recordObject);
+            }
           }
           
           currentDate.setDate(currentDate.getDate() + 1);
+          dayCount++;
         }
       }
 
