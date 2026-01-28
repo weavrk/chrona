@@ -780,8 +780,10 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
                       {/* Period */}
                       {selectedType === 'period' && (
                         <>
-          <div className="form-date-selector">
-            <label className="form-section-headers">Date Range</label>
+          <div className="form-date-selector" style={{ position: 'relative' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+              <label className="form-section-headers" style={{ marginBottom: 0 }}>Date Range</label>
+            </div>
             <div className="date-range-container">
               <div className="date-input-group">
                             <IOSDatePicker
@@ -1230,8 +1232,10 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
           {/* Mental Health */}
           {selectedType === 'mental-health' && (
             <>
-              <div className="form-date-selector">
-                <label className="form-section-headers">Date Range</label>
+              <div className="form-date-selector" style={{ position: 'relative' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <label className="form-section-headers" style={{ marginBottom: 0 }}>Date Range</label>
+                </div>
                 <div className="date-range-container">
               <div className="date-input-group">
                 <IOSDatePicker
