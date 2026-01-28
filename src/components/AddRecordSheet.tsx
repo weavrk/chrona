@@ -1086,23 +1086,22 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
                     <label className="form-section-subheader">Severity</label>
               <div className="chip-bar-single-select">
                 {HSV_INTENSITY.map((level) => (
-                  <button
-                    key={level}
+                        <button
+                          key={level}
                           className={`ds-chip-single-select-md ${severity === level ? 'active' : ''}`}
                           onClick={() => {
-                            if (hadBreakout) {
-                              setSeverity(severity === level ? '' : level);
+                            // Auto-enable "Had Breakout" if not already checked
+                            if (!hadBreakout) {
+                              setHadBreakout(true);
                             }
+                            setSeverity(severity === level ? '' : level);
                           }}
-                          disabled={!hadBreakout}
                           style={
-                            !hadBreakout
-                              ? { opacity: 0.5, cursor: 'not-allowed' }
-                              : severity === level
+                            severity === level
                               ? { backgroundColor: `var(--${getCurrentColor()})`, borderColor: `var(--${getCurrentColor()})` }
                               : undefined
                           }
-                  >
+                        >
                     <span>{level}</span>
                   </button>
                 ))}
@@ -1117,19 +1116,18 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
                           key={location}
                           className={`ds-chip-md ${hsLocations.includes(location) ? 'active' : ''}`}
                           onClick={() => {
-                            if (hadBreakout) {
-                              setHsLocations(prev => 
-                                prev.includes(location)
-                                  ? prev.filter(l => l !== location)
-                                  : [...prev, location]
-                              );
+                            // Auto-enable "Had Breakout" if not already checked
+                            if (!hadBreakout) {
+                              setHadBreakout(true);
                             }
+                            setHsLocations(prev => 
+                              prev.includes(location)
+                                ? prev.filter(l => l !== location)
+                                : [...prev, location]
+                            );
                           }}
-                          disabled={!hadBreakout}
                           style={
-                            !hadBreakout
-                              ? { opacity: 0.5, cursor: 'not-allowed' }
-                              : hsLocations.includes(location)
+                            hsLocations.includes(location)
                               ? { backgroundColor: `var(--${getCurrentColor()})`, borderColor: `var(--${getCurrentColor()})` }
                               : undefined
                           }
