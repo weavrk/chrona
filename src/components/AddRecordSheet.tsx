@@ -91,6 +91,13 @@ const MOODS = [
 export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRecordType, onClose, onAdd, onAddMultiple, onDelete, labels }: AddRecordSheetProps) {
   const { user } = useAuth();
   const [selectedType, setSelectedType] = useState<string>('period');
+  
+  // Get the color for the current record type
+  const getCurrentColor = () => {
+    const currentLabel = labels.find(label => label.id === selectedType);
+    return currentLabel?.color || 'gray-600';
+  };
+  
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
   const [intensity, setIntensity] = useState<string>('');
@@ -805,7 +812,7 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
                     key={level}
                       className={`ds-chip-single-select-md ${intensity === level ? 'active' : ''}`}
                     onClick={() => setIntensity(intensity === level ? '' : level)}
-                    style={intensity === level ? { backgroundColor: 'var(--gray-600)', borderColor: 'var(--gray-600)' } : undefined}
+                    style={intensity === level ? { backgroundColor: `var(--${getCurrentColor()})`, borderColor: `var(--${getCurrentColor()})` } : undefined}
                   >
                     <span>{level}</span>
                   </button>
@@ -1088,7 +1095,7 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
                             !hadBreakout
                               ? { opacity: 0.5, cursor: 'not-allowed' }
                               : severity === level
-                              ? { backgroundColor: 'var(--gray-600)', borderColor: 'var(--gray-600)' }
+                              ? { backgroundColor: `var(--${getCurrentColor()})`, borderColor: `var(--${getCurrentColor()})` }
                               : undefined
                           }
                   >
@@ -1119,7 +1126,7 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
                             !hadBreakout
                               ? { opacity: 0.5, cursor: 'not-allowed' }
                               : hsLocations.includes(location)
-                              ? { backgroundColor: 'var(--gray-600)', borderColor: 'var(--gray-600)' }
+                              ? { backgroundColor: `var(--${getCurrentColor()})`, borderColor: `var(--${getCurrentColor()})` }
                               : undefined
                           }
                         >
