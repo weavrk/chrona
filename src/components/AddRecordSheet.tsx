@@ -18,10 +18,11 @@ interface AddRecordSheetProps {
   selectedDate: Date | null;
   editingRecords?: any[] | null;
   editingRecordType?: string | null;
+  allRecords?: Record<string, any[]>;
   onClose: () => void;
   onAdd: (record: RecordData, recordDate: Date) => void;
   onAddMultiple?: (records: RecordData[], recordDate: Date) => void;
-  onDelete?: (recordType: string, startDate: Date, endDate: Date, recordId?: string) => void;
+  onDelete?: (recordType: string, startDate: Date, endDate: Date, recordId?: string, deleteFutureEvents?: boolean) => void;
   labels: ChipLabel[];
 }
 
@@ -29,6 +30,9 @@ export interface RecordData {
   type: string;
   startDate: Date;
   endDate: Date;
+  isParent?: boolean;
+  parentId?: string;
+  manuallyEdited?: boolean;
   details?: {
     intensity?: string;
     hadBreakout?: boolean;
@@ -36,6 +40,7 @@ export interface RecordData {
     locations?: string[];
     warningSign?: boolean;
     repeatForward?: boolean;
+    repeatEndDate?: string;
     includePlacebo?: boolean;
     headache?: boolean;
     mood?: string;
@@ -64,6 +69,7 @@ interface HRRecordItem {
   frequencyUnit: string;
   includePlacebo: boolean;
   repeatForward: boolean;
+  repeatEndDate?: string;
   headache: boolean;
 }
 
@@ -89,9 +95,11 @@ const MOODS = [
   { id: 'angry', icon: Angry, label: 'Angry' },
 ];
 
-export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRecordType, onClose, onAdd, onAddMultiple, onDelete, labels }: AddRecordSheetProps) {
+export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRecordType, allRecords, onClose, onAdd, onAddMultiple, onDelete, labels }: AddRecordSheetProps) {
   const { user } = useAuth();
   const [selectedType, setSelectedType] = useState<string>('period');
+  const [showDeletePrompt, setShowDeletePrompt] = useState(false);
+  const [hasFutureEvents, setHasFutureEvents] = useState(false);
   
   // Get the color for the current record type
   const getCurrentColor = () => {
@@ -106,6 +114,7 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
   const [severity, setSeverity] = useState<string>('');
   const [warningSign, setWarningSign] = useState(false);
   const [repeatForward, setRepeatForward] = useState(false);
+  const [repeatEndDate, setRepeatEndDate] = useState<string>('');
   const [mood, setMood] = useState<string>('');
   const [notes, setNotes] = useState<string>('');
   const [isAdding, setIsAdding] = useState(false);
@@ -264,11 +273,12 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
           endDate: dateStr,
           drugName: rec.data?.treatments?.[0]?.drugName || '',
           dose: rec.data?.treatments?.[0]?.dose?.toString() || '',
-          doseUnit: rec.data?.treatments?.[0]?.doseUnit || 'Mg',
+          doseUnit: rec.data?.treatments?.[0]?.doseUnit || 'pill',
           frequency: rec.data?.treatments?.[0]?.frequency?.toString() || '',
           frequencyUnit: rec.data?.treatments?.[0]?.frequencyUnit || 'daily',
           includePlacebo: rec.data?.includePlacebo || false,
           repeatForward: rec.data?.repeatForward || false,
+          repeatEndDate: rec.data?.repeatEndDate || '',
           headache: rec.data?.headache || false,
         }));
         setHrRecords(hrItems);
@@ -283,6 +293,7 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
           frequencyUnit: 'daily',
           includePlacebo: false,
           repeatForward: false,
+          repeatEndDate: '',
           headache: false,
         }]);
       }
@@ -297,10 +308,11 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
         setWarningSign(firstRecord?.data?.warningSign || false);
         setHsDrugName(firstRecord?.data?.treatments?.[0]?.drugName || '');
         setHsDose(firstRecord?.data?.treatments?.[0]?.dose?.toString() || '');
-        setHsDoseUnit(firstRecord?.data?.treatments?.[0]?.doseUnit || 'Mg');
+        setHsDoseUnit(firstRecord?.data?.treatments?.[0]?.doseUnit || 'pill');
         setHsFrequency(firstRecord?.data?.treatments?.[0]?.frequency?.toString() || '');
         setHsFrequencyUnit(firstRecord?.data?.treatments?.[0]?.frequencyUnit || 'daily');
         setRepeatForward(firstRecord?.data?.repeatForward || false);
+        setRepeatEndDate(firstRecord?.data?.repeatEndDate || '');
       } else {
         setHadBreakout(false);
         setSeverity('');
@@ -310,6 +322,7 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
         setHsDose('');
         setHsFrequency('');
         setRepeatForward(false);
+        setRepeatEndDate('');
       }
       
       // Populate Mental Health records (single record only)
@@ -356,6 +369,7 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
       setHadBreakout(false);
       setSeverity('');
       setRepeatForward(false);
+      setRepeatEndDate('');
       setMood('');
       setNotes('');
       setHrRecords([{
@@ -363,7 +377,7 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
         endDate: dateStr,
         drugName: '',
         dose: '',
-        doseUnit: 'Mg',
+        doseUnit: 'pill',
         frequency: '',
         frequencyUnit: 'daily',
         includePlacebo: false,
@@ -518,6 +532,7 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
                 frequencyUnit: hrRecord.frequencyUnit,
               }],
               repeatForward: hrRecord.repeatForward,
+              repeatEndDate: hrRecord.repeatEndDate,
               includePlacebo: hrRecord.includePlacebo,
               headache: hrRecord.headache,
             },
@@ -607,6 +622,9 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
           }];
         }
       record.details!.repeatForward = repeatForward;
+      if (repeatEndDate) {
+        record.details!.repeatEndDate = repeatEndDate;
+      }
       } else if (selectedType === 'mental-health') {
       record.details!.mood = mood;
         record.details!.notes = notes;
@@ -626,18 +644,76 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
     // Don't call handleClose here - onAdd/onAddMultiple will handle closing and reloading
   };
 
+  const checkForFutureEvents = () => {
+    if (!allRecords || !editingRecords || editingRecords.length === 0 || !selectedDate) {
+      return false;
+    }
+
+    const currentRecord = editingRecords[0];
+    const currentDateStr = formatLocalDate(selectedDate);
+    
+    // Get the record ID or parent ID to check for related records
+    const recordIdToCheck = currentRecord.isParent ? currentRecord.id : currentRecord.parentId;
+    
+    if (!recordIdToCheck) return false;
+    
+    // Check if there are future records with the same parent/record ID
+    for (const dateKey of Object.keys(allRecords)) {
+      if (dateKey > currentDateStr) {
+        const futureRecords = allRecords[dateKey].filter((r: any) => 
+          r.id === recordIdToCheck || r.parentId === recordIdToCheck
+        );
+        if (futureRecords.length > 0) {
+          return true;
+        }
+      }
+    }
+    
+    return false;
+  };
+
   const handleDelete = () => {
     if (!selectedDate || !onDelete || isDeleting) return;
 
+    // Check if there are future events
+    const futureEventsExist = checkForFutureEvents();
+    
+    if (futureEventsExist && !showDeletePrompt) {
+      setHasFutureEvents(true);
+      setShowDeletePrompt(true);
+      return;
+    }
+    
     const startDateObj = new Date(startDate);
     const endDateObj = new Date(endDate);
+    const recordId = editingRecords && editingRecords.length > 0 ? editingRecords[0].id : undefined;
     
     setIsDeleting(true);
-    onDelete(selectedType, startDateObj, endDateObj);
+    onDelete(selectedType, startDateObj, endDateObj, recordId, hasFutureEvents);
     
     setTimeout(() => {
-    handleClose();
+      handleClose();
       setIsDeleting(false);
+      setShowDeletePrompt(false);
+      setHasFutureEvents(false);
+    }, 500);
+  };
+  
+  const handleDeleteSingleOnly = () => {
+    if (!selectedDate || !onDelete || isDeleting) return;
+    
+    const startDateObj = new Date(startDate);
+    const endDateObj = new Date(endDate);
+    const recordId = editingRecords && editingRecords.length > 0 ? editingRecords[0].id : undefined;
+    
+    setIsDeleting(true);
+    onDelete(selectedType, startDateObj, endDateObj, recordId, false);
+    
+    setTimeout(() => {
+      handleClose();
+      setIsDeleting(false);
+      setShowDeletePrompt(false);
+      setHasFutureEvents(false);
     }, 500);
   };
 
@@ -648,6 +724,7 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
     setHadBreakout(false);
     setSeverity('');
     setRepeatForward(false);
+    setRepeatEndDate('');
     setMood('');
     setNotes('');
     setHrRecords([{
@@ -655,7 +732,7 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
       endDate: '',
       drugName: '',
       dose: '',
-      doseUnit: 'Mg',
+      doseUnit: 'pill',
       frequency: '',
       frequencyUnit: 'daily',
       includePlacebo: false,
@@ -678,11 +755,12 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
       endDate: dateStr,
       drugName: '',
       dose: '',
-      doseUnit: 'Mg',
+      doseUnit: 'pill',
       frequency: '',
       frequencyUnit: 'daily',
       includePlacebo: false,
       repeatForward: false,
+      repeatEndDate: '',
       headache: false,
     }]);
   };
@@ -984,7 +1062,26 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
                       </div>
                     </div>
 
-                    <div className="checkbox-group">
+                    <div className="checkbox-group" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'row', gap: '24px', alignItems: 'center' }}>
+                        <label className="checkbox-label">
+                          <input
+                            type="checkbox"
+                            checked={record.repeatForward}
+                            onChange={(e) => updateHrRecord(index, 'repeatForward', e.target.checked)}
+                            className="checkbox-input"
+                          />
+                          <span>Repeat Forward</span>
+                        </label>
+                        {record.repeatForward && (
+                          <IOSDatePicker
+                            value={record.repeatEndDate || ''}
+                            onChange={(date) => updateHrRecord(index, 'repeatEndDate', date)}
+                            label="End"
+                            className="date-input-group"
+                          />
+                        )}
+                      </div>
                       <label className="checkbox-label">
                         <input
                           type="checkbox"
@@ -993,15 +1090,6 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
                           className="checkbox-input"
                         />
                         <span>Include Placebo Week</span>
-                      </label>
-                      <label className="checkbox-label">
-                        <input
-                          type="checkbox"
-                          checked={record.repeatForward}
-                          onChange={(e) => updateHrRecord(index, 'repeatForward', e.target.checked)}
-                          className="checkbox-input"
-                        />
-                        <span>Repeat Forward</span>
                       </label>
                     </div>
                   </div>
@@ -1229,16 +1317,26 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
                   </div>
                 </div>
 
-              <div className="checkbox-group">
-                <label className="checkbox-label">
-                  <input
-                    type="checkbox"
-                    checked={repeatForward}
-                    onChange={(e) => setRepeatForward(e.target.checked)}
-                    className="checkbox-input"
-                  />
-                  <span>Repeat Forward</span>
-                </label>
+              <div className="checkbox-group" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ display: 'flex', flexDirection: 'row', gap: '24px', alignItems: 'center' }}>
+                  <label className="checkbox-label">
+                    <input
+                      type="checkbox"
+                      checked={repeatForward}
+                      onChange={(e) => setRepeatForward(e.target.checked)}
+                      className="checkbox-input"
+                    />
+                    <span>Repeat Forward</span>
+                  </label>
+                  {repeatForward && (
+                    <IOSDatePicker
+                      value={repeatEndDate}
+                      onChange={setRepeatEndDate}
+                      label="End"
+                      className="date-input-group"
+                    />
+                  )}
+                </div>
               </div>
             </div>
             </>
@@ -1469,13 +1567,41 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
             )}
           </button>
           {hasExistingRecord && onDelete && (
-            <button className="ds-button-destructive" onClick={handleDelete} disabled={isAdding || isDeleting}>
-              {isDeleting ? (
-                <CheckCircle2 size={24} className="checkmark-animation" />
+            <>
+              {showDeletePrompt ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
+                  <p style={{ fontSize: '14px', color: 'var(--gray-700)', margin: 0, textAlign: 'center' }}>
+                    Update all Future Events?
+                  </p>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button 
+                      className="ds-button-destructive" 
+                      onClick={handleDelete} 
+                      disabled={isDeleting}
+                      style={{ flex: 1 }}
+                    >
+                      Yes
+                    </button>
+                    <button 
+                      className="ds-button-secondary" 
+                      onClick={handleDeleteSingleOnly} 
+                      disabled={isDeleting}
+                      style={{ flex: 1 }}
+                    >
+                      No
+                    </button>
+                  </div>
+                </div>
               ) : (
-                'Delete Record'
+                <button className="ds-button-destructive" onClick={handleDelete} disabled={isAdding || isDeleting}>
+                  {isDeleting ? (
+                    <CheckCircle2 size={24} className="checkmark-animation" />
+                  ) : (
+                    'Delete Record'
+                  )}
+                </button>
               )}
-            </button>
+            </>
           )}
         </div>
       </div>

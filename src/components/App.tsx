@@ -34,6 +34,7 @@ export function App() {
   const [chipLabels, setChipLabels] = useState<ChipLabel[]>([]);
   const [editingRecords, setEditingRecords] = useState<any[] | null>(null);
   const [editingRecordType, setEditingRecordType] = useState<string | null>(null);
+  const [allRecords, setAllRecords] = useState<Record<string, any[]>>({});
   const userMenuRef = useRef<HTMLDivElement>(null);
   const userMenuButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -63,8 +64,25 @@ export function App() {
   useEffect(() => {
     if (user) {
       loadLabels();
+      loadAllRecords();
     }
   }, [user]);
+
+  const loadAllRecords = async () => {
+    if (!user) return;
+    try {
+      const response = await fetch(`${import.meta.env.BASE_URL}data/${user.username}/records-list-${user.username}.json?t=${Date.now()}`);
+      if (response.ok) {
+        const data = await response.json();
+        setAllRecords(data && typeof data === 'object' ? data : {});
+      } else {
+        setAllRecords({});
+      }
+    } catch (error) {
+      console.error('Failed to load all records:', error);
+      setAllRecords({});
+    }
+  };
 
   // Load global labels to get name and abbreviation for mapping
   const loadGlobalLabels = async () => {
@@ -228,8 +246,24 @@ export function App() {
       const recordId = (record as any).id || generateId();
       const isEdit = !!(record as any).id;
       
+      // Check if this is a parent or child record
+      let isParentRecord = false;
+      let parentIdToUpdate: string | undefined = undefined;
+      
+      if (isEdit) {
+        // Find the existing record to check if it's a parent
+        for (const dateKey of Object.keys(records)) {
+          const existingRecord = records[dateKey]?.find((r: any) => r.id === recordId);
+          if (existingRecord) {
+            isParentRecord = existingRecord.isParent === true;
+            parentIdToUpdate = existingRecord.parentId;
+            break;
+          }
+        }
+      }
+      
       // Create record object (without dates since they're in the key)
-      const recordToAdd = {
+      const recordToAdd: any = {
         id: recordId,
         type: record.type,
         data: record.details || {},
@@ -237,15 +271,34 @@ export function App() {
 
       // If editing, first remove the old record from all dates in its range
       if (isEdit) {
-        // Find and remove the old record by ID
-        Object.keys(records).forEach((dateKey) => {
-          if (records[dateKey]) {
-            records[dateKey] = records[dateKey].filter((r: any) => r.id !== recordId);
-            if (records[dateKey].length === 0) {
-              delete records[dateKey];
+        if (isParentRecord) {
+          // If editing a parent, remove parent and all non-manually-edited children
+          Object.keys(records).forEach((dateKey) => {
+            if (records[dateKey]) {
+              records[dateKey] = records[dateKey].filter((r: any) => {
+                // Remove parent
+                if (r.id === recordId) return false;
+                // Remove children that haven't been manually edited
+                if (r.parentId === recordId && r.manuallyEdited !== true) return false;
+                return true;
+              });
+              if (records[dateKey].length === 0) {
+                delete records[dateKey];
+              }
             }
-          }
-        });
+          });
+        } else {
+          // If editing a child directly, just remove this specific record
+          // (it will be marked as manuallyEdited when re-added)
+          Object.keys(records).forEach((dateKey) => {
+            if (records[dateKey]) {
+              records[dateKey] = records[dateKey].filter((r: any) => r.id !== recordId);
+              if (records[dateKey].length === 0) {
+                delete records[dateKey];
+              }
+            }
+          });
+        }
       }
 
       // Add/update record to all dates in the range (inclusive)
@@ -258,14 +311,24 @@ export function App() {
       // Determine if we should repeat forward
       const shouldRepeatForward = record.details?.repeatForward === true;
       
-      // If repeat forward is enabled, extend end date by 365 days
-      const finalEnd = shouldRepeatForward 
-        ? new Date(end.getTime() + (365 * 24 * 60 * 60 * 1000)) 
-        : end;
+      // If repeat forward is enabled, use custom end date or default to 365 days
+      let finalEnd = end;
+      if (shouldRepeatForward) {
+        if (record.details?.repeatEndDate) {
+          const [endYear, endMonth, endDay] = record.details.repeatEndDate.split('-').map(Number);
+          finalEnd = new Date(endYear, endMonth - 1, endDay);
+        } else {
+          finalEnd = new Date(end.getTime() + (365 * 24 * 60 * 60 * 1000));
+        }
+      }
+      
+      // Generate parent ID if this is a repeat forward record
+      const parentId = shouldRepeatForward ? recordId : undefined;
       
       const currentDate = new Date(start);
       const includePlacebo = record.details?.includePlacebo === true;
       let dayCount = 0;
+      let isFirstRecord = true;
       
       while (currentDate <= finalEnd) {
         const dateKey = formatLocalDate(currentDate);
@@ -279,12 +342,34 @@ export function App() {
             records[dateKey] = [];
           }
           
+          // Create record with parent-child relationship fields
+          const recordForDate = { ...recordToAdd };
+          
+          if (shouldRepeatForward) {
+            if (isFirstRecord) {
+              // First record is the parent
+              recordForDate.isParent = true;
+              isFirstRecord = false;
+            } else {
+              // Subsequent records are children
+              // Generate unique ID for each child
+              const childId = `${dateKey}-${Math.random().toString(36).substr(2, 6)}`;
+              recordForDate.id = childId;
+              recordForDate.parentId = parentId;
+              recordForDate.manuallyEdited = false;
+            }
+          } else if (isEdit && !isParentRecord && parentIdToUpdate) {
+            // If editing a child directly (not through parent), mark as manually edited
+            recordForDate.parentId = parentIdToUpdate;
+            recordForDate.manuallyEdited = true;
+          }
+          
           // Add the record to this date's array (or update if editing)
-          const existingIndex = records[dateKey].findIndex((r: any) => r.id === recordId);
+          const existingIndex = records[dateKey].findIndex((r: any) => r.id === recordToAdd.id);
           if (existingIndex >= 0) {
-            records[dateKey][existingIndex] = recordToAdd;
+            records[dateKey][existingIndex] = recordForDate;
           } else {
-            records[dateKey].push(recordToAdd);
+            records[dateKey].push(recordForDate);
           }
         }
         
@@ -360,7 +445,7 @@ export function App() {
         // Use existing ID or generate new one
         const recordId = (record as any).id || generateId();
         
-        const recordObject = {
+        const recordObject: any = {
           id: recordId,
           type: record.type,
           data: record.details || {},
@@ -375,14 +460,24 @@ export function App() {
         // Determine if we should repeat forward
         const shouldRepeatForward = record.details?.repeatForward === true;
         
-        // If repeat forward is enabled, extend end date by 365 days
-        const finalEnd = shouldRepeatForward 
-          ? new Date(end.getTime() + (365 * 24 * 60 * 60 * 1000)) 
-          : end;
+        // If repeat forward is enabled, use custom end date or default to 365 days
+        let finalEnd = end;
+        if (shouldRepeatForward) {
+          if (record.details?.repeatEndDate) {
+            const [endYear, endMonth, endDay] = record.details.repeatEndDate.split('-').map(Number);
+            finalEnd = new Date(endYear, endMonth - 1, endDay);
+          } else {
+            finalEnd = new Date(end.getTime() + (365 * 24 * 60 * 60 * 1000));
+          }
+        }
+        
+        // Generate parent ID if this is a repeat forward record
+        const parentId = shouldRepeatForward ? recordId : undefined;
         
         const currentDate = new Date(start);
         const includePlacebo = record.details?.includePlacebo === true;
         let dayCount = 0;
+        let isFirstRecord = true;
 
         while (currentDate <= finalEnd) {
           const dateKey = formatLocalDate(currentDate);
@@ -395,11 +490,28 @@ export function App() {
               allRecords[dateKey] = [];
             }
             
-            const existingIndex = allRecords[dateKey].findIndex((r: any) => r.id === recordId);
+            // Create record with parent-child relationship fields
+            const recordForDate = { ...recordObject };
+            
+            if (shouldRepeatForward) {
+              if (isFirstRecord) {
+                // First record is the parent
+                recordForDate.isParent = true;
+                isFirstRecord = false;
+              } else {
+                // Subsequent records are children
+                const childId = `${dateKey}-${Math.random().toString(36).substr(2, 6)}`;
+                recordForDate.id = childId;
+                recordForDate.parentId = parentId;
+                recordForDate.manuallyEdited = false;
+              }
+            }
+            
+            const existingIndex = allRecords[dateKey].findIndex((r: any) => r.id === recordObject.id);
             if (existingIndex >= 0) {
-              allRecords[dateKey][existingIndex] = recordObject;
+              allRecords[dateKey][existingIndex] = recordForDate;
             } else {
-              allRecords[dateKey].push(recordObject);
+              allRecords[dateKey].push(recordForDate);
             }
           }
           
@@ -435,7 +547,7 @@ export function App() {
     }
   };
 
-  const handleDeleteRecord = async (recordType: string, startDate: Date, endDate: Date, recordId?: string) => {
+  const handleDeleteRecord = async (recordType: string, startDate: Date, endDate: Date, recordId?: string, deleteFutureEvents?: boolean) => {
     if (!user) return;
     
     try {
@@ -450,6 +562,14 @@ export function App() {
       // Convert dates to YYYY-MM-DD format
       const startDateStr = formatLocalDate(startDate);
       const endDateStr = formatLocalDate(endDate);
+      
+      // Find the record to determine parent/child relationship
+      let targetRecord: any = null;
+      if (recordId && records[startDateStr]) {
+        targetRecord = records[startDateStr].find((r: any) => r.id === recordId);
+      }
+      
+      const recordIdOrParent = targetRecord?.isParent ? targetRecord.id : targetRecord?.parentId;
       
       // Remove records - if recordId is provided, delete that specific record, otherwise delete all of that type
       // Parse dates correctly in local timezone (not UTC)
@@ -479,6 +599,21 @@ export function App() {
         
         // Move to next day
         currentDate.setDate(currentDate.getDate() + 1);
+      }
+      
+      // If deleteFutureEvents is true, also delete all future children
+      if (deleteFutureEvents && recordIdOrParent) {
+        Object.keys(records).forEach((dateKey) => {
+          if (dateKey > startDateStr && records[dateKey]) {
+            records[dateKey] = records[dateKey].filter((r: any) => {
+              // Remove records with matching parent ID or matching record ID
+              return r.id !== recordIdOrParent && r.parentId !== recordIdOrParent;
+            });
+            if (records[dateKey].length === 0) {
+              delete records[dateKey];
+            }
+          }
+        });
       }
 
       // Save records
@@ -583,6 +718,7 @@ export function App() {
         selectedDate={selectedDate}
         editingRecords={editingRecords}
         editingRecordType={editingRecordType}
+        allRecords={allRecords}
         onClose={() => {
           setIsSheetOpen(false);
           setEditingRecords(null);
