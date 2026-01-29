@@ -750,28 +750,6 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
     }, 500);
   };
   
-  const handleDeleteSingleOnly = () => {
-    if (!selectedDate || !onDelete || isDeleting) return;
-    
-    console.log('=== HANDLE DELETE SINGLE ONLY ===');
-    
-    const startDateObj = new Date(startDate);
-    const endDateObj = new Date(endDate);
-    const recordId = editingRecords && editingRecords.length > 0 ? editingRecords[0].id : undefined;
-    
-    console.log('Calling onDelete with deleteFuture=false:', { selectedType, startDateObj, endDateObj, recordId });
-    
-    setIsDeleting(true);
-    onDelete(selectedType, startDateObj, endDateObj, recordId, false);
-    
-    setTimeout(() => {
-      handleClose();
-      setIsDeleting(false);
-      setShowDeletePrompt(false);
-      setHasFutureEvents(false);
-    }, 500);
-  };
-  
   const handleInlineRecordDelete = (recordId: string, recordType: string, recordStartDate: string, recordEndDate: string) => {
     console.log('=== HANDLE INLINE RECORD DELETE ===');
     console.log('recordId:', recordId);
@@ -1685,13 +1663,24 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
                             setShowDeletePrompt(false);
                             setHasFutureEvents(false);
                             (window as any).__pendingDelete = null;
-                            console.log('=== INLINE DELETE YES COMPLETE - RELOAD DISABLED FOR DEBUGGING ===');
-                            // TEMPORARILY DISABLED FOR DEBUGGING
-                            // window.location.reload();
+                            handleClose();
                           }, 500);
                         } else {
-                          // Bottom delete button
-                          handleDelete();
+                          // Bottom delete button - explicitly pass deleteFutureEvents=true
+                          const startDateObj = new Date(startDate);
+                          const endDateObj = new Date(endDate);
+                          const recordId = editingRecords && editingRecords.length > 0 ? editingRecords[0].id : undefined;
+                          console.log('Bottom delete YES - calling onDelete with deleteFutureEvents=true:', { selectedType, startDateObj, endDateObj, recordId });
+                          setIsDeleting(true);
+                          if (onDelete) {
+                            onDelete(selectedType, startDateObj, endDateObj, recordId, true);
+                          }
+                          setTimeout(() => {
+                            setIsDeleting(false);
+                            setShowDeletePrompt(false);
+                            setHasFutureEvents(false);
+                            handleClose();
+                          }, 500);
                         }
                       }} 
                       disabled={isDeleting}
@@ -1717,13 +1706,24 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
                             setShowDeletePrompt(false);
                             setHasFutureEvents(false);
                             (window as any).__pendingDelete = null;
-                            console.log('=== INLINE DELETE NO COMPLETE - RELOAD DISABLED FOR DEBUGGING ===');
-                            // TEMPORARILY DISABLED FOR DEBUGGING
-                            // window.location.reload();
+                            handleClose();
                           }, 500);
                         } else {
-                          // Bottom delete button
-                          handleDeleteSingleOnly();
+                          // Bottom delete button - explicitly pass deleteFutureEvents=false
+                          const startDateObj = new Date(startDate);
+                          const endDateObj = new Date(endDate);
+                          const recordId = editingRecords && editingRecords.length > 0 ? editingRecords[0].id : undefined;
+                          console.log('Bottom delete NO - calling onDelete with deleteFutureEvents=false:', { selectedType, startDateObj, endDateObj, recordId });
+                          setIsDeleting(true);
+                          if (onDelete) {
+                            onDelete(selectedType, startDateObj, endDateObj, recordId, false);
+                          }
+                          setTimeout(() => {
+                            setIsDeleting(false);
+                            setShowDeletePrompt(false);
+                            setHasFutureEvents(false);
+                            handleClose();
+                          }, 500);
                         }
                       }} 
                       disabled={isDeleting}
