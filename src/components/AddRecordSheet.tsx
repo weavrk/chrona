@@ -1734,7 +1734,12 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
                   </div>
                 </div>
               ) : (
-                <button className="ds-button-destructive" onClick={handleDelete} disabled={isAdding || isDeleting}>
+                <button 
+                  className="ds-button-destructive" 
+                  onClick={handleDelete} 
+                  disabled={isAdding || isDeleting}
+                  style={{ paddingBottom: 0 }}
+                >
                   {isDeleting ? (
                     <CheckCircle2 size={24} className="checkmark-animation" />
                   ) : (
