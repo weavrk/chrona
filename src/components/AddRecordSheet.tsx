@@ -1147,12 +1147,14 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
                           <span>Repeat Forward</span>
                         </label>
                         {record.repeatForward && (
-                          <IOSDatePicker
-                            value={record.repeatEndDate || ''}
-                            onChange={(date) => updateHrRecord(index, 'repeatEndDate', date)}
-                            label="End"
-                            className="date-input-group"
-                          />
+                          <div style={{ width: '50%' }}>
+                            <IOSDatePicker
+                              value={record.repeatEndDate || ''}
+                              onChange={(date) => updateHrRecord(index, 'repeatEndDate', date)}
+                              label="End"
+                              className="date-input-group"
+                            />
+                          </div>
                         )}
                       </div>
                       <label className="checkbox-label">
