@@ -1404,12 +1404,14 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
                     <span>Repeat Forward</span>
                   </label>
                   {repeatForward && (
-                    <IOSDatePicker
-                      value={repeatEndDate}
-                      onChange={setRepeatEndDate}
-                      label="End"
-                      className="date-input-group"
-                    />
+                    <div style={{ width: '50%' }}>
+                      <IOSDatePicker
+                        value={repeatEndDate}
+                        onChange={setRepeatEndDate}
+                        label="End"
+                        className="date-input-group"
+                      />
+                    </div>
                   )}
                 </div>
               </div>
