@@ -97,28 +97,6 @@
         "includePlacebo": true,
         "headache": false
       }
-    },
-    {
-      "id": "20260128-as48du",
-      "type": "hsv",
-      "data": {
-        "hadBreakout": true,
-        "severity": "Medium",
-        "locations": [
-          "Upper Lip"
-        ],
-        "warningSign": false,
-        "treatments": [
-          {
-            "drugName": "Valacyclovir",
-            "dose": 2,
-            "doseUnit": "pill",
-            "frequency": 3,
-            "frequencyUnit": "daily"
-          }
-        ],
-        "repeatForward": false
-      }
     }
   ],
   "2026-01-22": [
@@ -138,100 +116,6 @@
         "repeatForward": true,
         "includePlacebo": true,
         "headache": false
-      }
-    },
-    {
-      "id": "20260128-as48du",
-      "type": "hsv",
-      "data": {
-        "hadBreakout": true,
-        "severity": "Medium",
-        "locations": [
-          "Upper Lip"
-        ],
-        "warningSign": false,
-        "treatments": [
-          {
-            "drugName": "Valacyclovir",
-            "dose": 2,
-            "doseUnit": "pill",
-            "frequency": 3,
-            "frequencyUnit": "daily"
-          }
-        ],
-        "repeatForward": false
-      }
-    }
-  ],
-  "2026-01-21": [
-    {
-      "id": "20260128-as48du",
-      "type": "hsv",
-      "data": {
-        "hadBreakout": true,
-        "severity": "Medium",
-        "locations": [
-          "Upper Lip"
-        ],
-        "warningSign": false,
-        "treatments": [
-          {
-            "drugName": "Valacyclovir",
-            "dose": 2,
-            "doseUnit": "pill",
-            "frequency": 3,
-            "frequencyUnit": "daily"
-          }
-        ],
-        "repeatForward": false
-      }
-    }
-  ],
-  "2026-01-20": [
-    {
-      "id": "20260128-as48du",
-      "type": "hsv",
-      "data": {
-        "hadBreakout": true,
-        "severity": "Medium",
-        "locations": [
-          "Upper Lip"
-        ],
-        "warningSign": false,
-        "treatments": [
-          {
-            "drugName": "Valacyclovir",
-            "dose": 2,
-            "doseUnit": "pill",
-            "frequency": 3,
-            "frequencyUnit": "daily"
-          }
-        ],
-        "repeatForward": false
-      }
-    }
-  ],
-  "2026-01-19": [
-    {
-      "id": "20260128-as48du",
-      "type": "hsv",
-      "data": {
-        "hadBreakout": true,
-        "severity": "Medium",
-        "locations": [
-          "Upper Lip"
-        ],
-        "warningSign": false,
-        "treatments": [
-          {
-            "drugName": "Valacyclovir",
-            "dose": 2,
-            "doseUnit": "pill",
-            "frequency": 3,
-            "frequencyUnit": "daily"
-          }
-        ],
-        "repeatForward": false
       }
     }
   ],
