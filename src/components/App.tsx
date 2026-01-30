@@ -442,10 +442,9 @@ export function App() {
       
       // Close the sheet and reload the page to refresh data
       console.log('Closing sheet and reloading...');
-      console.log('=== SAVE COMPLETE - RELOAD DISABLED FOR DEBUGGING ===');
+      console.log('=== SAVE COMPLETE - RELOADING PAGE ===');
       setIsSheetOpen(false);
-      // TEMPORARILY DISABLED FOR DEBUGGING - UNCOMMENT AFTER FIXING
-      // window.location.reload();
+      window.location.reload();
     } catch (error) {
       console.error('Failed to save record:', error);
       alert('Failed to save record. Please try again.');

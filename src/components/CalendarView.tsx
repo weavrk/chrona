@@ -985,40 +985,74 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
       }
 
       // Calculate HSV summary (only count actual outbreaks where hadBreakout is true)
-      const hsvOutbreaks: Date[] = [];
+      // Group consecutive outbreak days as a single outbreak
+      const hsvOutbreakDates: Date[] = [];
       Object.keys(summaryRecords).forEach(dateKey => {
         const date = new Date(dateKey);
         const dayRecords = summaryRecords[dateKey] || [];
         dayRecords.forEach((record: any) => {
           if (record.type === 'hsv' && record.data?.hadBreakout === true) {
-            hsvOutbreaks.push(date);
+            hsvOutbreakDates.push(date);
           }
         });
       });
-      hsvOutbreaks.sort((a, b) => b.getTime() - a.getTime());
+      
+      // Sort dates ascending for outbreak detection
+      hsvOutbreakDates.sort((a, b) => a.getTime() - b.getTime());
+
+      // Group consecutive days into single outbreaks (similar to period logic)
+      const outbreaks: Array<{ start: Date; end: Date }> = [];
+      let currentOutbreak: { start: Date; end: Date } | null = null;
+
+      hsvOutbreakDates.forEach((date, index) => {
+        if (!currentOutbreak) {
+          currentOutbreak = { start: date, end: date };
+        } else {
+          const prevDate = hsvOutbreakDates[index - 1];
+          const daysDiff = Math.floor((date.getTime() - prevDate.getTime()) / (1000 * 60 * 60 * 24));
+          if (daysDiff === 1) {
+            // Consecutive day, extend outbreak
+            currentOutbreak.end = date;
+          } else {
+            // New outbreak
+            outbreaks.push(currentOutbreak);
+            currentOutbreak = { start: date, end: date };
+          }
+        }
+      });
+      if (currentOutbreak) {
+        outbreaks.push(currentOutbreak);
+      }
+
+      // Sort outbreaks by date descending (most recent first)
+      outbreaks.sort((a, b) => b.start.getTime() - a.start.getTime());
 
       let hsvSummary: any = {
-        lastOutbreakDate: hsvOutbreaks.length > 0 ? hsvOutbreaks[0] : null,
-        totalOutbreaks: hsvOutbreaks.length,
+        lastOutbreakDate: outbreaks.length > 0 ? outbreaks[0].start : null,
+        totalOutbreaks: outbreaks.length,
         outbreakFrequency: null,
         averageDaysBetweenOutbreaks: null
       };
 
-      if (hsvOutbreaks.length > 1) {
-        // Calculate average days between outbreaks
-        let totalDays = 0;
-        for (let i = 0; i < hsvOutbreaks.length - 1; i++) {
-          const daysBetween = Math.floor((hsvOutbreaks[i].getTime() - hsvOutbreaks[i + 1].getTime()) / (1000 * 60 * 60 * 24));
-          totalDays += daysBetween;
-        }
-        hsvSummary.averageDaysBetweenOutbreaks = Math.round(totalDays / (hsvOutbreaks.length - 1));
+      if (outbreaks.length > 0) {
+        // Calculate frequency as: (number of outbreaks / days tracked) * 365
+        const firstOutbreak = outbreaks[outbreaks.length - 1].start;
+        const lastOutbreak = outbreaks[0].end;
+        const daysSinceFirst = Math.floor((lastOutbreak.getTime() - firstOutbreak.getTime()) / (1000 * 60 * 60 * 24));
         
-        // Calculate frequency (outbreaks per year)
-        const firstOutbreak = hsvOutbreaks[hsvOutbreaks.length - 1];
-        const daysSinceFirst = Math.floor((today.getTime() - firstOutbreak.getTime()) / (1000 * 60 * 60 * 24));
         if (daysSinceFirst > 0) {
-          const yearsTracked = daysSinceFirst / 365.25;
-          hsvSummary.outbreakFrequency = Math.round((hsvOutbreaks.length / yearsTracked) * 10) / 10;
+          // Frequency = (outbreaks / days tracked) * 365
+          hsvSummary.outbreakFrequency = Math.round((outbreaks.length / daysSinceFirst) * 365 * 10) / 10;
+        }
+        
+        // Calculate average days between outbreaks
+        if (outbreaks.length > 1) {
+          let totalDays = 0;
+          for (let i = 0; i < outbreaks.length - 1; i++) {
+            const daysBetween = Math.floor((outbreaks[i].start.getTime() - outbreaks[i + 1].end.getTime()) / (1000 * 60 * 60 * 24));
+            totalDays += daysBetween;
+          }
+          hsvSummary.averageDaysBetweenOutbreaks = Math.round(totalDays / (outbreaks.length - 1));
         }
       }
 
@@ -1265,7 +1299,7 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
         if (hsv && hsv.outbreakFrequency !== null) {
           hsvData.push({
             label: 'Outbreak Frequency',
-            value: `${hsv.outbreakFrequency} per year (avg ${hsv.averageDaysBetweenOutbreaks} days between)`
+            value: `${hsv.outbreakFrequency} per year`
           });
         } else if (hsv && hsv.totalOutbreaks > 0) {
           hsvData.push({
@@ -1275,6 +1309,19 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
         } else {
           hsvData.push({
             label: 'Outbreak Frequency',
+            value: 'N/A'
+          });
+        }
+        
+        // Average days between outbreaks
+        if (hsv && hsv.averageDaysBetweenOutbreaks !== null) {
+          hsvData.push({
+            label: 'Average Days Between',
+            value: `${hsv.averageDaysBetweenOutbreaks} days`
+          });
+        } else {
+          hsvData.push({
+            label: 'Average Days Between',
             value: 'N/A'
           });
         }
