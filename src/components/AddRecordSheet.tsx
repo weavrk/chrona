@@ -736,8 +736,10 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
       return;
     }
     
-    const startDateObj = new Date(startDate);
-    const endDateObj = new Date(endDate);
+    // For single-day records (HSV, PE, etc), use selectedDate if startDate/endDate are empty
+    // Check for non-empty string, not just truthy value (empty string is truthy but creates Invalid Date)
+    const startDateObj = (startDate && startDate.trim()) ? new Date(startDate) : selectedDate!;
+    const endDateObj = (endDate && endDate.trim()) ? new Date(endDate) : selectedDate!;
     const recordId = editingRecords && editingRecords.length > 0 ? editingRecords[0].id : undefined;
     
     console.log('PROCEEDING WITH DELETE:');
@@ -909,28 +911,28 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
         {/* Record Type Nav Tabs */}
         <div className="ds-nav-tab-bar-container">
           <div className="ds-nav-tab-bar">
-            {RECORD_TYPES.map((type) => (
-              <button
-                key={type.id}
+              {RECORD_TYPES.map((type) => (
+                <button
+                  key={type.id}
                 className={`ds-nav-tab ${selectedType === type.id ? 'active' : ''}`}
-                style={
-                  selectedType === type.id
+                  style={
+                    selectedType === type.id
                     ? { '--active-bg': type.color } as React.CSSProperties
                     : undefined
-                }
-                onClick={() => {
-                  setSelectedType(type.id);
-                  setIntensity('');
-                  setMood('');
+                  }
+                  onClick={() => {
+                    setSelectedType(type.id);
+                    setIntensity('');
+                    setMood('');
                   setSeverity('');
                   setHadBreakout(false);
-                }}
-              >
-                <span>{type.label}</span>
-              </button>
-            ))}
+                  }}
+                >
+                  <span>{type.label}</span>
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
 
         <div className="bottom-sheet-content">
                       {/* Period */}
@@ -1252,8 +1254,8 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
                     <label className="form-section-subheader">Severity</label>
               <div className="chip-bar-single-select">
                 {HSV_INTENSITY.map((level) => (
-                        <button
-                          key={level}
+                  <button
+                    key={level}
                           className={`ds-chip-single-select-md ${severity === level ? 'active' : ''}`}
                           onClick={() => {
                             // Auto-enable "Had Breakout" if not already checked
@@ -1267,7 +1269,7 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
                               ? { backgroundColor: `var(--${getCurrentColor()})`, borderColor: `var(--${getCurrentColor()})` }
                               : undefined
                           }
-                        >
+                  >
                     <span>{level}</span>
                   </button>
                 ))}
@@ -1314,15 +1316,15 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
                     </div>
                   </div>
 
-                  <label className="checkbox-label">
-                    <input
-                      type="checkbox"
+                <label className="checkbox-label">
+                  <input
+                    type="checkbox"
                       checked={warningSign}
                       onChange={(e) => setWarningSign(e.target.checked)}
-                      className="checkbox-input"
-                    />
+                    className="checkbox-input"
+                  />
                     <span>Warning Sign</span>
-                  </label>
+                </label>
                 </div>
               </div>
 
@@ -1392,15 +1394,15 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
 
               <div className="checkbox-group" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <div style={{ display: 'flex', flexDirection: 'row', gap: '24px', alignItems: 'center' }}>
-                  <label className="checkbox-label">
-                    <input
-                      type="checkbox"
-                      checked={repeatForward}
-                      onChange={(e) => setRepeatForward(e.target.checked)}
-                      className="checkbox-input"
-                    />
-                    <span>Repeat Forward</span>
-                  </label>
+                <label className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={repeatForward}
+                    onChange={(e) => setRepeatForward(e.target.checked)}
+                    className="checkbox-input"
+                  />
+                  <span>Repeat Forward</span>
+                </label>
                   {repeatForward && (
                     <div style={{ width: '50%' }}>
                       <IOSDatePicker
@@ -1409,9 +1411,9 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
                         label="End"
                         className="date-input-group"
                       />
-                    </div>
+              </div>
                   )}
-                </div>
+            </div>
               </div>
             </div>
             </>
@@ -1666,15 +1668,17 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
                           // Don't close here - let the delete function handle reload
                         } else {
                           // Bottom delete button - explicitly pass deleteFutureEvents=true
-                          const startDateObj = new Date(startDate);
-                          const endDateObj = new Date(endDate);
+                          // For single-day records (HSV, PE, etc), use selectedDate if startDate/endDate are empty
+                          // Check for non-empty string, not just truthy value (empty string is truthy but creates Invalid Date)
+                          const dateToUse = (startDate && startDate.trim()) ? new Date(startDate) : selectedDate!;
+                          const endDateToUse = (endDate && endDate.trim()) ? new Date(endDate) : selectedDate!;
                           const recordId = editingRecords && editingRecords.length > 0 ? editingRecords[0].id : undefined;
-                          console.log('Bottom delete YES - calling onDelete with deleteFutureEvents=true:', { selectedType, startDateObj, endDateObj, recordId });
+                          console.log('Bottom delete YES - calling onDelete with deleteFutureEvents=true:', { selectedType, startDateObj: dateToUse, endDateObj: endDateToUse, recordId });
                           setIsDeleting(true);
                           setShowDeletePrompt(false);
                           setHasFutureEvents(false);
                           if (onDelete) {
-                            onDelete(selectedType, startDateObj, endDateObj, recordId, true);
+                            onDelete(selectedType, dateToUse, endDateToUse, recordId, true);
                           }
                           // Don't close here - let the delete function handle reload
                         }
@@ -1703,8 +1707,10 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
                           // Don't close here - let the delete function handle reload
                         } else {
                           // Bottom delete button - explicitly pass deleteFutureEvents=false
-                          const startDateObj = new Date(startDate);
-                          const endDateObj = new Date(endDate);
+                          // For single-day records (HSV, PE, etc), use selectedDate if startDate/endDate are empty
+                          // Check for non-empty string, not just truthy value (empty string is truthy but creates Invalid Date)
+                          const startDateObj = (startDate && startDate.trim()) ? new Date(startDate) : selectedDate!;
+                          const endDateObj = (endDate && endDate.trim()) ? new Date(endDate) : selectedDate!;
                           const recordId = editingRecords && editingRecords.length > 0 ? editingRecords[0].id : undefined;
                           console.log('Bottom delete NO - calling onDelete with deleteFutureEvents=false:', { selectedType, startDateObj, endDateObj, recordId });
                           setIsDeleting(true);
@@ -1720,7 +1726,7 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
                       style={{ flex: 1 }}
                     >
                       No
-                    </button>
+          </button>
                   </div>
                 </div>
               ) : (
