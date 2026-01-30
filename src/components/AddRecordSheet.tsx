@@ -716,15 +716,21 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
   const handleDelete = () => {
     if (!selectedDate || !onDelete || isDeleting) return;
 
-    console.log('=== HANDLE DELETE ===');
+    console.log('=== HANDLE DELETE BUTTON CLICKED ===');
     console.log('selectedType:', selectedType);
     console.log('editingRecords:', editingRecords);
+    console.log('startDate:', startDate);
+    console.log('endDate:', endDate);
+    console.log('selectedDate:', selectedDate);
+    console.log('showDeletePrompt:', showDeletePrompt);
+    console.log('hasFutureEvents:', hasFutureEvents);
     
     // Check if there are future events
     const futureEventsExist = checkForFutureEvents();
+    console.log('futureEventsExist:', futureEventsExist);
     
     if (futureEventsExist && !showDeletePrompt) {
-      console.log('Future events exist, showing prompt');
+      console.log('Future events exist, showing prompt and RETURNING (not deleting yet)');
       setHasFutureEvents(true);
       setShowDeletePrompt(true);
       return;
@@ -734,15 +740,17 @@ export function AddRecordSheet({ isOpen, selectedDate, editingRecords, editingRe
     const endDateObj = new Date(endDate);
     const recordId = editingRecords && editingRecords.length > 0 ? editingRecords[0].id : undefined;
     
-    // If we got here after showing the prompt, delete future events
-    const shouldDeleteFuture = showDeletePrompt && hasFutureEvents;
-    
-    console.log('Calling onDelete with:', { selectedType, startDateObj, endDateObj, recordId, deleteFuture: shouldDeleteFuture });
+    console.log('PROCEEDING WITH DELETE:');
+    console.log('  startDateObj:', startDateObj);
+    console.log('  endDateObj:', endDateObj);
+    console.log('  recordId:', recordId);
+    console.log('  selectedType:', selectedType);
+    console.log('  deleteFutureEvents: false (no future events)');
     
     setIsDeleting(true);
     setShowDeletePrompt(false);
     setHasFutureEvents(false);
-    onDelete(selectedType, startDateObj, endDateObj, recordId, shouldDeleteFuture);
+    onDelete(selectedType, startDateObj, endDateObj, recordId, false);
     // Don't close here - let the delete function handle reload
   };
   
