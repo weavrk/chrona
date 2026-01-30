@@ -686,29 +686,42 @@ export function App() {
       }
       
       // If deleteFutureEvents is true, also delete all future children
-      if (deleteFutureEvents && cascadeId) {
-        console.log('Deleting future events with cascadeId:', cascadeId);
-        Object.keys(records).forEach((dateKey) => {
-          if (dateKey > startDateStr && records[dateKey]) {
-            const beforeCount = records[dateKey].length;
-            records[dateKey] = records[dateKey].filter((r: any) => {
-              // Remove records with matching parent ID or matching record ID
-              const shouldKeep = r.id !== cascadeId && r.parentId !== cascadeId;
-              if (!shouldKeep) {
-                console.log('Deleting future record on', dateKey, ':', r);
+      if (deleteFutureEvents) {
+        if (!cascadeId) {
+          console.error('ERROR: deleteFutureEvents is true but cascadeId is undefined!', { recordId, targetRecord, recordIdOrParent });
+        } else {
+          console.log('Deleting future events with cascadeId:', cascadeId);
+          console.log('startDateStr:', startDateStr);
+          const allDateKeys = Object.keys(records).sort();
+          console.log('All date keys in records:', allDateKeys);
+          
+          Object.keys(records).forEach((dateKey) => {
+            if (dateKey > startDateStr && records[dateKey]) {
+              console.log('Checking dateKey:', dateKey, 'records:', records[dateKey]);
+              const beforeCount = records[dateKey].length;
+              records[dateKey] = records[dateKey].filter((r: any) => {
+                // Remove records with matching parent ID or matching record ID
+                const shouldKeep = r.id !== cascadeId && r.parentId !== cascadeId;
+                if (!shouldKeep) {
+                  console.log('DELETING future record on', dateKey, ':', r, 'because id matches cascadeId:', cascadeId);
+                }
+                return shouldKeep;
+              });
+              const deletedCount = beforeCount - records[dateKey].length;
+              if (deletedCount > 0) {
+                console.log('✅ Deleted', deletedCount, 'future records on', dateKey);
+              } else {
+                console.log('No records deleted on', dateKey, '- no matches for cascadeId:', cascadeId);
               }
-              return shouldKeep;
-            });
-            const deletedCount = beforeCount - records[dateKey].length;
-            if (deletedCount > 0) {
-              console.log('Deleted', deletedCount, 'future records on', dateKey);
+              if (records[dateKey].length === 0) {
+                delete records[dateKey];
+                console.log('Removed empty future date key:', dateKey);
+              }
             }
-            if (records[dateKey].length === 0) {
-              delete records[dateKey];
-              console.log('Removed empty future date key:', dateKey);
-            }
-          }
-        });
+          });
+        }
+      } else {
+        console.log('deleteFutureEvents is false, skipping future delete');
       }
 
       console.log('Saving records to server...');
