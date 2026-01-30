@@ -749,9 +749,11 @@ export function App() {
       sessionStorage.setItem('restoreViewMode', currentViewMode);
       
       // Close the sheet and reload the page to refresh data
-      console.log('=== DELETE COMPLETE - RELOADING PAGE ===');
+      console.log('=== DELETE COMPLETE - RELOAD TEMPORARILY DISABLED FOR DEBUGGING ===');
+      console.log('Check the logs above to see if delete worked');
       setIsSheetOpen(false);
-      window.location.reload();
+      // TEMPORARILY DISABLED FOR DEBUGGING - WILL RE-ENABLE AFTER FIXING
+      // window.location.reload();
     } catch (error) {
       console.error('Failed to delete record:', error);
       alert('Failed to delete record. Please try again.');
