@@ -796,6 +796,7 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
   const SummaryView = () => {
     const [summaryRecords, setSummaryRecords] = useState<Record<string, any[]>>({});
     const [summaryData, setSummaryData] = useState<any>(null);
+    const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
 
     // Load records for summary calculation
     useEffect(() => {
@@ -832,30 +833,32 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
             lastPeriodEndDate: null,
             lastPeriodStartDate: null,
             cycleDuration: null,
-            nextPredictedPeriodStart: null,
-            averageCycleLength: null,
+            cycleLength: null,
+            allPeriods: [],
             totalPeriods: 0
           },
           'hormone-replacement-therapy': {
             currentTreatments: [],
-            lastTreatmentDate: null,
+            firstTreatmentDate: null,
+            daysOnTreatment: null,
             totalTreatments: 0
           },
           hsv: {
-            lastBreakoutDate: null,
-            totalBreakouts: 0,
-            lastTreatmentDate: null
+            lastOutbreakDate: null,
+            totalOutbreaks: 0,
+            outbreakFrequency: null,
+            averageDaysBetweenOutbreaks: null
           },
           'mental-health': {
             totalRecords: 0,
-            lastRecordDate: null,
             mostCommonMood: null
           },
           workout: {
-            totalWorkouts: 0,
+            currentStreak: 0,
             lastWorkoutDate: null,
-            totalDuration: 0,
-            mostCommonType: null
+            lastWorkoutType: null,
+            lastWorkoutDuration: null,
+            totalWorkouts: 0
           }
         });
         return;
@@ -878,9 +881,9 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
         lastPeriodEndDate: null,
         lastPeriodStartDate: null,
         cycleDuration: null,
-        nextPredictedPeriodStart: null,
-        averageCycleLength: null,
-        totalPeriods: periodDates.length
+        cycleLength: null,
+        allPeriods: [],
+        totalPeriods: 0
       };
 
       if (periodDates.length > 0) {
@@ -914,81 +917,128 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
         // Sort periods by date descending (most recent first)
         periods.sort((a, b) => b.start.getTime() - a.start.getTime());
 
+        // Calculate cycle lengths for each period
+        const periodsWithCycles = periods.map((period, index) => {
+          const duration = Math.floor((period.end.getTime() - period.start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+          let cycleLength = null;
+          
+          // Calculate cycle length (from this period start to next period start)
+          if (index < periods.length - 1) {
+            const nextPeriod = periods[index + 1];
+            cycleLength = Math.floor((period.start.getTime() - nextPeriod.start.getTime()) / (1000 * 60 * 60 * 24));
+          }
+          
+          return {
+            start: period.start,
+            end: period.end,
+            duration,
+            cycleLength
+          };
+        });
+
+        periodSummary.allPeriods = periodsWithCycles;
+        periodSummary.totalPeriods = periods.length;
+
         if (periods.length > 0) {
-          const lastPeriod = periods[0];
+          const lastPeriod = periodsWithCycles[0];
           periodSummary.lastPeriodStartDate = lastPeriod.start;
           periodSummary.lastPeriodEndDate = lastPeriod.end;
-          const duration = Math.floor((lastPeriod.end.getTime() - lastPeriod.start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-          periodSummary.cycleDuration = duration;
-
-          // Calculate average cycle length
-          if (periods.length > 1) {
-            const cycleLengths: number[] = [];
-            for (let i = 1; i < periods.length; i++) {
-              const cycleLength = Math.floor((periods[i - 1].start.getTime() - periods[i].start.getTime()) / (1000 * 60 * 60 * 24));
-              cycleLengths.push(cycleLength);
-            }
-            if (cycleLengths.length > 0) {
-              const avgCycle = Math.round(cycleLengths.reduce((a, b) => a + b, 0) / cycleLengths.length);
-              periodSummary.averageCycleLength = avgCycle;
-              // Predict next period (average cycle length from last period start)
-              const nextPredicted = new Date(lastPeriod.start);
-              nextPredicted.setDate(nextPredicted.getDate() + avgCycle);
-              periodSummary.nextPredictedPeriodStart = nextPredicted;
-            }
-          }
+          periodSummary.cycleDuration = lastPeriod.duration;
+          periodSummary.cycleLength = lastPeriod.cycleLength;
         }
       }
 
-      // Calculate other summaries
-      const workoutRecords: Array<{ date: Date; type: string; duration: number }> = [];
-      const mentalHealthRecords: Array<{ date: Date; mood: string }> = [];
-      const hsvBreakouts: Date[] = [];
-      const hrTreatments: Date[] = [];
-
+      // Calculate HRT summary
+      const hrRecordsWithDetails: Array<{ date: Date; treatments: any[] }> = [];
       Object.keys(summaryRecords).forEach(dateKey => {
         const date = new Date(dateKey);
         const dayRecords = summaryRecords[dateKey] || [];
         dayRecords.forEach((record: any) => {
-          if (record.type === 'workout' && record.data?.workoutType) {
-            workoutRecords.push({
+          if (record.type === 'hormone-replacement-therapy' && record.data?.treatments) {
+            hrRecordsWithDetails.push({
               date,
-              type: record.data.workoutType,
-              duration: record.data.duration || 0
+              treatments: record.data.treatments
             });
-          } else if (record.type === 'mental-health' && record.data?.mood) {
+          }
+        });
+      });
+      hrRecordsWithDetails.sort((a, b) => b.date.getTime() - a.date.getTime());
+
+      let hrSummary: any = {
+        currentTreatments: [],
+        firstTreatmentDate: null,
+        daysOnTreatment: null,
+        totalTreatments: hrRecordsWithDetails.length
+      };
+
+      if (hrRecordsWithDetails.length > 0) {
+        // Get current (most recent) treatments
+        hrSummary.currentTreatments = hrRecordsWithDetails[0].treatments;
+        
+        // Get first treatment date
+        const firstRecord = hrRecordsWithDetails[hrRecordsWithDetails.length - 1];
+        hrSummary.firstTreatmentDate = firstRecord.date;
+        
+        // Calculate days on treatment
+        const daysSince = Math.floor((today.getTime() - firstRecord.date.getTime()) / (1000 * 60 * 60 * 24));
+        hrSummary.daysOnTreatment = daysSince;
+      }
+
+      // Calculate HSV summary (only count actual outbreaks where hadBreakout is true)
+      const hsvOutbreaks: Date[] = [];
+      Object.keys(summaryRecords).forEach(dateKey => {
+        const date = new Date(dateKey);
+        const dayRecords = summaryRecords[dateKey] || [];
+        dayRecords.forEach((record: any) => {
+          if (record.type === 'hsv' && record.data?.hadBreakout === true) {
+            hsvOutbreaks.push(date);
+          }
+        });
+      });
+      hsvOutbreaks.sort((a, b) => b.getTime() - a.getTime());
+
+      let hsvSummary: any = {
+        lastOutbreakDate: hsvOutbreaks.length > 0 ? hsvOutbreaks[0] : null,
+        totalOutbreaks: hsvOutbreaks.length,
+        outbreakFrequency: null,
+        averageDaysBetweenOutbreaks: null
+      };
+
+      if (hsvOutbreaks.length > 1) {
+        // Calculate average days between outbreaks
+        let totalDays = 0;
+        for (let i = 0; i < hsvOutbreaks.length - 1; i++) {
+          const daysBetween = Math.floor((hsvOutbreaks[i].getTime() - hsvOutbreaks[i + 1].getTime()) / (1000 * 60 * 60 * 24));
+          totalDays += daysBetween;
+        }
+        hsvSummary.averageDaysBetweenOutbreaks = Math.round(totalDays / (hsvOutbreaks.length - 1));
+        
+        // Calculate frequency (outbreaks per year)
+        const firstOutbreak = hsvOutbreaks[hsvOutbreaks.length - 1];
+        const daysSinceFirst = Math.floor((today.getTime() - firstOutbreak.getTime()) / (1000 * 60 * 60 * 24));
+        if (daysSinceFirst > 0) {
+          const yearsTracked = daysSinceFirst / 365.25;
+          hsvSummary.outbreakFrequency = Math.round((hsvOutbreaks.length / yearsTracked) * 10) / 10;
+        }
+      }
+
+      // Calculate Mental Health summary
+      const mentalHealthRecords: Array<{ date: Date; mood: string }> = [];
+      Object.keys(summaryRecords).forEach(dateKey => {
+        const date = new Date(dateKey);
+        const dayRecords = summaryRecords[dateKey] || [];
+        dayRecords.forEach((record: any) => {
+          if (record.type === 'mental-health' && record.data?.mood) {
             mentalHealthRecords.push({
               date,
               mood: record.data.mood
             });
-          } else if (record.type === 'hsv' && record.data?.hadBreakout) {
-            hsvBreakouts.push(date);
-          } else if (record.type === 'hormone-replacement-therapy') {
-            hrTreatments.push(date);
           }
         });
       });
 
-      workoutRecords.sort((a, b) => b.date.getTime() - a.date.getTime());
-      mentalHealthRecords.sort((a, b) => b.date.getTime() - a.date.getTime());
-      hsvBreakouts.sort((a, b) => b.getTime() - a.getTime());
-      hrTreatments.sort((a, b) => b.getTime() - a.getTime());
-
-      const workoutSummary = {
-        totalWorkouts: workoutRecords.length,
-        lastWorkoutDate: workoutRecords.length > 0 ? workoutRecords[0].date : null,
-        totalDuration: workoutRecords.reduce((sum, w) => sum + (w.duration || 0), 0),
-        mostCommonType: workoutRecords.length > 0
-          ? workoutRecords.reduce((acc, w) => {
-              acc[w.type] = (acc[w.type] || 0) + 1;
-              return acc;
-            }, {} as Record<string, number>)
-          : null
-      };
-
       const mentalHealthSummary = {
         totalRecords: mentalHealthRecords.length,
-        lastRecordDate: mentalHealthRecords.length > 0 ? mentalHealthRecords[0].date : null,
         mostCommonMood: mentalHealthRecords.length > 0
           ? Object.entries(
               mentalHealthRecords.reduce((acc, m) => {
@@ -999,17 +1049,60 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
           : null
       };
 
-      const hsvSummary = {
-        lastBreakoutDate: hsvBreakouts.length > 0 ? hsvBreakouts[0] : null,
-        totalBreakouts: hsvBreakouts.length,
-        lastTreatmentDate: null // Would need to check treatment records
+      // Calculate Workout summary with streak
+      const workoutRecords: Array<{ date: Date; type: string; duration: number }> = [];
+      Object.keys(summaryRecords).forEach(dateKey => {
+        const date = new Date(dateKey);
+        const dayRecords = summaryRecords[dateKey] || [];
+        dayRecords.forEach((record: any) => {
+          if (record.type === 'workout' && record.data?.workoutType) {
+            workoutRecords.push({
+              date,
+              type: record.data.workoutType,
+              duration: record.data.duration || 0
+            });
+          }
+        });
+      });
+      workoutRecords.sort((a, b) => b.date.getTime() - a.date.getTime());
+
+      let workoutSummary: any = {
+        currentStreak: 0,
+        lastWorkoutDate: null,
+        lastWorkoutType: null,
+        lastWorkoutDuration: null,
+        totalWorkouts: workoutRecords.length
       };
 
-      const hrSummary = {
-        currentTreatments: [],
-        lastTreatmentDate: hrTreatments.length > 0 ? hrTreatments[0] : null,
-        totalTreatments: hrTreatments.length
-      };
+      if (workoutRecords.length > 0) {
+        workoutSummary.lastWorkoutDate = workoutRecords[0].date;
+        workoutSummary.lastWorkoutType = workoutRecords[0].type;
+        workoutSummary.lastWorkoutDuration = workoutRecords[0].duration;
+
+        // Calculate current streak (consecutive days with workouts)
+        const uniqueDates = [...new Set(workoutRecords.map(w => w.date.toDateString()))];
+        const sortedUniqueDates = uniqueDates
+          .map(d => new Date(d))
+          .sort((a, b) => b.getTime() - a.getTime());
+
+        let streak = 0;
+        let checkDate = new Date(today);
+        
+        for (const workoutDate of sortedUniqueDates) {
+          workoutDate.setHours(0, 0, 0, 0);
+          checkDate.setHours(0, 0, 0, 0);
+          
+          const daysDiff = Math.floor((checkDate.getTime() - workoutDate.getTime()) / (1000 * 60 * 60 * 24));
+          
+          if (daysDiff === streak) {
+            streak++;
+          } else if (daysDiff > streak) {
+            break;
+          }
+        }
+        
+        workoutSummary.currentStreak = streak;
+      }
 
       setSummaryData({
         period: periodSummary,
@@ -1023,12 +1116,7 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
     // Build summary display data
     const buildSummaryDisplay = () => {
       if (!summaryData) {
-        // Return empty structure for each label type
-        return chipLabels.map(label => ({
-          id: label.id,
-          label: label.label,
-          data: [{ label: 'No records yet', value: 'Start adding records to see your summary' }]
-        }));
+        return [];
       }
 
       const today = new Date();
@@ -1036,64 +1124,65 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
 
       const formatDate = (date: Date | null): string => {
         if (!date) return 'N/A';
-        return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
       };
 
-      const daysAgo = (date: Date | null): number => {
-        if (!date) return -1;
-        const diff = today.getTime() - date.getTime();
-        return Math.floor(diff / (1000 * 60 * 60 * 24));
+      const formatDateRange = (startDate: Date | null, endDate: Date | null): string => {
+        if (!startDate || !endDate) return 'N/A';
+        return `${formatDate(startDate)} - ${formatDate(endDate)}`;
       };
 
-      const formatDaysAgo = (days: number): string => {
-        if (days < 0) return '';
-        if (days === 0) return ' (today)';
-        if (days === 1) return ' (1 day ago)';
-        return ` (${days} days ago)`;
-      };
-
-      const formatDaysInFuture = (days: number): string => {
-        if (days < 0) return '';
-        if (days === 0) return ' (today)';
-        if (days === 1) return ' (in 1 day)';
-        return ` (in ${days} days)`;
-      };
-
-      const summaries: Array<{ id: string; label: string; data: Array<{ label: string; value: string }> }> = [];
+      const summaries: Array<{ 
+        id: string; 
+        label: string; 
+        data: Array<{ label: string; value: string; isExpandable?: boolean; expandedContent?: any }> 
+      }> = [];
 
       // Period summary
       if (chipLabels.find(l => l.id === 'period')) {
         const period = summaryData.period;
-        const periodData: Array<{ label: string; value: string }> = [];
+        const periodData: Array<{ label: string; value: string; isExpandable?: boolean; expandedContent?: any }> = [];
         
-        if (period && period.lastPeriodEndDate) {
-          const endDate = new Date(period.lastPeriodEndDate);
-          const days = daysAgo(endDate);
+        // Last period info
+        if (period && period.lastPeriodStartDate && period.lastPeriodEndDate) {
           periodData.push({
-            label: 'Last Period End Date',
-            value: `${formatDate(endDate)}${formatDaysAgo(days)}`
+            label: 'Last Period',
+            value: formatDateRange(period.lastPeriodStartDate, period.lastPeriodEndDate)
+          });
+          
+          const durationStr = period.cycleDuration ? `${period.cycleDuration} Days Duration` : 'N/A';
+          const cycleLengthStr = period.cycleLength ? `${period.cycleLength} Days Cycle Length` : 'N/A';
+          periodData.push({
+            label: '',
+            value: `${durationStr} | ${cycleLengthStr}`
           });
         } else {
-          periodData.push({ label: 'Last Period End Date', value: 'No records' });
-        }
-
-        if (period && period.cycleDuration !== null && period.cycleDuration !== undefined) {
           periodData.push({
-            label: 'Cycle Duration',
-            value: `${period.cycleDuration} days`
+            label: 'Last Period',
+            value: 'No records'
+          });
+          periodData.push({
+            label: '',
+            value: 'N/A | N/A'
           });
         }
 
-        if (period && period.nextPredictedPeriodStart) {
-          const predDate = new Date(period.nextPredictedPeriodStart);
-          const days = daysAgo(predDate);
+        // Add expandable section for all previous periods
+        if (period && period.allPeriods && period.allPeriods.length > 1) {
           periodData.push({
-            label: 'Next Predicted Period Start',
-            value: `${formatDate(predDate)}${formatDaysInFuture(-days)}`
+            label: 'Previous Periods',
+            value: `${period.allPeriods.length - 1} earlier period${period.allPeriods.length - 1 !== 1 ? 's' : ''}`,
+            isExpandable: true,
+            expandedContent: period.allPeriods.slice(1) // Skip the first (most recent) period
+          });
+        } else {
+          periodData.push({
+            label: 'Previous Periods',
+            value: 'No previous periods'
           });
         }
 
-        summaries.push({ id: 'period', label: 'Period', data: periodData.length > 0 ? periodData : [{ label: 'No records yet', value: 'Start adding period records' }] });
+        summaries.push({ id: 'period', label: 'Period', data: periodData });
       }
 
       // Hormone Replacement Therapy
@@ -1101,17 +1190,57 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
         const hr = summaryData['hormone-replacement-therapy'];
         const hrData: Array<{ label: string; value: string }> = [];
         
-        if (hr && hr.lastTreatmentDate) {
-          const date = new Date(hr.lastTreatmentDate);
-          const days = daysAgo(date);
+        // Current treatment drug and dosage
+        if (hr && hr.currentTreatments && hr.currentTreatments.length > 0) {
+          hr.currentTreatments.forEach((treatment: any, index: number) => {
+            const drugName = treatment.drugName || 'N/A';
+            hrData.push({
+              label: index === 0 ? 'Current Treatment' : '',
+              value: drugName
+            });
+            
+            const dosage = treatment.dose && treatment.doseUnit 
+              ? `${treatment.dose} ${treatment.doseUnit}${treatment.frequency && treatment.frequencyUnit ? `, ${treatment.frequency}x ${treatment.frequencyUnit}` : ''}`
+              : 'N/A';
+            hrData.push({
+              label: 'Dosage',
+              value: dosage
+            });
+          });
+        } else {
           hrData.push({
-            label: 'Last Treatment Date',
-            value: `${formatDate(date)}${formatDaysAgo(days)}`
+            label: 'Current Treatment',
+            value: 'No records'
+          });
+          hrData.push({
+            label: 'Dosage',
+            value: 'N/A'
           });
         }
-        hrData.push({ label: 'Total Treatments', value: (hr && hr.totalTreatments) ? hr.totalTreatments.toString() : '0' });
         
-        summaries.push({ id: 'hormone-replacement-therapy', label: 'Hormone Replacement Therapy', data: hrData.length > 0 ? hrData : [{ label: 'No records yet', value: 'Start adding HRT records' }] });
+        // How long been on
+        if (hr && hr.daysOnTreatment !== null) {
+          const years = Math.floor(hr.daysOnTreatment / 365);
+          const months = Math.floor((hr.daysOnTreatment % 365) / 30);
+          const days = hr.daysOnTreatment % 30;
+          
+          let timeStr = '';
+          if (years > 0) timeStr += `${years} year${years !== 1 ? 's' : ''} `;
+          if (months > 0) timeStr += `${months} month${months !== 1 ? 's' : ''} `;
+          if (days > 0 || timeStr === '') timeStr += `${days} day${days !== 1 ? 's' : ''}`;
+          
+          hrData.push({
+            label: 'How Long Been On',
+            value: timeStr.trim()
+          });
+        } else {
+          hrData.push({
+            label: 'How Long Been On',
+            value: 'N/A'
+          });
+        }
+        
+        summaries.push({ id: 'hormone-replacement-therapy', label: 'Hormone Replacement Therapy', data: hrData });
       }
 
       // HSV
@@ -1119,17 +1248,38 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
         const hsv = summaryData.hsv;
         const hsvData: Array<{ label: string; value: string }> = [];
         
-        if (hsv && hsv.lastBreakoutDate) {
-          const date = new Date(hsv.lastBreakoutDate);
-          const days = daysAgo(date);
+        // Last outbreak
+        if (hsv && hsv.lastOutbreakDate) {
           hsvData.push({
-            label: 'Last Breakout Date',
-            value: `${formatDate(date)}${formatDaysAgo(days)}`
+            label: 'Last Outbreak',
+            value: formatDate(hsv.lastOutbreakDate)
+          });
+        } else {
+          hsvData.push({
+            label: 'Last Outbreak',
+            value: 'No outbreaks recorded'
           });
         }
-        hsvData.push({ label: 'Total Breakouts', value: (hsv && hsv.totalBreakouts) ? hsv.totalBreakouts.toString() : '0' });
         
-        summaries.push({ id: 'hsv', label: 'HSV', data: hsvData.length > 0 ? hsvData : [{ label: 'No records yet', value: 'Start adding HSV records' }] });
+        // Outbreak frequency
+        if (hsv && hsv.outbreakFrequency !== null) {
+          hsvData.push({
+            label: 'Outbreak Frequency',
+            value: `${hsv.outbreakFrequency} per year (avg ${hsv.averageDaysBetweenOutbreaks} days between)`
+          });
+        } else if (hsv && hsv.totalOutbreaks > 0) {
+          hsvData.push({
+            label: 'Outbreak Frequency',
+            value: `${hsv.totalOutbreaks} outbreak${hsv.totalOutbreaks !== 1 ? 's' : ''} tracked`
+          });
+        } else {
+          hsvData.push({
+            label: 'Outbreak Frequency',
+            value: 'N/A'
+          });
+        }
+        
+        summaries.push({ id: 'hsv', label: 'HSV', data: hsvData });
       }
 
       // Mental Health
@@ -1137,17 +1287,13 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
         const mh = summaryData['mental-health'];
         const mhData: Array<{ label: string; value: string }> = [];
         
-        mhData.push({ label: 'Total Records', value: (mh && mh.totalRecords) ? mh.totalRecords.toString() : '0' });
+        // Number of entries
+        mhData.push({ 
+          label: 'Number of Entries', 
+          value: mh && mh.totalRecords ? mh.totalRecords.toString() : '0' 
+        });
         
-        if (mh && mh.lastRecordDate) {
-          const date = new Date(mh.lastRecordDate);
-          const days = daysAgo(date);
-          mhData.push({
-            label: 'Last Record Date',
-            value: `${formatDate(date)}${formatDaysAgo(days)}`
-          });
-        }
-        
+        // Most frequent mood
         if (mh && mh.mostCommonMood) {
           const moodLabels: Record<string, string> = {
             'light': 'Energized',
@@ -1158,12 +1304,17 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
             'angry': 'Angry'
           };
           mhData.push({
-            label: 'Most Common Mood',
+            label: 'Most Frequent',
             value: moodLabels[mh.mostCommonMood] || mh.mostCommonMood
+          });
+        } else {
+          mhData.push({
+            label: 'Most Frequent',
+            value: 'N/A'
           });
         }
         
-        summaries.push({ id: 'mental-health', label: 'Mental Health', data: mhData.length > 0 ? mhData : [{ label: 'No records yet', value: 'Start adding mental health records' }] });
+        summaries.push({ id: 'mental-health', label: 'Mental Health', data: mhData });
       }
 
       // Workout
@@ -1171,28 +1322,28 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
         const wo = summaryData.workout;
         const woData: Array<{ label: string; value: string }> = [];
         
-        woData.push({ label: 'Total Workouts', value: (wo && wo.totalWorkouts) ? wo.totalWorkouts.toString() : '0' });
+        // Days streak
+        woData.push({ 
+          label: 'Days Streak', 
+          value: wo && wo.currentStreak ? wo.currentStreak.toString() : '0' 
+        });
         
+        // Last workout details
         if (wo && wo.lastWorkoutDate) {
-          const date = new Date(wo.lastWorkoutDate);
-          const days = daysAgo(date);
+          const workoutType = wo.lastWorkoutType || 'Unknown';
+          const duration = wo.lastWorkoutDuration ? `${wo.lastWorkoutDuration} min` : 'N/A';
           woData.push({
-            label: 'Last Workout Date',
-            value: `${formatDate(date)}${formatDaysAgo(days)}`
+            label: 'Last Workout',
+            value: `${formatDate(wo.lastWorkoutDate)}, ${workoutType}, ${duration}`
+          });
+        } else {
+          woData.push({
+            label: 'Last Workout',
+            value: 'No workouts recorded'
           });
         }
         
-        if (wo && wo.mostCommonType && typeof wo.mostCommonType === 'object') {
-          const mostCommon = Object.entries(wo.mostCommonType as Record<string, number>).sort((a, b) => b[1] - a[1])[0];
-          if (mostCommon) {
-            woData.push({
-              label: 'Most Common Type',
-              value: mostCommon[0]
-            });
-          }
-        }
-        
-        summaries.push({ id: 'workout', label: 'Workout', data: woData.length > 0 ? woData : [{ label: 'No records yet', value: 'Start adding workout records' }] });
+        summaries.push({ id: 'workout', label: 'Workout', data: woData });
       }
 
       return summaries;
@@ -1215,6 +1366,18 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
         'workout': (tokens as any)['marigold'] || '#B3B3B3',
       };
       return defaultColors[labelId] || '#B3B3B3';
+    };
+
+    const toggleExpanded = (sectionKey: string) => {
+      setExpandedSections(prev => ({
+        ...prev,
+        [sectionKey]: !prev[sectionKey]
+      }));
+    };
+
+    const formatDateForPrevious = (date: Date | null): string => {
+      if (!date) return 'N/A';
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     };
     
     return (
@@ -1244,12 +1407,47 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
                 </div>
                 <div className="summary-section-content">
                   {type.data.length > 0 ? (
-                    type.data.map((item, index) => (
-                      <div key={index} className="summary-data-item">
-                        <span className="summary-data-label">{item.label}</span>
-                        <span className="summary-data-value">{item.value}</span>
-                      </div>
-                    ))
+                    type.data.map((item, index) => {
+                      const isExpandable = item.isExpandable && item.expandedContent;
+                      const expandKey = `${type.id}-${index}`;
+                      const isExpanded = expandedSections[expandKey];
+                      
+                      return (
+                        <div key={index}>
+                          <div 
+                            className={`summary-data-item${isExpandable ? ' summary-data-item-expandable' : ''}`}
+                            onClick={isExpandable ? () => toggleExpanded(expandKey) : undefined}
+                            style={isExpandable ? { cursor: 'pointer' } : undefined}
+                          >
+                            <span className="summary-data-label">{item.label}</span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <span className="summary-data-value">{item.value}</span>
+                              {isExpandable && (
+                                <span style={{ fontSize: '0.875rem', color: 'var(--gray-600)' }}>
+                                  {isExpanded ? '▼' : '▶'}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          {isExpandable && isExpanded && item.expandedContent && (
+                            <div className="summary-expanded-content">
+                              {item.expandedContent.map((periodItem: any, periodIndex: number) => (
+                                <div key={periodIndex} className="summary-expanded-item">
+                                  <div className="summary-data-item" style={{ paddingLeft: '16px', borderBottom: periodIndex === item.expandedContent.length - 1 ? 'none' : undefined }}>
+                                    <span className="summary-data-label">
+                                      {formatDateForPrevious(periodItem.start)} - {formatDateForPrevious(periodItem.end)}
+                                    </span>
+                                    <span className="summary-data-value">
+                                      {periodItem.duration} Days Duration | {periodItem.cycleLength || 'N/A'} Days Cycle Length
+                                    </span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })
                   ) : (
                     <div className="summary-data-item">
                       <span className="summary-data-label">No data available</span>
