@@ -1277,58 +1277,6 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
         summaries.push({ id: 'hormone-replacement-therapy', label: 'Hormone Replacement Therapy', data: hrData });
       }
 
-      // HSV
-      if (chipLabels.find(l => l.id === 'hsv')) {
-        const hsv = summaryData.hsv;
-        const hsvData: Array<{ label: string; value: string }> = [];
-        
-        // Last outbreak
-        if (hsv && hsv.lastOutbreakDate) {
-          hsvData.push({
-            label: 'Last Outbreak',
-            value: formatDate(hsv.lastOutbreakDate)
-          });
-        } else {
-          hsvData.push({
-            label: 'Last Outbreak',
-            value: 'No outbreaks recorded'
-          });
-        }
-        
-        // Outbreak frequency
-        if (hsv && hsv.outbreakFrequency !== null) {
-          hsvData.push({
-            label: 'Outbreak Frequency',
-            value: `${hsv.outbreakFrequency} per year`
-          });
-        } else if (hsv && hsv.totalOutbreaks > 0) {
-          hsvData.push({
-            label: 'Outbreak Frequency',
-            value: `${hsv.totalOutbreaks} outbreak${hsv.totalOutbreaks !== 1 ? 's' : ''} tracked`
-          });
-        } else {
-          hsvData.push({
-            label: 'Outbreak Frequency',
-            value: 'N/A'
-          });
-        }
-        
-        // Average days between outbreaks
-        if (hsv && hsv.averageDaysBetweenOutbreaks !== null) {
-          hsvData.push({
-            label: 'Average Days Between',
-            value: `${hsv.averageDaysBetweenOutbreaks} days`
-          });
-        } else {
-          hsvData.push({
-            label: 'Average Days Between',
-            value: 'N/A'
-          });
-        }
-        
-        summaries.push({ id: 'hsv', label: 'HSV', data: hsvData });
-      }
-
       // Mental Health
       if (chipLabels.find(l => l.id === 'mental-health')) {
         const mh = summaryData['mental-health'];
@@ -1391,6 +1339,58 @@ export function CalendarView({ isSheetOpen: _isSheetOpen, selectedDate: _selecte
         }
         
         summaries.push({ id: 'workout', label: 'Workout', data: woData });
+      }
+
+      // HSV
+      if (chipLabels.find(l => l.id === 'hsv')) {
+        const hsv = summaryData.hsv;
+        const hsvData: Array<{ label: string; value: string }> = [];
+        
+        // Last outbreak
+        if (hsv && hsv.lastOutbreakDate) {
+          hsvData.push({
+            label: 'Last Outbreak',
+            value: formatDate(hsv.lastOutbreakDate)
+          });
+        } else {
+          hsvData.push({
+            label: 'Last Outbreak',
+            value: 'No outbreaks recorded'
+          });
+        }
+        
+        // Outbreak frequency
+        if (hsv && hsv.outbreakFrequency !== null) {
+          hsvData.push({
+            label: 'Outbreak Frequency',
+            value: `${hsv.outbreakFrequency} per year`
+          });
+        } else if (hsv && hsv.totalOutbreaks > 0) {
+          hsvData.push({
+            label: 'Outbreak Frequency',
+            value: `${hsv.totalOutbreaks} outbreak${hsv.totalOutbreaks !== 1 ? 's' : ''} tracked`
+          });
+        } else {
+          hsvData.push({
+            label: 'Outbreak Frequency',
+            value: 'N/A'
+          });
+        }
+        
+        // Average days between outbreaks
+        if (hsv && hsv.averageDaysBetweenOutbreaks !== null) {
+          hsvData.push({
+            label: 'Average Days Between',
+            value: `${hsv.averageDaysBetweenOutbreaks} days`
+          });
+        } else {
+          hsvData.push({
+            label: 'Average Days Between',
+            value: 'N/A'
+          });
+        }
+        
+        summaries.push({ id: 'hsv', label: 'HSV', data: hsvData });
       }
 
       return summaries;

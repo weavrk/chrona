@@ -1,24 +1,4 @@
 {
-  "2026-01-27": [
-    {
-      "id": "20260127-bm1gou",
-      "type": "hsv",
-      "data": {
-        "hadBreakout": false,
-        "warningSign": true,
-        "treatments": [
-          {
-            "drugName": "Valacyclovir",
-            "dose": 1,
-            "doseUnit": "pill",
-            "frequency": 3,
-            "frequencyUnit": "daily"
-          }
-        ],
-        "repeatForward": false
-      }
-    }
-  ],
   "2026-01-26": [
     {
       "id": "20260127-kmxbh5",
